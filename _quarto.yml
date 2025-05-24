@@ -10,7 +10,7 @@ website:
     align: center
     tools:
       - icon: github
-        href: https://github.com/jamon-R/sisglmlss
+        href: https://github.com/jamon-R/cfpu-ds-da
         text: "GitHub repo to this website"
 
     style: docked
