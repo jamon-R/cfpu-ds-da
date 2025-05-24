@@ -1,0 +1,33 @@
+---
+title: "Datasets"
+---
+
+The following table contains an overview of the datasets used in slides and exercises as well as the source of each data set. You can download the corresponding dataset by clicking on the provided link:
+
+| Name | Source | Direct link |
+|------------------------|------------------------|------------------------|
+| `Adult Income` | [UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/2/adult) |  |
+| `Advertising` | [ISLR book](https://www.statlearning.com/) |  |
+| `calificaciones` | [Introduction to Data Science book](https://rafalab.dfci.harvard.edu/dsbook-part-1/) |  |
+| `click` | [Kaggle](https://www.kaggle.com/datasets/ahmedyoussefelhewag/user-interaction-ad-click-behavior-on-a-website) |  |
+| `credit` | [ISLR book](https://www.statlearning.com/) |  |
+| `datasets` | [readxl](https://cran.r-project.org/web/packages/readxl/index.html) |  |
+| `fertility` | [Introduction to Data Science book](https://rafalab.dfci.harvard.edu/dsbook-part-1/) |  |
+| `gm_cm` | [Gapminder](https://www.gapminder.org/data/documentation/gd005/) |  |
+| `gm_gdp` | [Gapminder](https://www.gapminder.org/data/documentation/gd001/) |  |
+| `gm_geo` | [Gapminder](https://www.gapminder.org/data/geo/) |  |
+| `gm_lex` | [Gapminder](http://gapm.io/dlex) |  |
+| `gm_pop` | [Gapminder](https://www.gapminder.org/data/documentation/gd003/) |  |
+| `gm_tfr` | [Gapminder](https://www.gapminder.org/data/documentation/gd008/) |  |
+| `google_search_ds` | [Google Trends](https://trends.google.com/trends?geo=AT&hl=de) |  |
+| `mall_customers` | [Kaggle](https://www.kaggle.com/datasets/vjchoudhary7/customer-segmentation-tutorial-in-python/data) |  |
+| `mtcars` | [R](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/mtcars.html) |  |
+| `native` | Own creation |  |
+| `nyc13_airlines` | [nycflights13](https://cran.r-project.org/web/packages/nycflights13/index.html) |  |
+| `nyc13_airports` | [nycflights13](https://cran.r-project.org/web/packages/nycflights13/index.html) |  |
+| `nyc13_flights` | [nycflights13](https://cran.r-project.org/web/packages/nycflights13/index.html) |  |
+| `nyc13_planes` | [nycflights13](https://cran.r-project.org/web/packages/nycflights13/index.html) |  |
+| `nyc13_weather` | [nycflights13](https://cran.r-project.org/web/packages/nycflights13/index.html) |  |
+| `seeds_dataset` | [UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/236/seeds) |  |
+| `winequality-red` | [UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/186/wine+quality) |  |
+| `winequality-white` | [UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/186/wine+quality) |  |

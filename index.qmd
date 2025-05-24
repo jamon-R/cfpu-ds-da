@@ -2,4 +2,43 @@
 title: "Data Science and Data Analytics"
 ---
 
-General blurb
+Welcome to the course **Data Science and Data Analytics** in the summer semester 2025! This website contains all the lecture materials, i.e. the slides, exercises and the solutions to the exercises.
+
+In this course, we will cover the following topics:
+
++------------+----------------------------------------------------------------+------------------------------------------------------------------------+----------------------------------------------+
+| Date(s)    | Topic                                                          | Slides                                                                 | Exercises                                    |
++============+================================================================+========================================================================+==============================================+
+| 14th March | Getting Started                                                | [Getting started](getting-started.qmd)                                 |                                              |
+|            |                                                                |                                                                        |                                              |
+|            | Introduction to Data Science                                   | [Introduction to Data Science](introduction-to-ds.qmd)                 |                                              |
++------------+----------------------------------------------------------------+------------------------------------------------------------------------+----------------------------------------------+
+| 21st March | The Essentials of R Programming                                | [The Essentials of R Programming](the-essentials-of-r-programming.qmd) | [Exercises I](exercises/exercises-i.qmd)     |
++------------+----------------------------------------------------------------+------------------------------------------------------------------------+----------------------------------------------+
+| 31st March | The Data Science Workflow – Part I: Import, Tidy and Transform | [The Data Science Workflow – Part I](the-ds-workflow-i.qmd)            | [Exercises II](exercises/exercises-ii.qmd)   |
++------------+----------------------------------------------------------------+------------------------------------------------------------------------+----------------------------------------------+
+| 4th April  | The Data Science Workflow – Part II: Visualize                 | [The Data Science Workflow – Part II](the-ds-workflow-ii.qmd)          | [Exercises III](exercises/exercises-iii.qmd) |
+|            |                                                                |                                                                        |                                              |
+| 11th April |                                                                |                                                                        |                                              |
++------------+----------------------------------------------------------------+------------------------------------------------------------------------+----------------------------------------------+
+| 30th April | The Data Science Workflow – Part III: Model                    | [The Data Science Workflow – Part III](the-ds-workflow-iii.qmd)        | [Exercises IV](exercises/exercises-iv.qmd)   |
+|            |                                                                |                                                                        |                                              |
+| 6th May    |                                                                |                                                                        |                                              |
+|            |                                                                |                                                                        |                                              |
+| 9th May    |                                                                |                                                                        |                                              |
+|            |                                                                |                                                                        |                                              |
+| 16th May   |                                                                |                                                                        |                                              |
+|            |                                                                |                                                                        |                                              |
+| 23rd May   |                                                                |                                                                        |                                              |
++------------+----------------------------------------------------------------+------------------------------------------------------------------------+----------------------------------------------+
+| 28th May   | The Data Science Workflow – Part IV: Communicate               | [The Data Science Workflow – Part IV](the-ds-workflow-iv.qmd)          |                                              |
++------------+----------------------------------------------------------------+------------------------------------------------------------------------+----------------------------------------------+
+| 6th June   | Q&A Session                                                    |                                                                        |                                              |
++------------+----------------------------------------------------------------+------------------------------------------------------------------------+----------------------------------------------+
+| 13th June  | Final presentations                                            |                                                                        |                                              |
++------------+----------------------------------------------------------------+------------------------------------------------------------------------+----------------------------------------------+
+
+To-Do:
+
+-   Insert GitHub links for data sets.
+-   Link to PDFs for download of slides.

@@ -22,19 +22,41 @@ website:
       - section: "Slides"
         contents:
           - href: getting-started.qmd
-            text: Getting started
+            text: Getting Started
           - href: introduction-to-ds.qmd
-            text: Introduction to data science
+            text: Introduction to Data Science
           - href: the-essentials-of-r-programming.qmd
-            text: The essentials of R programming
+            text: The Essentials of R Programming
           - href: the-ds-workflow-i.qmd
-            text: The data science workflow I
+            text: The Data Science Workflow I
           - href: the-ds-workflow-ii.qmd
-            text: The data science workflow II
+            text: The Data Science Workflow II
           - href: the-ds-workflow-iii.qmd
-            text: The data science workflow III
+            text: The Data Science Workflow III
           - href: the-ds-workflow-iv.qmd
-            text: The data science workflow IV
+            text: The Data Science Workflow IV
+      - section: "Exercises"
+        contents:
+          - href: exercises/exercises-i.qmd
+            text: Exercises I
+          - href: exercises/exercises-ii.qmd
+            text: Exercises II
+          - href: exercises/exercises-iii.qmd
+            text: Exercises III
+          - href: exercises/exercises-iv.qmd
+            text: Exercises IV
+      - section: "Exercise Solutions"
+        contents:
+          - href: exercises/exercise-solutions-i.qmd
+            text: Solutions I
+          - href: exercises/exercise-solutions-ii.qmd
+            text: Solutions II
+          - href: exercises/exercise-solutions-iii.qmd
+            text: Solutions III
+          - href: exercises/exercise-solutions-iv.qmd
+            text: Solutions IV
+      - href: datasets.qmd
+        text: Datasets
       - href: image_sources.qmd
         text: Image Sources
             

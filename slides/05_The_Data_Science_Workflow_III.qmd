@@ -73,7 +73,7 @@ set.seed(42)
 #| warning: false
 
 library(ggplot2)
-advertising <- read.csv("data/advertising.csv")
+advertising <- read.csv("../data/advertising.csv")
 advertising <- advertising[, -c(1, 2, 7)]
 
 ads_long <- reshape(advertising,
@@ -566,7 +566,7 @@ abline(model2, col = 4, lwd = 3)
     -   A `formula` that specifies the model. In simple linear regression, this will take the form of `response ~ predictor`.
 -   So, in our advertising example, we would do the following:
     ```{r}
-    advertising <- read.csv("data/advertising.csv")
+    advertising <- read.csv("../data/advertising.csv")
     advertising <- advertising[, -c(1, 2, 7)]
 
     simple_reg <- lm(sales ~ social_media, data = advertising)
@@ -1304,7 +1304,7 @@ ggplot(knn_cv, aes(x = K, y = test_mse)) +
     -   Other information, such as average annual income of the area where the user resides, city and country.
 
     ```{r}
-    click <- read.csv("data/click.csv")
+    click <- read.csv("../data/click.csv")
     ```
 
 
@@ -2940,7 +2940,7 @@ grid.arrange(p1, p2, p3, ncol = 3)
 -   We use the `mall_customers` data set from [Kaggle](https://www.kaggle.com/datasets/vjchoudhary7/customer-segmentation-tutorial-in-python/data). This data set contains information on 200 customers of a large mall.
 -   Besides information on the age, sex and annual income (in thousand USD) of these customers, the data also contains a **spending score** variable based on customer behaviour and purchasing data:
     ```{r}
-    mall <- read.csv("data/mall_customers.csv")
+    mall <- read.csv("../data/mall_customers.csv")
     names(mall) <- c("customer_id", "sex", "age", "annual_income", "spending_score")
     head(mall)
     ```

@@ -1,0 +1,330 @@
+---
+title: "Exercises I"
+subtitle: "Data Science and Data Analytics"
+author: "Julian Amon, PhD"
+date: "March 21, 2025"
+date-format: long
+format: html
+highlight-style: arrow
+execute: 
+  warning: true
+  echo: false
+  eval: false
+editor_options: 
+  chunk_output_type: console
+---
+
+# The essentials of R programming
+
+```{r}
+#| echo: false
+#| include: false
+#| eval: true
+
+Sys.setlocale("LC_TIME", "en_GB.UTF-8")
+```
+
+
+1.  What is the sum of the first 100 positive integers? The formula for the sum of integers 1 through $n$ is $n(n+1)/2$. Define $n = 100$ and then use R to compute the sum of 1 through 100 using the formula. What is the sum?
+
+    ```{r}
+    n <- 100
+    n*(n+1)/2
+    ```
+
+2.  Now use the same formula to compute the sum of the integers from 1 through 1000.
+
+    ```{r}
+    n <- 1000
+    n*(n+1)/2
+    ```
+
+3.  Choose any positive number and assign it to a variable named `x`. Then perform the following steps all in one line of R code:
+    -   Add 2 to `x`.
+    -   Multiply the result by 3.
+    -   Subtract 6 from the answer.
+    -   Divide what you get by 3.
+    -   Compute the logarithm in base 2 of the number you get in Step 4.
+
+    ```{r}
+    x <- 2
+    log((((x + 2) * 3) - 6)/3, base = 2)
+    ```
+
+4.  Now, write a function called `f` that performs the five steps outlined in exercise 3 for any given input `x`.
+
+    ```{r}
+    f <- function(x) return(log((((x + 2) * 3) - 6)/3, base = 2))
+    f(2)
+    ```
+
+5.  Assign the value 3 to a variable named `x`, the value 4 to a variable named `y` and the value 5 to a variable named `z`. `x`, `y` and `z` form what is a called a [Pythagorean Triple](https://en.wikipedia.org/wiki/Pythagorean_triple), i.e. they are integers that satisfy the Pythagoras Theorem $x^2 + y^2 = z^2$. Verify that this is true with R.
+
+    ```{r}
+    x <- 3
+    y <- 4
+    z <- 5
+    z^2 == x^2 + y^2
+    ```
+
+6.  Simulate 100 flips of a fair coin. Hint: use the function `sample` in conjunction with a character vector indicating the possible outcomes of a coin flip (i.e. "heads" and "tails"). Call the function multiple times to see that the outcome appears random.
+
+    ```{r}
+    sample(c("heads", "tails"), 100, replace = TRUE)
+    ```
+
+7.  What are the data types of the following objects? If in doubt, determine them using `typeof`.
+
+    ```{r}
+    #| echo: true
+    
+    x1 <- 10
+    x2 <- "10"
+    x3 <- (10 > 10)
+    x4 <- "ten"
+    x5 <- 10L
+    ```
+
+    ```{r}
+    typeof(x1)
+    typeof(x2)
+    typeof(x3)
+    typeof(x4)
+    typeof(x5)
+    ```
+
+8.  In the following code block, try to predict the output of each individual line. Then run the code in R to see if you were right.
+
+    ```{r}
+    #| echo: true
+    
+    x <- 5 > 3
+    is.logical(x)
+    is.logical(!x)
+    !is.logical(x)
+    !is.logical(!x)
+    ```
+
+9.  Create a vector called `some_thing` containing your first name, your age and whether or not you like ice cream (TRUE vs. FALSE). Can you predict the data type of the resulting vector? Verify using R.
+
+    ```{r}
+    some_thing <- c("James", 24, TRUE)
+    typeof(some_thing)
+    ```
+
+10. Using the functions `seq` and `rep` as needed, create the vectors
+    
+    `0 0 0 0 0 1 1 1 1 1 2 2 2 2 2 3 3 3 3 3 4 4 4 4 4`
+    
+    and
+    
+    `1 2 3 4 5 1 2 3 4 5 1 2 3 4 5 1 2 3 4 5 1 2 3 4 5`
+    
+    ```{r}
+    rep(seq(0, 4), each = 5)
+    rep(seq(1, 5), 5)
+    ```
+
+11. Using the functions `seq` and `rep` as needed, create the vector
+    
+    `1 2 3 4 5 2 3 4 5 6 3 4 5 6 7 4 5 6 7 8 5 6 7 8 9`
+    
+    ```{r}
+    rep(seq(0, 4), each = 5) + rep(seq(1, 5), 5)
+    ```
+
+12. Write a function which outputs whether a given number is positive or negative.
+
+    ```{r}
+    f <- function(x){
+      if(x < 0){
+        return("negative")
+      } else if(x > 0){
+        return("positive")
+      } else {
+        return("zero")
+      }
+    }
+    f(-4.2)
+    f(2.34)
+    f(0)
+    ```
+
+
+13. Write a function which, for a given natural number $n$, returns a sequence where each $i \leq n$ is repeated $i$ times, in ascending order. For example, for $n = 4$, the function should return `1 2 2 3 3 3 4 4 4 4`.
+
+    ```{r}
+    f <- function(n){
+      return(rep(1:n, 1:n))
+    }
+    f(4)
+    f(8)
+    ```
+
+14. Write a function which outputs which of two given character strings is shorter. Hint: use the function `nchar`.
+
+    ```{r}
+    select_shorter <- function(c1, c2){
+      n1 <- nchar(c1)
+      n2 <- nchar(c2)
+      if(n1 < n2){
+        return(c1)
+      } else if(n1 > n2){
+        return(c2)
+      } else {
+        return("Equal length")
+      }
+    }
+    select_shorter("Hello", "Hi")
+    ```
+
+15. Write a function which takes three numbers as arguments and returns the sum of the squares of the two larger numbers.
+
+    ```{r}
+    f <- function(x, y, z){
+      nums <- c(x, y, z)
+      return(sum(nums[-which.min(nums)]^2))
+    }
+    f(3, 4, 5)
+    ```
+
+16. Write a function that for a given character vector, extracts all those that contain only lower-case letters, i.e. for the input `c("a", "ab, "abC")`, it should return `"a" "ab"`. Hint: use the function `tolower`.
+
+    ```{r}
+    f <- function(x){
+      return(x[tolower(x) == x])
+    }
+    f(c("a", "ab", "abC"))
+    ```
+
+17. Create two vectors, one called `heights` containing the values 176, 178 and 156, and another called `names` containing the values "Anna", "Jakob" and "Lisa". Use `cbind` to combine these vectors into a matrix called `m`. What will be the data type of that matrix and why? Why is a matrix not a good data structure to store `heights` and `names` together? What would be a better alternative?
+
+    ```{r}
+    #| error: true
+    
+    heights <- c(176, 178, 156)
+    names <- c("Anna", "Jakob", "Lisa")
+    m <- cbind(heights, names)
+    m
+    typeof(m)
+    # Character matrix due to coercion. All elements have to be of the same type.
+    # Not a good data structure because we cannot perform numeric operations on
+    # character strings:
+    sum(m[,1])
+    # Use a data.frame instead:
+    df <- data.frame(heights = heights, names = names)
+    sum(df$heights)
+    ```
+
+18. Create three vectors, one called `state` containing the values "Vorarlberg", "Tyrol", "Salzburg", "Upper Austria", "Lower Austria", "Carinthia", "Styria", "Burgenland" and "Vienna", one called `population` containing the values 402, 764, 561, 1505, 1699, 565, 1253, 298 and 1932, and one called `area` containing the values 2602, 12648, 7155, 11983, 19180, 9537, 16399, 3965 and 415. Create a list whose elements are these three vectors. Name the list elements in accordance with the variable names. Turn this list into a `data.frame` called `state_df`.
+
+    ```{r}
+    state <- c("Vorarlberg", "Tyrol", "Salzburg", "Upper Austria", "Lower Austria",
+               "Carinthia", "Styria", "Burgenland", "Vienna")
+    population <- c(402, 764, 561, 1505, 1699, 565, 1253, 298, 1932)
+    area <- c(2602, 12648, 7155, 11983, 19180, 9537, 16399, 3965, 415)
+    state_list <- list(state, population, area)
+    names(state_list) <- c("state", "population", "area")
+    state_df <- data.frame(state_list)
+    state_df
+    ```
+
+19. The `data.frame` from exercise 18 contains the population (in thousands) and the area (in square kilometres) of all nine Austrian federal states. Use it to perform the following tasks:
+    -   Obtain the population of Upper Austria using numerical indexing of the `data.frame`.
+    -   Obtain the area of Carinthia using logical indexing for the row and character-based indexing for the column of the `data.frame`.
+    -   Add a new column called `density` to the `data.frame`, which holds the population densities of the nine states in number of people per square kilometre.
+    -   Use the `$` operator and numerical subsetting to get the population density of Vienna.
+    -   Obtain the row of the `data.frame` that holds all information of the state with the lowest population density.
+    -   Use the `order` function to sort the `data.frame` by population in descending order.
+    -   Set the rownames of the `data.frame` equal to the `state` variable and then remove this variable from the `data.frame`.
+    
+    ```{r}
+    # Population of Upper Austria
+    state_df[4,2]
+    # Area of Carinthia
+    state_df[state_df$state == "Carinthia", "area"]
+    # Add density column
+    state_df$density <- state_df$population*1000/state_df$area
+    # Population density of Vienna:
+    state_df$density[9]
+    # State with lowest population density:
+    state_df[which.min(state_df$density), ]
+    # Sort by population in descending order:
+    state_df <- state_df[order(state_df$population, decreasing = TRUE), ]
+    # Set state as rownames and then remove it:
+    rownames(state_df) <- state_df$state
+    state_df <- state_df[,-1]
+    state_df
+    ```
+
+20. Using `lapply` and the `data.frame` from the previous exercise, find the (unweighted) average population, area and population density of the nine Austrian federal states. Hint: use the function `mean`.
+
+    ```{r}
+    lapply(state_df, mean)
+    ```
+
+21. Write a function called `compute_s_n`, which, for a given $n$ computes the sum $S_n = 1^2 + 2^2 + 3^2 + \ldots + n^2$. Report the value of the sum for $n = 10$.
+
+    ```{r}
+    compute_s_n <- function(n){
+      sum((1:n)^2)
+    }
+    compute_s_n(10)
+    ```
+
+22. Using the function `numeric`, instantiate an empty numeric vector called `s_n` of length 25. Now, using a `for` loop and the function `compute_s_n` from the previous exercise, store in `s_n` the results of $S_1, S_2, \ldots, S_{25}$.
+
+    ```{r}
+    s_n <- numeric(25)
+    for(i in seq_along(s_n)){
+      s_n[i] <- compute_s_n(i)
+    }
+    s_n
+    ```
+
+23. Repeat exercise 22 using a `while` loop instead.
+
+    ```{r}
+    s_n <- numeric(25)
+    i <- 1
+    while(i <= 25){
+      s_n[i] <- compute_s_n(i)
+      i <- i + 1
+    }
+    s_n
+    ```
+
+24. Repeat exercise 22 using `lapply` instead. Hint: to turn the list output of `lapply` into an atomic vector, have a look at the function `unlist`.
+
+    ```{r}
+    unlist(lapply(1:25, compute_s_n))
+    ```
+
+
+
+
+
+20. Write a function called `find_weekday`, which takes as input a character string representing a date in `DD.MM.YYYY` format, and serves as output the weekday that this particular date was. Use it to find out on which day of the week you were born.
+
+    ```{r}
+    find_weekday <- function(datestring){
+      format(as.Date(datestring, "%d.%m.%Y"), "%A")
+    }
+    find_weekday("16.04.1998")
+    ```
+
+
+
+
+
+
+21. Install and load the package `ggplot2`.
+
+    ```{r}
+    #| eval: false
+    
+    install.packages("ggplot2")
+    library(ggplot2)
+    ```
+
+

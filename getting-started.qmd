@@ -1,9 +1,9 @@
 ---
-title: "Getting started"
+title: "Getting Started"
 ---
 
 ```{=html}
 
-<iframe width="1350" height="900" src="slides/00_Getting_started.html" class="slide-deck"></iframe>
+<iframe width="1050" height="700" src="slides/00_Getting_started.html" class="slide-deck"></iframe>
 
 ```

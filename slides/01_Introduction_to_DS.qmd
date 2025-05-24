@@ -81,7 +81,7 @@ Source: [Harvard Business Review](https://hbr.org/2022/07/is-data-scientist-stil
 #| fig-height: 8.5
 
 library(ggplot2)
-google_ds <- read.csv("data/google_search_ds.csv")
+google_ds <- read.csv("../data/google_search_ds.csv")
 google_ds$month <- as.Date(sprintf("%s-01", google_ds$month), format = "%Y-%m-%d")
 ggplot(google_ds, aes(x = month, y = google_search_interest)) + 
   geom_line(color = "#3A5883", size = 1.25) + 

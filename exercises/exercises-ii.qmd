@@ -1,0 +1,316 @@
+---
+title: "Exercises II"
+subtitle: "Data Science and Data Analytics"
+author: "Julian Amon, PhD"
+date: "March 31, 2025"
+date-format: long
+format: html
+highlight-style: arrow
+execute: 
+  warning: true
+  echo: false
+  eval: false
+editor_options: 
+  chunk_output_type: console
+---
+
+# The Data Science Workflow -- Import
+
+```{r}
+#| echo: false
+#| include: false
+#| eval: true
+
+Sys.setlocale("LC_TIME", "en_GB.UTF-8")
+```
+
+
+1.  Open RStudio and run an R command in the console to determine your working directory. Set your working directory to your `Downloads` folder.
+
+    ```{r}
+    #| eval: false
+    
+    getwd()
+    setwd("/home/julian/Downloads")
+    ```
+
+2.  Download the Wine Quality data set from the [UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/186/wine+quality). It contains physicochemical properties of red and white vinho verde wine samples, from the north of Portugal. The data set comprises two `csv` files, one for red and one for white wine samples. Inspect the file with a text editor to determine the correct import function and the arguments to be used. Then read both files into R using the appropriate function call and save the resulting `data.frames` in objects named `white_wines` and `red_wines`, respectively. Inspect the first 10 rows of the two `data.frames` using `head` and verify that the columns have the correct data types.
+
+    ```{r}
+    white_wine_path <- file.path("../data", "winequality-white.csv")
+    red_wine_path <- file.path("../data", "winequality-red.csv")
+    readLines(white_wine_path, 5)
+    readLines(red_wine_path, 5)
+    # The files are semicolon-delimited and use a decimal point.
+    # So we use read.csv2, but have to specify the decimal point:
+    white_wines <- read.csv2(white_wine_path, dec = ".")
+    red_wines <- read.csv2(red_wine_path, dec = ".")
+    head(white_wines)
+    head(red_wines)
+    
+    unlist(lapply(white_wines, typeof))
+    unlist(lapply(red_wines, typeof))
+    ```
+
+3.  The file `native.csv` contains the names and favourite foods of three individuals. Inspect the file using a text editor and read the data into R using the appropriate function. What do you observe? How can you resolve this issue? Implement the necessary adaptations to read in the data without the occurring issue.
+
+    ```{r}
+    native_path <- file.path("../data", "native.csv")
+    native <- read.csv(native_path) # using read.csv as the file is comma-delimited
+    native # Clearly, there is an encoding issue...
+    
+    # Let's try to guess the encoding:
+    library(readr)
+    as.data.frame(guess_encoding(native_path))
+    
+    # Seems to be ISO-8859-1, let's try:
+    native <- read.csv(native_path, fileEncoding = "ISO-8859-1")
+    native # It worked!
+    # Note: The fileEncoding "Windows-1252" would also work.
+    ```
+
+
+4.  The Excel spreadsheet `datasets.xls` contains four worksheets, each with a different data set. Read all four work sheets into a list, such that each list element contains the `data.frame` holding the data of one work sheet. Inspect the `head` of each of the four `data.frames` to verify that the data has been read in correctly. Hint: you could use the `excel_sheets` function of the `readxl` package to identify the names of the four sheets and then read them into R using the appropriate function in a `for` loop.
+
+    ```{r}
+    library(readxl)
+    
+    excel_path <- file.path("../data", "datasets.xls")
+    sheet_names <- excel_sheets(excel_path)
+    excel_dfs <- list()
+    
+    for(sheet in sheet_names){
+      excel_dfs[[sheet]] <- as.data.frame(read_xls(excel_path, sheet = sheet))
+    }
+    lapply(excel_dfs, head, n = 5)
+    ```
+
+
+5.  Search the data documentation of the [Gapminder project](https://www.gapminder.org/data/documentation/) for data on GDP per capita in constant PPP dollars (`PPP$2017` or `PPP$2021`). Gapminder offers all of their data sets in the form of publicly available Google Sheets documents. Open the corresponding Google Sheets document for the GDP per capita data and identify the sheet ID from the URL. Find the worksheet for `regions` (i.e. Africa, Asia, Europe and The Americas) and read the data from that worksheet into R as a `data.frame` with the help of the `googlesheets4` package. Inspect the first couple of rows using `head` and verify that the columns have the correct data types.
+
+    ```{r}
+    # See here for the correct page in the Gapminder documentation:
+    # https://www.gapminder.org/data/documentation/gd001/
+    
+    library(googlesheets4)
+    
+    gs4_deauth()
+    sheet_id_2021 <- "1RuGcXnt6mrhXumhUuRv4-lC4DmPyohznCiJy8paPM7Q"
+    sheet_id_2017 <- "1KcsWpIxQXYER9Ydoo1WWzBzCVEGNtC_vV88gaPw-3w0"
+    gdp_per_cap <- as.data.frame(read_sheet(sheet_id_2021,
+                                            sheet = "data-for-regions-by-year",
+                                            range = "A1:F1205"))
+    head(gdp_per_cap)
+    unlist(lapply(gdp_per_cap, typeof))
+    ```
+
+
+
+# The Data Science Workflow -- Tidy and Transform
+
+1.  The `flights` data set:
+    a. Import the `nyc13_flights.csv` data set and give it the name `flights`.
+    b. Use the code from the lecture to give appropriate names to the columns of `flights` and inspect the first 10 rows of the `data.frame` using `head`.
+    c. Remove all rows from `flights` that have an `NA` in any column (Hint: have a look at the function `na.omit`). How many rows in the `data.frame` are lost as a consequence of this `NA` removal step?
+    d. The departure times are given in a weird format distributed over several columns in the `data.frame`. To make this information usable, create a column called `dep_time_dt`, which contains the actual departure time as a `POSIXct` date-time. Hint: use `paste` to bring together the date information from the three relevant columns. Then use the `%/%` and `%%` operators to extract hour and minute from the `dep_time` column and `paste` it to the date. Finally, use `as.POSIXct` and the correct time zone to turn this string into a date-time.
+    e. Filter the `flights` data set to only include:
+        -   flights operated by United Air Lines or US Airways (carrier codes `UA` and `US`, respectively).
+        -   flights from LaGuardia (LGA) to Fort Lauderdale (FLL).
+        -   flights operated by Delta Air Lines (carrier code `DL`) with a departure delay of more than three hours.
+        -   flights from Newark (EWR) to Chicago (ORD) operated by Envoy Air (carrier code `MQ`) on 1st June 2013.
+        -   flights with an air time of at most half an hour operated by American Airlines (carrier code `AA`).
+        -   flights from LaGuardia (LGA) or JFK to Nashville (BNA) with an air time of more than 2.5 hours.
+        -   flights that departed after 16th May 2013 (careful: be aware of the time zone!).
+    f. Using appropriate functions in R, answer the following questions:
+        -   What is the most frequent destination airport flown to from LaGuardia (LGA)?
+        -   Which carrier has the most departures out of JFK? Which proportion of the total number of departures do they cover there?
+        -   Which flight had the longest air time out of the ones contained in the data set?
+        -   How often is the flight with the shortest distance flown in the time period covered by the data set?
+        -   What is the average departure delay at each of the three NYC origin airports?
+        -   What is the average arrival delay of flights from JFK to Los Angeles (LAX) in each month?
+        -   What is the tail number of the airplane that has covered the most distance over all flights in the data set?
+        -   What is the distance of the longest flight (in terms of distance) offered out of LaGuardia (LGA) for each carrier?
+    g. Import the `nyc13_airports.csv` data set and give it the name `airports`.
+    h. The `airports` data set contains the FAA code, the full name, latitude and longitude and time zone information of 1458 airports in the United States. Using an **inner join**, join the `name`, `lat` and `lon` of the **destination** airport into the `flights` data set (mind the differences in key column name between `flights` and `airports`!). Record the number of rows of the `flights` data set before and after the join. How many rows were lost due to the inner join? How could that have been avoided?
+    i. Rename the new columns in `flights` to `dest_name`, `dest_lat` and `dest_lon`, respectively.
+    j. Import the `nyc13_planes.csv` data set and give it the name `planes`.
+    k. The `planes` data set contains the tail number, manufacturing year, type, manufacturer, model, number and type of engines and average cruising speed of 3322 airplanes in commercial service in the United States. Using a **left join**, join the `manufacturer` and `model` of the plane into the `flights` data set. For how many flights was no plane information found in `planes`?
+    l. Rename the new columns in `flights` to `plane_manufacturer` and `plane_model`, respectively.
+    
+    ```{r}
+    # a.
+    flights <- read.csv("../data/nyc13_flights.csv")
+    
+    # b.
+    names(flights) <- c("year", "month", "day", "dep_time", "sched_dep_time", "dep_delay",
+                    "arr_time", "sched_arr_time", "arr_delay", "carrier", "flight",
+                    "tail_num", "origin", "dest", "air_time", "distance", "time_hour")
+    head(flights, 10)
+    
+    # c.
+    n_before <- nrow(flights)
+    flights <- na.omit(flights)
+    n_after <- nrow(flights)
+    sprintf("%d rows were lost!", n_before - n_after)
+    
+    # d.
+    flights$dep_time_dt <- as.POSIXct(paste(flights$year, flights$month, flights$day,
+                                            flights$dep_time %/% 100,
+                                            flights$dep_time %% 100),
+                                      format = "%Y %m %d %H %M", tz = "America/New_York")
+    head(flights[,c("year", "month", "day", "dep_time", "dep_time_dt")])
+    
+    # e. (results always in included in head(), to avoid too long outputs)
+    head(subset(flights, carrier == "UA" | carrier == "US"))
+    head(subset(flights, origin == "LGA" & dest == "FLL"))
+    head(subset(flights, carrier == "DL" & dep_delay > 180))
+    head(subset(flights,
+                origin == "EWR" & dest == "ORD" & carrier == "MQ" & month == 6 & day == 1))
+    head(subset(flights,
+                air_time <= 30 & carrier == "AA"))
+    head(subset(flights,
+                (origin == "LGA" | origin == "JFK") & flights$dest == "BNA" & air_time > 150))
+    head(subset(flights,
+                dep_time_dt >= as.POSIXct("2013-05-17 00:00:00", tz = "America/New_York")))
+    
+    # f.
+    sort(table(subset(flights, origin == "LGA", dest)),
+         decreasing = TRUE)[1:3] # Answer: ATL (Atlanta)
+    
+    jfk_carriers <- sort(table(subset(flights, origin == "JFK", carrier)),
+                         decreasing = TRUE)
+    prop.table(jfk_carriers) # Answer: B6 (JetBlue Airways), covering 37.8% of departures
+    
+    subset(flights, air_time == max(air_time)) # Answer: EWR - HNL on 17th March 2013.
+    
+    nrow(subset(flights, distance == min(distance))) # Answer: 48 times (EWR - PHL)
+    
+    tapply(flights$dep_delay, flights$origin, mean) # Answer on avg. dep_delays
+    
+    jfk_la <- subset(flights, origin == "JFK" & dest == "LAX", c(month, arr_delay))
+    tapply(jfk_la$arr_delay, jfk_la$month, mean) # Answer on avg. arr_delay (JFK-LAX)
+    
+    plane_dists <- tapply(flights$distance, flights$tail_num, sum)
+    plane_dists[which.max(plane_dists)] # Answer: N327AA
+    
+    lga_flights <- subset(flights, origin == "LGA", c(dest, distance, carrier))
+    tapply(lga_flights$distance, lga_flights$carrier, max) # Answer on max dist out of LGA
+    
+    # g.
+    airports <- read.csv("../data/nyc13_airports.csv")
+    
+    # h.
+    n_before <- nrow(flights)
+    flights <- merge(flights, airports[, c("faa", "name", "lat", "lon")],
+                     by.x = "dest", by.y = "faa", all = FALSE)
+    n_after <- nrow(flights)
+    n_before - n_after
+    # 3855 rows were lost due to the inner join, i.e. for 3855 flights, we did not find
+    # the destination airport in the airports data set. To avoid losing these flights,
+    # we could use a left join instead, which would put NA's for the values of name,
+    # lat and lon of the airports we were not able to find, instead of removing the
+    # corresponding rows altogether.
+    
+    # i.
+    airport_cols <- c("name", "lat", "lon")
+    names(flights)[names(flights) %in% airport_cols] <- paste0("dest_", airport_cols)
+    head(flights[,c("month", "day", "dep_time", "origin", "dest",
+                    "dest_name", "dest_lat", "dest_lon")])
+    
+    # j.
+    planes <- read.csv("../data/nyc13_planes.csv")
+    
+    # k.
+    flights <- merge(flights, planes[, c("tail_num", "manufacturer", "model")],
+                     by = "tail_num", all.x = TRUE)
+    flights <- flights[order(flights$dep_time_dt), ] # Re-order by departure time
+    sprintf("For %d flights, no plane information was found!",
+            sum(is.na(flights$manufacturer)))
+    
+    # l.
+    plane_cols <- c("manufacturer", "model")
+    names(flights)[names(flights) %in% plane_cols] <- paste0("plane_", plane_cols)
+    head(flights[,c("month", "day", "dep_time", "origin", "dest",
+                    "tail_num", "plane_manufacturer", "plane_model")])
+    ```
+
+2.  The `UCI Adult Income` data set:
+    a. Download the `Adult Income` data set from the [UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/2/adult). It contains socio-economic data on individuals from the 1994 US census. When you download the data from the provided link, you will receive a zip archive that contains five files. Import the file `adult.data` into R using `read.table` and give the resulting `data.frame` the name `income`. Hint: the file can be opened with any text editor to inspect the delimiter and the presence of a header.
+    b. Using the information provided under the link above, give appropriate names to the columns of `income`.
+    c. Have a look at the `head` of some individual columns. What do you notice?
+    d. Additionally to the leading spaces, this data set uses a question mark `?` to indicate missing values. Both of these things would require manual work to handle. Fortunately, the `read.table` function has arguments `strip.white` to remove leading and trailing white space and `na.strings` to specify strings that are to be interpreted as `NA`. Use these two arguments to read `adult.data` into R again, redefining the `income` object you just created. Repeat exercise b. to rename the columns appropriately. Now, inspect the columns to verify that the leading spaces are gone and that the question marks have been turned into `NA`s.
+    e. Verify that the variables in the `data.frame` have the correct data types for the data stored in them. Decide which of the included variables should be turned into a `factor` and go ahead with their transformation.
+    f. A detail on factors left out from the lecture is that there are actually two types of them: unordered and ordered. Unordered factors should be used for nominal scales, while ordered factors should be used for ordinal scales. Turn the `income` variable in the data set into an ordered factor (you can use `as.ordered`) and verify that the two levels are in the correct order by inspecting head `head` of that variable.
+    g. The variable `marital_status` uses three different levels to mean "married", namely `Married-AF-spouse`, `Married-civ-spouse` and `Married-spouse-absent`. This distinction is not relevant for us, we want to subsume all of these levels under the category `Married`. To do this, redefine the `factor` for `marital_status` and use the `labels` argument of `factor` function to map all three "married"-levels to the level `Married`. Verify that redefining the factor worked by computing the frequency table for the different marital statuses.
+    h. Using appropriate functions in R, answer the following questions:
+        -   What is the average age of individuals broken down by education level?
+        -   Which proportion of men are married broken down by race? (Hint: you can create two-dimensional contingency tables by passing more than one vector into `table` and compute row or column percentages with `prop.table`.)
+        -   How many hours per week do people with a doctorate work on average? Is that the highest average work load of all education levels?
+        -   Which proportion of people whose native country is the US make more than 50k?
+        -   How many people in the data set are black and have a masters or a doctoral degree?
+    
+    ```{r}
+    # a.
+    income <- read.table("../data/adult.data", sep = ",")
+    
+    # b.
+    names(income) <- c("age", "workclass", "fnlwgt", "educ", "educ_num", "marital_status",
+                       "occup", "relationship", "race", "sex", "cap_gain", "cap_loss",
+                       "hrs_per_week", "native_country", "income")
+    
+    # c.
+    head(income$workclass)
+    head(income$educ)
+    head(income$race)
+    head(income$age)
+    # All data in columns containing categorical data seem to have a leading space " ".
+    
+    # d.
+    income <- read.table("../data/adult.data", sep = ",", strip.white = TRUE, na.strings = "?")
+    names(income) <- c("age", "workclass", "fnlwgt", "educ", "educ_num", "marital_status",
+                       "occup", "relationship", "race", "sex", "cap_gain", "cap_loss",
+                       "hrs_per_week", "native_country", "income")
+    head(income$workclass)
+    head(income$educ)
+    # No more leading white space
+    sapply(income, function(x) sum(x == "?", na.rm = TRUE)) # No more question marks
+    sapply(income, function(x) sum(is.na(x))) # But now, several NA's in some columns
+    
+    # e.
+    sapply(income, typeof)
+    # Factors should be: workclass, educ, marital_status, occup, relationship, race, sex,
+    # native_country and income.
+    income$workclass <- factor(income$workclass)
+    income$educ <- factor(income$educ)
+    income$marital_status <- factor(income$marital_status)
+    income$occup <- factor(income$occup)
+    income$relationship <- factor(income$relationship)
+    income$race <- factor(income$race)
+    income$sex <- factor(income$sex)
+    income$native_country <- factor(income$native_country)
+    income$income <- factor(income$income)
+    
+    # f.
+    income$income <- as.ordered(income$income)
+    head(income$income) # Correct order! Note the "<" sign between the factor levels.
+    
+    # g.
+    income$marital_status <- factor(income$marital_status,
+                                    labels = c("Divorced", "Married", "Married", "Married",
+                                               "Never-married", "Separated", "Widowed"))
+    table(income$marital_status)
+    
+    # h.
+    tapply(income$age, income$educ, mean)
+    
+    prop.table(table(income$marital_status == "Married", income$race), margin = 2)
+    
+    mean(income$hrs_per_week[income$educ == "Doctorate"])
+    sort(tapply(income$hrs_per_week, income$educ, mean), decreasing = TRUE)
+    # No, Professors work even more hours per week on average (47.42 vs. 46.97)
+    
+    prop.table(table(income$income[income$native_country == "United-States"]))
+    
+    nrow(subset(income, race == "Black" & (educ == "Masters" | educ == "Doctorate")))
+    ```
+    

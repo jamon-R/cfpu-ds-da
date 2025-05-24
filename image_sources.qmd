@@ -2,7 +2,7 @@
 title: "Image sources"
 ---
 
-The following table displays the sources of all images used in the slides:
+The following table displays the sources of all images used in the slides. To see the file names of these images, please refer to the corresponding folder in the [GitHub repository](https://github.com/jamon-R/cfpu-ds-da/tree/master/slides/img).
 
 ```{r}
 #| echo: False

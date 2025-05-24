@@ -4,7 +4,7 @@ title: "Introduction to Data Science"
 
 ```{=html}
 
-<iframe width="1350" height="900" src="slides/01_Introduction_to_DS.html" class="slide-deck"></iframe>
+<iframe width="1050" height="700" src="slides/01_Introduction_to_DS.html" class="slide-deck"></iframe>
 
 ```
 
