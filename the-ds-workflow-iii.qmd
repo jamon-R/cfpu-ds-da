@@ -2,6 +2,8 @@
 title: "The Data Science Workflow III"
 ---
 
+Download the PDF version [here](https://github.com/jamon-R/cfpu-ds-da/blob/master/pdfs/05_The_Data_Science_Workflow_III.pdf).
+
 ```{=html}
 
 <iframe width="1050" height="700" src="slides/05_The_Data_Science_Workflow_III.html" class="slide-deck"></iframe>

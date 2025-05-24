@@ -38,7 +38,3 @@ In this course, we will cover the following topics:
 | 13th June  | Final presentations                                            |                                                                        |                                              |
 +------------+----------------------------------------------------------------+------------------------------------------------------------------------+----------------------------------------------+
 
-To-Do:
-
--   Insert GitHub links for data sets.
--   Link to PDFs for download of slides.

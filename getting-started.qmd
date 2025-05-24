@@ -2,6 +2,8 @@
 title: "Getting Started"
 ---
 
+Download the PDF version [here](https://github.com/jamon-R/cfpu-ds-da/blob/master/pdfs/00_Getting_started.pdf).
+
 ```{=html}
 
 <iframe width="1050" height="700" src="slides/00_Getting_started.html" class="slide-deck"></iframe>

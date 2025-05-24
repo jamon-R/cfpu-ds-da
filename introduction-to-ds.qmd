@@ -2,6 +2,8 @@
 title: "Introduction to Data Science"
 ---
 
+Download the PDF version [here](https://github.com/jamon-R/cfpu-ds-da/blob/master/pdfs/01_Introduction_to_DS.pdf).
+
 ```{=html}
 
 <iframe width="1050" height="700" src="slides/01_Introduction_to_DS.html" class="slide-deck"></iframe>

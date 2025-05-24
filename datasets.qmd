@@ -6,28 +6,28 @@ The following table contains an overview of the datasets used in slides and exer
 
 | Name | Source | Direct link |
 |------------------------|------------------------|------------------------|
-| `Adult Income` | [UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/2/adult) |  |
-| `Advertising` | [ISLR book](https://www.statlearning.com/) |  |
-| `calificaciones` | [Introduction to Data Science book](https://rafalab.dfci.harvard.edu/dsbook-part-1/) |  |
-| `click` | [Kaggle](https://www.kaggle.com/datasets/ahmedyoussefelhewag/user-interaction-ad-click-behavior-on-a-website) |  |
-| `credit` | [ISLR book](https://www.statlearning.com/) |  |
-| `datasets` | [readxl](https://cran.r-project.org/web/packages/readxl/index.html) |  |
-| `fertility` | [Introduction to Data Science book](https://rafalab.dfci.harvard.edu/dsbook-part-1/) |  |
-| `gm_cm` | [Gapminder](https://www.gapminder.org/data/documentation/gd005/) |  |
-| `gm_gdp` | [Gapminder](https://www.gapminder.org/data/documentation/gd001/) |  |
-| `gm_geo` | [Gapminder](https://www.gapminder.org/data/geo/) |  |
-| `gm_lex` | [Gapminder](http://gapm.io/dlex) |  |
-| `gm_pop` | [Gapminder](https://www.gapminder.org/data/documentation/gd003/) |  |
-| `gm_tfr` | [Gapminder](https://www.gapminder.org/data/documentation/gd008/) |  |
-| `google_search_ds` | [Google Trends](https://trends.google.com/trends?geo=AT&hl=de) |  |
-| `mall_customers` | [Kaggle](https://www.kaggle.com/datasets/vjchoudhary7/customer-segmentation-tutorial-in-python/data) |  |
-| `mtcars` | [R](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/mtcars.html) |  |
-| `native` | Own creation |  |
-| `nyc13_airlines` | [nycflights13](https://cran.r-project.org/web/packages/nycflights13/index.html) |  |
-| `nyc13_airports` | [nycflights13](https://cran.r-project.org/web/packages/nycflights13/index.html) |  |
-| `nyc13_flights` | [nycflights13](https://cran.r-project.org/web/packages/nycflights13/index.html) |  |
-| `nyc13_planes` | [nycflights13](https://cran.r-project.org/web/packages/nycflights13/index.html) |  |
-| `nyc13_weather` | [nycflights13](https://cran.r-project.org/web/packages/nycflights13/index.html) |  |
-| `seeds_dataset` | [UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/236/seeds) |  |
-| `winequality-red` | [UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/186/wine+quality) |  |
-| `winequality-white` | [UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/186/wine+quality) |  |
+| `Adult Income` | [UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/2/adult) | [Adult Income](https://github.com/jamon-R/cfpu-ds-da/blob/master/data/adult.data) |
+| `Advertising` | [ISLR book](https://www.statlearning.com/) | [Advertising](https://github.com/jamon-R/cfpu-ds-da/blob/master/data/advertising.csv) |
+| `calificaciones` | [Introduction to Data Science book](https://rafalab.dfci.harvard.edu/dsbook-part-1/) | [calificaciones](https://github.com/jamon-R/cfpu-ds-da/blob/master/data/calificaciones.csv) |
+| `click` | [Kaggle](https://www.kaggle.com/datasets/ahmedyoussefelhewag/user-interaction-ad-click-behavior-on-a-website) | [click](https://github.com/jamon-R/cfpu-ds-da/blob/master/data/click.csv) |
+| `credit` | [ISLR book](https://www.statlearning.com/) | [credit](https://github.com/jamon-R/cfpu-ds-da/blob/master/data/credit.csv) |
+| `datasets` | [readxl](https://cran.r-project.org/web/packages/readxl/index.html) | [datasets](https://github.com/jamon-R/cfpu-ds-da/blob/master/data/datasets.xls) |
+| `fertility` | [Introduction to Data Science book](https://rafalab.dfci.harvard.edu/dsbook-part-1/) | [fertility](https://github.com/jamon-R/cfpu-ds-da/blob/master/data/fertility.csv) |
+| `gm_cm` | [Gapminder](https://www.gapminder.org/data/documentation/gd005/) | [gm_cm](https://github.com/jamon-R/cfpu-ds-da/blob/master/data/gm_cm.csv) |
+| `gm_gdp` | [Gapminder](https://www.gapminder.org/data/documentation/gd001/) | [gm_gdp](https://github.com/jamon-R/cfpu-ds-da/blob/master/data/gm_gdp.csv) |
+| `gm_geo` | [Gapminder](https://www.gapminder.org/data/geo/) | [gm_geo](https://github.com/jamon-R/cfpu-ds-da/blob/master/data/gm_geo.csv) |
+| `gm_lex` | [Gapminder](http://gapm.io/dlex) | [gm_lex](https://github.com/jamon-R/cfpu-ds-da/blob/master/data/gm_lex.csv) |
+| `gm_pop` | [Gapminder](https://www.gapminder.org/data/documentation/gd003/) | [gm_pop](https://github.com/jamon-R/cfpu-ds-da/blob/master/data/gm_pop.csv) |
+| `gm_tfr` | [Gapminder](https://www.gapminder.org/data/documentation/gd008/) | [gm_tfr](https://github.com/jamon-R/cfpu-ds-da/blob/master/data/gm_tfr.csv) |
+| `google_search_ds` | [Google Trends](https://trends.google.com/trends?geo=AT&hl=de) | [google_search_ds](https://github.com/jamon-R/cfpu-ds-da/blob/master/data/google_search_ds.csv) |
+| `mall_customers` | [Kaggle](https://www.kaggle.com/datasets/vjchoudhary7/customer-segmentation-tutorial-in-python/data) | [mall_customers](https://github.com/jamon-R/cfpu-ds-da/blob/master/data/mall_customers.csv) |
+| `mtcars` | [R](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/mtcars.html) | [mtcars](https://github.com/jamon-R/cfpu-ds-da/blob/master/data/mtcars.tsv) |
+| `native` | Own creation | [native](https://github.com/jamon-R/cfpu-ds-da/blob/master/data/native.csv) |
+| `nyc13_airlines` | [nycflights13](https://cran.r-project.org/web/packages/nycflights13/index.html) | [nyc13_airlines](https://github.com/jamon-R/cfpu-ds-da/blob/master/data/nyc13_airlines.csv) |
+| `nyc13_airports` | [nycflights13](https://cran.r-project.org/web/packages/nycflights13/index.html) | [nyc13_airports](https://github.com/jamon-R/cfpu-ds-da/blob/master/data/nyc13_airports.csv) |
+| `nyc13_flights` | [nycflights13](https://cran.r-project.org/web/packages/nycflights13/index.html) | [nyc13_flights](https://github.com/jamon-R/cfpu-ds-da/blob/master/data/nyc13_flights.csv) |
+| `nyc13_planes` | [nycflights13](https://cran.r-project.org/web/packages/nycflights13/index.html) | [nyc13_planes](https://github.com/jamon-R/cfpu-ds-da/blob/master/data/nyc13_planes.csv) |
+| `nyc13_weather` | [nycflights13](https://cran.r-project.org/web/packages/nycflights13/index.html) | [nyc13_weather](https://github.com/jamon-R/cfpu-ds-da/blob/master/data/nyc13_weather.csv) |
+| `seeds_dataset` | [UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/236/seeds) | [seeds_dataset](https://github.com/jamon-R/cfpu-ds-da/blob/master/data/seeds_dataset.txt) |
+| `winequality-red` | [UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/186/wine+quality) | [winequality-red](https://github.com/jamon-R/cfpu-ds-da/blob/master/data/winequality-red.csv) |
+| `winequality-white` | [UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/186/wine+quality) | [winequality-white](https://github.com/jamon-R/cfpu-ds-da/blob/master/data/winequality-white.csv) |

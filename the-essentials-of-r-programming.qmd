@@ -2,6 +2,8 @@
 title: "The Essentials of R Programming"
 ---
 
+Download the PDF version [here](https://github.com/jamon-R/cfpu-ds-da/blob/master/pdfs/02_The_Essentials_of_R_Programming.pdf).
+
 ```{=html}
 
 <iframe width="1050" height="700" src="slides/02_The_Essentials_of_R_Programming.html" class="slide-deck"></iframe>
