@@ -1,0 +1,1702 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Julian Amon, PhD">
+<meta name="dcterms.date" content="2025-03-31">
+
+<title>Exercises II – cfpu-ds-da</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-b53751a350365c71b6c909e95f209ed1.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-1f047e49e03d5949a1de66e547831f65.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-9175887dde49e0f376dc4b42db1796c9.min.css" rel="prefetch" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="nav-sidebar docked">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../exercises/exercise-solutions-i.html">Exercise Solutions</a></li><li class="breadcrumb-item"><a href="../exercises/exercise-solutions-ii.html">Solutions II</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-center sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">cfpu-ds-da</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/jamon-R/cfpu-ds-da" title="GitHub repo to this website" class="quarto-navigation-tool px-1" aria-label="GitHub repo to this website"><i class="bi bi-github"></i></a>
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Home</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text">Slides</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../getting-started.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Getting Started</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../introduction-to-ds.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Data Science</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../the-essentials-of-r-programming.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">The Essentials of R Programming</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../the-ds-workflow-i.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">The Data Science Workflow I</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../the-ds-workflow-ii.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">The Data Science Workflow II</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../the-ds-workflow-iii.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">The Data Science Workflow III</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../the-ds-workflow-iv.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">The Data Science Workflow IV</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
+ <span class="menu-text">Exercises</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../exercises/exercises-i.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises I</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../exercises/exercises-ii.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises II</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../exercises/exercises-iii.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises III</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../exercises/exercises-iv.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises IV</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Exercise Solutions</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../exercises/exercise-solutions-i.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Solutions I</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../exercises/exercise-solutions-ii.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Solutions II</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../exercises/exercise-solutions-iii.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Solutions III</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../exercises/exercise-solutions-iv.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Solutions IV</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../datasets.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Datasets</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../image_sources.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Image Sources</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#the-data-science-workflow-import" id="toc-the-data-science-workflow-import" class="nav-link active" data-scroll-target="#the-data-science-workflow-import">The Data Science Workflow – Import</a></li>
+  <li><a href="#the-data-science-workflow-tidy-and-transform" id="toc-the-data-science-workflow-tidy-and-transform" class="nav-link" data-scroll-target="#the-data-science-workflow-tidy-and-transform">The Data Science Workflow – Tidy and Transform</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../exercises/exercise-solutions-i.html">Exercise Solutions</a></li><li class="breadcrumb-item"><a href="../exercises/exercise-solutions-ii.html">Solutions II</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Exercises II</h1>
+<p class="subtitle lead">Data Science and Data Analytics</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Julian Amon, PhD </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">March 31, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="the-data-science-workflow-import" class="level1">
+<h1>The Data Science Workflow – Import</h1>
+<ol type="1">
+<li><p>Open RStudio and run an R command in the console to determine your working directory. Set your working directory to your <code>Downloads</code> folder.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">getwd</span>()</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">setwd</span>(<span class="st">"/home/julian/Downloads"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div></li>
+<li><p>Download the Wine Quality data set from the <a href="https://archive.ics.uci.edu/dataset/186/wine+quality">UCI Machine Learning Repository</a>. It contains physicochemical properties of red and white vinho verde wine samples, from the north of Portugal. The data set comprises two <code>csv</code> files, one for red and one for white wine samples. Inspect the file with a text editor to determine the correct import function and the arguments to be used. Then read both files into R using the appropriate function call and save the resulting <code>data.frames</code> in objects named <code>white_wines</code> and <code>red_wines</code>, respectively. Inspect the first 10 rows of the two <code>data.frames</code> using <code>head</code> and verify that the columns have the correct data types.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>white_wine_path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="st">"../data"</span>, <span class="st">"winequality-white.csv"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>red_wine_path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="st">"../data"</span>, <span class="st">"winequality-red.csv"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">readLines</span>(white_wine_path, <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "\"fixed acidity\";\"volatile acidity\";\"citric acid\";\"residual sugar\";\"chlorides\";\"free sulfur dioxide\";\"total sulfur dioxide\";\"density\";\"pH\";\"sulphates\";\"alcohol\";\"quality\""
+[2] "7;0.27;0.36;20.7;0.045;45;170;1.001;3;0.45;8.8;6"                                                                                                                                                 
+[3] "6.3;0.3;0.34;1.6;0.049;14;132;0.994;3.3;0.49;9.5;6"                                                                                                                                               
+[4] "8.1;0.28;0.4;6.9;0.05;30;97;0.9951;3.26;0.44;10.1;6"                                                                                                                                              
+[5] "7.2;0.23;0.32;8.5;0.058;47;186;0.9956;3.19;0.4;9.9;6"                                                                                                                                             </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">readLines</span>(red_wine_path, <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "\"fixed acidity\";\"volatile acidity\";\"citric acid\";\"residual sugar\";\"chlorides\";\"free sulfur dioxide\";\"total sulfur dioxide\";\"density\";\"pH\";\"sulphates\";\"alcohol\";\"quality\""
+[2] "7.4;0.7;0;1.9;0.076;11;34;0.9978;3.51;0.56;9.4;5"                                                                                                                                                 
+[3] "7.8;0.88;0;2.6;0.098;25;67;0.9968;3.2;0.68;9.8;5"                                                                                                                                                 
+[4] "7.8;0.76;0.04;2.3;0.092;15;54;0.997;3.26;0.65;9.8;5"                                                                                                                                              
+[5] "11.2;0.28;0.56;1.9;0.075;17;60;0.998;3.16;0.58;9.8;6"                                                                                                                                             </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The files are semicolon-delimited and use a decimal point.</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># So we use read.csv2, but have to specify the decimal point:</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>white_wines <span class="ot">&lt;-</span> <span class="fu">read.csv2</span>(white_wine_path, <span class="at">dec =</span> <span class="st">"."</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>red_wines <span class="ot">&lt;-</span> <span class="fu">read.csv2</span>(red_wine_path, <span class="at">dec =</span> <span class="st">"."</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(white_wines)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  fixed.acidity volatile.acidity citric.acid residual.sugar chlorides
+1           7.0             0.27        0.36           20.7     0.045
+2           6.3             0.30        0.34            1.6     0.049
+3           8.1             0.28        0.40            6.9     0.050
+4           7.2             0.23        0.32            8.5     0.058
+5           7.2             0.23        0.32            8.5     0.058
+6           8.1             0.28        0.40            6.9     0.050
+  free.sulfur.dioxide total.sulfur.dioxide density   pH sulphates alcohol
+1                  45                  170  1.0010 3.00      0.45     8.8
+2                  14                  132  0.9940 3.30      0.49     9.5
+3                  30                   97  0.9951 3.26      0.44    10.1
+4                  47                  186  0.9956 3.19      0.40     9.9
+5                  47                  186  0.9956 3.19      0.40     9.9
+6                  30                   97  0.9951 3.26      0.44    10.1
+  quality
+1       6
+2       6
+3       6
+4       6
+5       6
+6       6</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(red_wines)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  fixed.acidity volatile.acidity citric.acid residual.sugar chlorides
+1           7.4             0.70        0.00            1.9     0.076
+2           7.8             0.88        0.00            2.6     0.098
+3           7.8             0.76        0.04            2.3     0.092
+4          11.2             0.28        0.56            1.9     0.075
+5           7.4             0.70        0.00            1.9     0.076
+6           7.4             0.66        0.00            1.8     0.075
+  free.sulfur.dioxide total.sulfur.dioxide density   pH sulphates alcohol
+1                  11                   34  0.9978 3.51      0.56     9.4
+2                  25                   67  0.9968 3.20      0.68     9.8
+3                  15                   54  0.9970 3.26      0.65     9.8
+4                  17                   60  0.9980 3.16      0.58     9.8
+5                  11                   34  0.9978 3.51      0.56     9.4
+6                  13                   40  0.9978 3.51      0.56     9.4
+  quality
+1       5
+2       5
+3       5
+4       6
+5       5
+6       5</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unlist</span>(<span class="fu">lapply</span>(white_wines, typeof))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       fixed.acidity     volatile.acidity          citric.acid 
+            "double"             "double"             "double" 
+      residual.sugar            chlorides  free.sulfur.dioxide 
+            "double"             "double"             "double" 
+total.sulfur.dioxide              density                   pH 
+            "double"             "double"             "double" 
+           sulphates              alcohol              quality 
+            "double"             "double"            "integer" </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unlist</span>(<span class="fu">lapply</span>(red_wines, typeof))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       fixed.acidity     volatile.acidity          citric.acid 
+            "double"             "double"             "double" 
+      residual.sugar            chlorides  free.sulfur.dioxide 
+            "double"             "double"             "double" 
+total.sulfur.dioxide              density                   pH 
+            "double"             "double"             "double" 
+           sulphates              alcohol              quality 
+            "double"             "double"            "integer" </code></pre>
+</div>
+</div></li>
+<li><p>The file <code>native.csv</code> contains the names and favourite foods of three individuals. Inspect the file using a text editor and read the data into R using the appropriate function. What do you observe? How can you resolve this issue? Implement the necessary adaptations to read in the data without the occurring issue.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>native_path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="st">"../data"</span>, <span class="st">"native.csv"</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>native <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(native_path) <span class="co"># using read.csv as the file is comma-delimited</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>native <span class="co"># Clearly, there is an encoding issue...</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     name   favourite_food
+1 Alienor         Cr\xeape
+2    Hans       Sp\xe4tzle
+3  Magnus Sm\xf8rrebr\xf8d</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Let's try to guess the encoding:</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="fu">as.data.frame</span>(<span class="fu">guess_encoding</span>(native_path))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    encoding confidence
+1 ISO-8859-1       0.22</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Seems to be ISO-8859-1, let's try:</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>native <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(native_path, <span class="at">fileEncoding =</span> <span class="st">"ISO-8859-1"</span>)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>native <span class="co"># It worked!</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     name favourite_food
+1 Alienor          Crêpe
+2    Hans        Spätzle
+3  Magnus     Smørrebrød</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Note: The fileEncoding "Windows-1252" would also work.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div></li>
+<li><p>The Excel spreadsheet <code>datasets.xls</code> contains four worksheets, each with a different data set. Read all four work sheets into a list, such that each list element contains the <code>data.frame</code> holding the data of one work sheet. Inspect the <code>head</code> of each of the four <code>data.frames</code> to verify that the data has been read in correctly. Hint: you could use the <code>excel_sheets</code> function of the <code>readxl</code> package to identify the names of the four sheets and then read them into R using the appropriate function in a <code>for</code> loop.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>excel_path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="st">"../data"</span>, <span class="st">"datasets.xls"</span>)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>sheet_names <span class="ot">&lt;-</span> <span class="fu">excel_sheets</span>(excel_path)</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>excel_dfs <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(sheet <span class="cf">in</span> sheet_names){</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  excel_dfs[[sheet]] <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">read_xls</span>(excel_path, <span class="at">sheet =</span> sheet))</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="fu">lapply</span>(excel_dfs, head, <span class="at">n =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$iris
+  Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+1          5.1         3.5          1.4         0.2  setosa
+2          4.9         3.0          1.4         0.2  setosa
+3          4.7         3.2          1.3         0.2  setosa
+4          4.6         3.1          1.5         0.2  setosa
+5          5.0         3.6          1.4         0.2  setosa
+
+$mtcars
+   mpg cyl disp  hp drat    wt  qsec vs am gear carb
+1 21.0   6  160 110 3.90 2.620 16.46  0  1    4    4
+2 21.0   6  160 110 3.90 2.875 17.02  0  1    4    4
+3 22.8   4  108  93 3.85 2.320 18.61  1  1    4    1
+4 21.4   6  258 110 3.08 3.215 19.44  1  0    3    1
+5 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2
+
+$chickwts
+  weight      feed
+1    179 horsebean
+2    160 horsebean
+3    136 horsebean
+4    227 horsebean
+5    217 horsebean
+
+$quakes
+     lat   long depth mag stations
+1 -20.42 181.62   562 4.8       41
+2 -20.62 181.03   650 4.2       15
+3 -26.00 184.10    42 5.4       43
+4 -17.97 181.66   626 4.1       19
+5 -20.42 181.96   649 4.0       11</code></pre>
+</div>
+</div></li>
+<li><p>Search the data documentation of the <a href="https://www.gapminder.org/data/documentation/">Gapminder project</a> for data on GDP per capita in constant PPP dollars (<code>PPP$2017</code> or <code>PPP$2021</code>). Gapminder offers all of their data sets in the form of publicly available Google Sheets documents. Open the corresponding Google Sheets document for the GDP per capita data and identify the sheet ID from the URL. Find the worksheet for <code>regions</code> (i.e.&nbsp;Africa, Asia, Europe and The Americas) and read the data from that worksheet into R as a <code>data.frame</code> with the help of the <code>googlesheets4</code> package. Inspect the first couple of rows using <code>head</code> and verify that the columns have the correct data types.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># See here for the correct page in the Gapminder documentation:</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="co"># https://www.gapminder.org/data/documentation/gd001/</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(googlesheets4)</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="fu">gs4_deauth</span>()</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>sheet_id_2021 <span class="ot">&lt;-</span> <span class="st">"1RuGcXnt6mrhXumhUuRv4-lC4DmPyohznCiJy8paPM7Q"</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>sheet_id_2017 <span class="ot">&lt;-</span> <span class="st">"1KcsWpIxQXYER9Ydoo1WWzBzCVEGNtC_vV88gaPw-3w0"</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>gdp_per_cap <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">read_sheet</span>(sheet_id_2021,</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">sheet =</span> <span class="st">"data-for-regions-by-year"</span>,</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">range =</span> <span class="st">"A1:F1205"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>✔ Reading from "GM-GDP per capita - Dataset - v31".</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>✔ Range ''data-for-regions-by-year'!A1:F1205'.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(gdp_per_cap)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     geo   name time Income per person (ppp$2021)   GDP total
+1 africa Africa 1800                     437.6993 57102830744
+2 africa Africa 1801                     437.3229 57183022380
+3 africa Africa 1802                     436.9500 57268094833
+4 africa Africa 1803                     436.5015 57347632038
+5 africa Africa 1804                     436.0338 57428983174
+6 africa Africa 1805                     434.7656 57408910599
+  GDP per capita growth (%)
+1                        NA
+2                     -0.09
+3                     -0.09
+4                     -0.10
+5                     -0.11
+6                     -0.29</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unlist</span>(<span class="fu">lapply</span>(gdp_per_cap, typeof))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                         geo                         name 
+                 "character"                  "character" 
+                        time Income per person (ppp$2021) 
+                    "double"                     "double" 
+                   GDP total    GDP per capita growth (%) 
+                    "double"                     "double" </code></pre>
+</div>
+</div></li>
+</ol>
+</section>
+<section id="the-data-science-workflow-tidy-and-transform" class="level1">
+<h1>The Data Science Workflow – Tidy and Transform</h1>
+<ol type="1">
+<li>The <code>flights</code> data set:
+<ol type="a">
+<li>Import the <code>nyc13_flights.csv</code> data set and give it the name <code>flights</code>.</li>
+<li>Use the code from the lecture to give appropriate names to the columns of <code>flights</code> and inspect the first 10 rows of the <code>data.frame</code> using <code>head</code>.</li>
+<li>Remove all rows from <code>flights</code> that have an <code>NA</code> in any column (Hint: have a look at the function <code>na.omit</code>). How many rows in the <code>data.frame</code> are lost as a consequence of this <code>NA</code> removal step?</li>
+<li>The departure times are given in a weird format distributed over several columns in the <code>data.frame</code>. To make this information usable, create a column called <code>dep_time_dt</code>, which contains the actual departure time as a <code>POSIXct</code> date-time. Hint: use <code>paste</code> to bring together the date information from the three relevant columns. Then use the <code>%/%</code> and <code>%%</code> operators to extract hour and minute from the <code>dep_time</code> column and <code>paste</code> it to the date. Finally, use <code>as.POSIXct</code> and the correct time zone to turn this string into a date-time.</li>
+<li>Filter the <code>flights</code> data set to only include:
+<ul>
+<li>flights operated by United Air Lines or US Airways (carrier codes <code>UA</code> and <code>US</code>, respectively).</li>
+<li>flights from LaGuardia (LGA) to Fort Lauderdale (FLL).</li>
+<li>flights operated by Delta Air Lines (carrier code <code>DL</code>) with a departure delay of more than three hours.</li>
+<li>flights from Newark (EWR) to Chicago (ORD) operated by Envoy Air (carrier code <code>MQ</code>) on 1st June 2013.</li>
+<li>flights with an air time of at most half an hour operated by American Airlines (carrier code <code>AA</code>).</li>
+<li>flights from LaGuardia (LGA) or JFK to Nashville (BNA) with an air time of more than 2.5 hours.</li>
+<li>flights that departed after 16th May 2013 (careful: be aware of the time zone!).</li>
+</ul></li>
+<li>Using appropriate functions in R, answer the following questions:
+<ul>
+<li>What is the most frequent destination airport flown to from LaGuardia (LGA)?</li>
+<li>Which carrier has the most departures out of JFK? Which proportion of the total number of departures do they cover there?</li>
+<li>Which flight had the longest air time out of the ones contained in the data set?</li>
+<li>How often is the flight with the shortest distance flown in the time period covered by the data set?</li>
+<li>What is the average departure delay at each of the three NYC origin airports?</li>
+<li>What is the average arrival delay of flights from JFK to Los Angeles (LAX) in each month?</li>
+<li>What is the tail number of the airplane that has covered the most distance over all flights in the data set?</li>
+<li>What is the distance of the longest flight (in terms of distance) offered out of LaGuardia (LGA) for each carrier?</li>
+</ul></li>
+<li>Import the <code>nyc13_airports.csv</code> data set and give it the name <code>airports</code>.</li>
+<li>The <code>airports</code> data set contains the FAA code, the full name, latitude and longitude and time zone information of 1458 airports in the United States. Using an <strong>inner join</strong>, join the <code>name</code>, <code>lat</code> and <code>lon</code> of the <strong>destination</strong> airport into the <code>flights</code> data set (mind the differences in key column name between <code>flights</code> and <code>airports</code>!). Record the number of rows of the <code>flights</code> data set before and after the join. How many rows were lost due to the inner join? How could that have been avoided?</li>
+<li>Rename the new columns in <code>flights</code> to <code>dest_name</code>, <code>dest_lat</code> and <code>dest_lon</code>, respectively.</li>
+<li>Import the <code>nyc13_planes.csv</code> data set and give it the name <code>planes</code>.</li>
+<li>The <code>planes</code> data set contains the tail number, manufacturing year, type, manufacturer, model, number and type of engines and average cruising speed of 3322 airplanes in commercial service in the United States. Using a <strong>left join</strong>, join the <code>manufacturer</code> and <code>model</code> of the plane into the <code>flights</code> data set. For how many flights was no plane information found in <code>planes</code>?</li>
+<li>Rename the new columns in <code>flights</code> to <code>plane_manufacturer</code> and <code>plane_model</code>, respectively.</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># a.</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>flights <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"../data/nyc13_flights.csv"</span>)</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="co"># b.</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(flights) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"year"</span>, <span class="st">"month"</span>, <span class="st">"day"</span>, <span class="st">"dep_time"</span>, <span class="st">"sched_dep_time"</span>, <span class="st">"dep_delay"</span>,</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>                <span class="st">"arr_time"</span>, <span class="st">"sched_arr_time"</span>, <span class="st">"arr_delay"</span>, <span class="st">"carrier"</span>, <span class="st">"flight"</span>,</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>                <span class="st">"tail_num"</span>, <span class="st">"origin"</span>, <span class="st">"dest"</span>, <span class="st">"air_time"</span>, <span class="st">"distance"</span>, <span class="st">"time_hour"</span>)</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(flights, <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   year month day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+1  2013     1   1      517            515         2      830            819
+2  2013     1   1      533            529         4      850            830
+3  2013     1   1      542            540         2      923            850
+4  2013     1   1      544            545        -1     1004           1022
+5  2013     1   1      554            600        -6      812            837
+6  2013     1   1      554            558        -4      740            728
+7  2013     1   1      555            600        -5      913            854
+8  2013     1   1      557            600        -3      709            723
+9  2013     1   1      557            600        -3      838            846
+10 2013     1   1      558            600        -2      753            745
+   arr_delay carrier flight tail_num origin dest air_time distance
+1         11      UA   1545   N14228    EWR  IAH      227     1400
+2         20      UA   1714   N24211    LGA  IAH      227     1416
+3         33      AA   1141   N619AA    JFK  MIA      160     1089
+4        -18      B6    725   N804JB    JFK  BQN      183     1576
+5        -25      DL    461   N668DN    LGA  ATL      116      762
+6         12      UA   1696   N39463    EWR  ORD      150      719
+7         19      B6    507   N516JB    EWR  FLL      158     1065
+8        -14      EV   5708   N829AS    LGA  IAD       53      229
+9         -8      B6     79   N593JB    JFK  MCO      140      944
+10         8      AA    301   N3ALAA    LGA  ORD      138      733
+             time_hour
+1  2013-01-01 05:00:00
+2  2013-01-01 05:00:00
+3  2013-01-01 05:00:00
+4  2013-01-01 05:00:00
+5  2013-01-01 06:00:00
+6  2013-01-01 05:00:00
+7  2013-01-01 06:00:00
+8  2013-01-01 06:00:00
+9  2013-01-01 06:00:00
+10 2013-01-01 06:00:00</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># c.</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>n_before <span class="ot">&lt;-</span> <span class="fu">nrow</span>(flights)</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>flights <span class="ot">&lt;-</span> <span class="fu">na.omit</span>(flights)</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>n_after <span class="ot">&lt;-</span> <span class="fu">nrow</span>(flights)</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sprintf</span>(<span class="st">"%d rows were lost!"</span>, n_before <span class="sc">-</span> n_after)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "5480 rows were lost!"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># d.</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>flights<span class="sc">$</span>dep_time_dt <span class="ot">&lt;-</span> <span class="fu">as.POSIXct</span>(<span class="fu">paste</span>(flights<span class="sc">$</span>year, flights<span class="sc">$</span>month, flights<span class="sc">$</span>day,</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>                                        flights<span class="sc">$</span>dep_time <span class="sc">%/%</span> <span class="dv">100</span>,</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>                                        flights<span class="sc">$</span>dep_time <span class="sc">%%</span> <span class="dv">100</span>),</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">format =</span> <span class="st">"%Y %m %d %H %M"</span>, <span class="at">tz =</span> <span class="st">"America/New_York"</span>)</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(flights[,<span class="fu">c</span>(<span class="st">"year"</span>, <span class="st">"month"</span>, <span class="st">"day"</span>, <span class="st">"dep_time"</span>, <span class="st">"dep_time_dt"</span>)])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  year month day dep_time         dep_time_dt
+1 2013     1   1      517 2013-01-01 05:17:00
+2 2013     1   1      533 2013-01-01 05:33:00
+3 2013     1   1      542 2013-01-01 05:42:00
+4 2013     1   1      544 2013-01-01 05:44:00
+5 2013     1   1      554 2013-01-01 05:54:00
+6 2013     1   1      554 2013-01-01 05:54:00</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># e. (results always in included in head(), to avoid too long outputs)</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">subset</span>(flights, carrier <span class="sc">==</span> <span class="st">"UA"</span> <span class="sc">|</span> carrier <span class="sc">==</span> <span class="st">"US"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   year month day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+1  2013     1   1      517            515         2      830            819
+2  2013     1   1      533            529         4      850            830
+6  2013     1   1      554            558        -4      740            728
+13 2013     1   1      558            600        -2      924            917
+14 2013     1   1      558            600        -2      923            937
+17 2013     1   1      559            600        -1      854            902
+   arr_delay carrier flight tail_num origin dest air_time distance
+1         11      UA   1545   N14228    EWR  IAH      227     1400
+2         20      UA   1714   N24211    LGA  IAH      227     1416
+6         12      UA   1696   N39463    EWR  ORD      150      719
+13         7      UA    194   N29129    JFK  LAX      345     2475
+14       -14      UA   1124   N53441    EWR  SFO      361     2565
+17        -8      UA   1187   N76515    EWR  LAS      337     2227
+             time_hour         dep_time_dt
+1  2013-01-01 05:00:00 2013-01-01 05:17:00
+2  2013-01-01 05:00:00 2013-01-01 05:33:00
+6  2013-01-01 05:00:00 2013-01-01 05:54:00
+13 2013-01-01 06:00:00 2013-01-01 05:58:00
+14 2013-01-01 06:00:00 2013-01-01 05:58:00
+17 2013-01-01 06:00:00 2013-01-01 05:59:00</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">subset</span>(flights, origin <span class="sc">==</span> <span class="st">"LGA"</span> <span class="sc">&amp;</span> dest <span class="sc">==</span> <span class="st">"FLL"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    year month day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+18  2013     1   1      600            600         0      851            858
+62  2013     1   1      657            700        -3      959           1013
+199 2013     1   1      931            930         1     1237           1238
+220 2013     1   1      959           1002        -3     1313           1319
+253 2013     1   1     1053           1050         3     1402           1358
+297 2013     1   1     1155           1200        -5     1507           1519
+    arr_delay carrier flight tail_num origin dest air_time distance
+18         -7      B6    371   N595JB    LGA  FLL      152     1076
+62        -14      DL   1879   N318NB    LGA  FLL      164     1076
+199        -1      B6    375   N508JB    LGA  FLL      161     1076
+220        -6      DL   2379   N965DL    LGA  FLL      151     1076
+253         4      B6    373   N520JB    LGA  FLL      165     1076
+297       -12      DL   1443   N969DL    LGA  FLL      160     1076
+              time_hour         dep_time_dt
+18  2013-01-01 06:00:00 2013-01-01 06:00:00
+62  2013-01-01 07:00:00 2013-01-01 06:57:00
+199 2013-01-01 09:00:00 2013-01-01 09:31:00
+220 2013-01-01 10:00:00 2013-01-01 09:59:00
+253 2013-01-01 10:00:00 2013-01-01 10:53:00
+297 2013-01-01 12:00:00 2013-01-01 11:55:00</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">subset</span>(flights, carrier <span class="sc">==</span> <span class="st">"DL"</span> <span class="sc">&amp;</span> dep_delay <span class="sc">&gt;</span> <span class="dv">180</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      year month day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+2599  2013     1   3     2008           1540       268     2339           1909
+3970  2013     1   5     1344            817       327     1635           1127
+11064 2013     1  13     1809            810       599     2054           1042
+12196 2013     1  14     2229           1655       334      157           2029
+19670 2013     1  23     1551            753       478     1812           1006
+20555 2013     1  24     1554           1235       199     1940           1606
+      arr_delay carrier flight tail_num origin dest air_time distance
+2599        270      DL   2027   N338NW    JFK  FLL      158     1069
+3970        308      DL   1109   N309US    LGA  TPA      158     1010
+11064       612      DL    269   N322NB    JFK  ATL      116      760
+12196       328      DL    706   N370NW    JFK  AUS      243     1521
+19670       486      DL   2119   N326NB    LGA  MSP      166     1020
+20555       214      DL   2174   N3733Z    JFK  SLC      316     1990
+                time_hour         dep_time_dt
+2599  2013-01-03 15:00:00 2013-01-03 20:08:00
+3970  2013-01-05 08:00:00 2013-01-05 13:44:00
+11064 2013-01-13 08:00:00 2013-01-13 18:09:00
+12196 2013-01-14 16:00:00 2013-01-14 22:29:00
+19670 2013-01-23 07:00:00 2013-01-23 15:51:00
+20555 2013-01-24 12:00:00 2013-01-24 15:54:00</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">subset</span>(flights,</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>            origin <span class="sc">==</span> <span class="st">"EWR"</span> <span class="sc">&amp;</span> dest <span class="sc">==</span> <span class="st">"ORD"</span> <span class="sc">&amp;</span> carrier <span class="sc">==</span> <span class="st">"MQ"</span> <span class="sc">&amp;</span> month <span class="sc">==</span> <span class="dv">6</span> <span class="sc">&amp;</span> day <span class="sc">==</span> <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       year month day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+137957 2013     6   1      624            600        24      727            720
+138032 2013     6   1      755            755         0      936            920
+138218 2013     6   1     1151           1150         1     1305           1305
+138296 2013     6   1     1343           1315        28     1450           1435
+       arr_delay carrier flight tail_num origin dest air_time distance
+137957         7      MQ   3768   N9EAMQ    EWR  ORD      104      719
+138032        16      MQ   3737   N519MQ    EWR  ORD      106      719
+138218         0      MQ   3697   N546MQ    EWR  ORD      105      719
+138296        15      MQ   3765   N504MQ    EWR  ORD      104      719
+                 time_hour         dep_time_dt
+137957 2013-06-01 06:00:00 2013-06-01 06:24:00
+138032 2013-06-01 07:00:00 2013-06-01 07:55:00
+138218 2013-06-01 11:00:00 2013-06-01 11:51:00
+138296 2013-06-01 13:00:00 2013-06-01 13:43:00</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">subset</span>(flights,</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>            air_time <span class="sc">&lt;=</span> <span class="dv">30</span> <span class="sc">&amp;</span> carrier <span class="sc">==</span> <span class="st">"AA"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       year month day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+26433  2013     1  31     1233           1245       -12     1320           1350
+103954 2013     4  25     1241           1245        -4     1330           1350
+142896 2013     6   6     1239           1245        -6     1329           1350
+146703 2013     6  10     1558           1600        -2     1713           1720
+154175 2013     6  18     1235           1245       -10     1327           1355
+       arr_delay carrier flight tail_num origin dest air_time distance
+26433        -30      AA   1850   N3JRAA    JFK  BOS       30      187
+103954       -20      AA   1850   N3CWAA    JFK  BOS       30      187
+142896       -21      AA   1850   N3CHAA    JFK  BOS       30      187
+146703        -7      AA    854   N3EUAA    JFK  BOS       29      187
+154175       -28      AA   1850   N3EGAA    JFK  BOS       30      187
+                 time_hour         dep_time_dt
+26433  2013-01-31 12:00:00 2013-01-31 12:33:00
+103954 2013-04-25 12:00:00 2013-04-25 12:41:00
+142896 2013-06-06 12:00:00 2013-06-06 12:39:00
+146703 2013-06-10 16:00:00 2013-06-10 15:58:00
+154175 2013-06-18 12:00:00 2013-06-18 12:35:00</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">subset</span>(flights,</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>            (origin <span class="sc">==</span> <span class="st">"LGA"</span> <span class="sc">|</span> origin <span class="sc">==</span> <span class="st">"JFK"</span>) <span class="sc">&amp;</span> flights<span class="sc">$</span>dest <span class="sc">==</span> <span class="st">"BNA"</span> <span class="sc">&amp;</span> air_time <span class="sc">&gt;</span> <span class="dv">150</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      year month day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+640   2013     1   1     1803           1620       103     2008           1750
+643   2013     1   1     1806           1810        -4     2002           1945
+722   2013     1   1     1934           1725       129     2126           1855
+807   2013     1   1     2122           2125        -3     2312           2250
+2519  2013     1   3     1847           1725        82     2102           1855
+26792 2013     1  31     1945           1810        95     2158           1945
+      arr_delay carrier flight tail_num origin dest air_time distance
+640         138      MQ   4622   N504MQ    LGA  BNA      154      764
+643          17      MQ   4484   N711MQ    LGA  BNA      152      764
+722         151      MQ   4255   N909MQ    JFK  BNA      154      765
+807          22      MQ   4660   N1EAMQ    LGA  BNA      153      764
+2519        127      MQ   4255   N630MQ    JFK  BNA      164      765
+26792       133      MQ   4484   N722MQ    LGA  BNA      157      764
+                time_hour         dep_time_dt
+640   2013-01-01 16:00:00 2013-01-01 18:03:00
+643   2013-01-01 18:00:00 2013-01-01 18:06:00
+722   2013-01-01 17:00:00 2013-01-01 19:34:00
+807   2013-01-01 21:00:00 2013-01-01 21:22:00
+2519  2013-01-03 17:00:00 2013-01-03 18:47:00
+26792 2013-01-31 18:00:00 2013-01-31 19:45:00</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">subset</span>(flights,</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>            dep_time_dt <span class="sc">&gt;=</span> <span class="fu">as.POSIXct</span>(<span class="st">"2013-05-17 00:00:00"</span>, <span class="at">tz =</span> <span class="st">"America/New_York"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       year month day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+124078 2013     5  17       11           2359        12      336            345
+124079 2013     5  17      458            500        -2      642            640
+124080 2013     5  17      506            515        -9      751            811
+124081 2013     5  17      533            540        -7      829            840
+124082 2013     5  17      548            550        -2      831            845
+124083 2013     5  17      551            600        -9      823            850
+       arr_delay carrier flight tail_num origin dest air_time distance
+124078        -9      B6    701   N524JB    JFK  SJU      189     1598
+124079         2      US   1431   N196UW    EWR  CLT       83      529
+124080       -20      UA   1288   N62631    EWR  IAH      188     1400
+124081       -11      AA    701   N613AA    JFK  MIA      142     1089
+124082       -14      UA   1077   N73270    EWR  MIA      145     1085
+124083       -27      AA    707   N3FYAA    LGA  DFW      186     1389
+                 time_hour         dep_time_dt
+124078 2013-05-17 23:00:00 2013-05-17 00:11:00
+124079 2013-05-17 05:00:00 2013-05-17 04:58:00
+124080 2013-05-17 05:00:00 2013-05-17 05:06:00
+124081 2013-05-17 05:00:00 2013-05-17 05:33:00
+124082 2013-05-17 05:00:00 2013-05-17 05:48:00
+124083 2013-05-17 06:00:00 2013-05-17 05:51:00</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co"># f.</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sort</span>(<span class="fu">table</span>(<span class="fu">subset</span>(flights, origin <span class="sc">==</span> <span class="st">"LGA"</span>, dest)),</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">decreasing =</span> <span class="cn">TRUE</span>)[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>] <span class="co"># Answer: ATL (Atlanta)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>dest
+ ATL  ORD  MIA 
+5069 3950 2739 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>jfk_carriers <span class="ot">&lt;-</span> <span class="fu">sort</span>(<span class="fu">table</span>(<span class="fu">subset</span>(flights, origin <span class="sc">==</span> <span class="st">"JFK"</span>, carrier)),</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>                     <span class="at">decreasing =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.table</span>(jfk_carriers) <span class="co"># Answer: B6 (JetBlue Airways), covering 37.8% of departures</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>carrier
+         B6          DL          9E          AA          MQ          UA 
+0.378462963 0.181851852 0.136240741 0.128537037 0.060222222 0.040444444 
+         VX          US          EV          HA 
+0.033037037 0.025537037 0.012314815 0.003351852 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">subset</span>(flights, air_time <span class="sc">==</span> <span class="fu">max</span>(air_time)) <span class="co"># Answer: EWR - HNL on 17th March 2013.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      year month day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+67176 2013     3  17     1337           1335         2     1937           1836
+      arr_delay carrier flight tail_num origin dest air_time distance
+67176        61      UA     15   N77066    EWR  HNL      695     4963
+                time_hour         dep_time_dt
+67176 2013-03-17 13:00:00 2013-03-17 13:37:00</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(<span class="fu">subset</span>(flights, distance <span class="sc">==</span> <span class="fu">min</span>(distance))) <span class="co"># Answer: 48 times (EWR - PHL)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 48</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tapply</span>(flights<span class="sc">$</span>dep_delay, flights<span class="sc">$</span>origin, mean) <span class="co"># Answer on avg. dep_delays</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     EWR      JFK      LGA 
+16.86164 12.68735 10.77449 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>jfk_la <span class="ot">&lt;-</span> <span class="fu">subset</span>(flights, origin <span class="sc">==</span> <span class="st">"JFK"</span> <span class="sc">&amp;</span> dest <span class="sc">==</span> <span class="st">"LAX"</span>, <span class="fu">c</span>(month, arr_delay))</span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tapply</span>(jfk_la<span class="sc">$</span>arr_delay, jfk_la<span class="sc">$</span>month, mean) <span class="co"># Answer on avg. arr_delay (JFK-LAX)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        1         2         3         4         5         6 
+-6.396146 -8.195489 -6.568277  2.062567 -6.106583 10.857451 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>plane_dists <span class="ot">&lt;-</span> <span class="fu">tapply</span>(flights<span class="sc">$</span>distance, flights<span class="sc">$</span>tail_num, sum)</span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>plane_dists[<span class="fu">which.max</span>(plane_dists)] <span class="co"># Answer: N327AA</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>N327AA 
+461291 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>lga_flights <span class="ot">&lt;-</span> <span class="fu">subset</span>(flights, origin <span class="sc">==</span> <span class="st">"LGA"</span>, <span class="fu">c</span>(dest, distance, carrier))</span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tapply</span>(lga_flights<span class="sc">$</span>distance, lga_flights<span class="sc">$</span>carrier, max) <span class="co"># Answer on max dist out of LGA</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  9E   AA   B6   DL   EV   F9   FL   MQ   OO   UA   US   WN   YV 
+ 659 1389 1080 1620 1389 1620  762 1147  733 1620  544 1620  544 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="co"># g.</span></span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a>airports <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"../data/nyc13_airports.csv"</span>)</span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-4"><a href="#cb66-4" aria-hidden="true" tabindex="-1"></a><span class="co"># h.</span></span>
+<span id="cb66-5"><a href="#cb66-5" aria-hidden="true" tabindex="-1"></a>n_before <span class="ot">&lt;-</span> <span class="fu">nrow</span>(flights)</span>
+<span id="cb66-6"><a href="#cb66-6" aria-hidden="true" tabindex="-1"></a>flights <span class="ot">&lt;-</span> <span class="fu">merge</span>(flights, airports[, <span class="fu">c</span>(<span class="st">"faa"</span>, <span class="st">"name"</span>, <span class="st">"lat"</span>, <span class="st">"lon"</span>)],</span>
+<span id="cb66-7"><a href="#cb66-7" aria-hidden="true" tabindex="-1"></a>                 <span class="at">by.x =</span> <span class="st">"dest"</span>, <span class="at">by.y =</span> <span class="st">"faa"</span>, <span class="at">all =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb66-8"><a href="#cb66-8" aria-hidden="true" tabindex="-1"></a>n_after <span class="ot">&lt;-</span> <span class="fu">nrow</span>(flights)</span>
+<span id="cb66-9"><a href="#cb66-9" aria-hidden="true" tabindex="-1"></a>n_before <span class="sc">-</span> n_after</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3855</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 3855 rows were lost due to the inner join, i.e. for 3855 flights, we did not find</span></span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a><span class="co"># the destination airport in the airports data set. To avoid losing these flights,</span></span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a><span class="co"># we could use a left join instead, which would put NA's for the values of name,</span></span>
+<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a><span class="co"># lat and lon of the airports we were not able to find, instead of removing the</span></span>
+<span id="cb68-5"><a href="#cb68-5" aria-hidden="true" tabindex="-1"></a><span class="co"># corresponding rows altogether.</span></span>
+<span id="cb68-6"><a href="#cb68-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-7"><a href="#cb68-7" aria-hidden="true" tabindex="-1"></a><span class="co"># i.</span></span>
+<span id="cb68-8"><a href="#cb68-8" aria-hidden="true" tabindex="-1"></a>airport_cols <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"name"</span>, <span class="st">"lat"</span>, <span class="st">"lon"</span>)</span>
+<span id="cb68-9"><a href="#cb68-9" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(flights)[<span class="fu">names</span>(flights) <span class="sc">%in%</span> airport_cols] <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"dest_"</span>, airport_cols)</span>
+<span id="cb68-10"><a href="#cb68-10" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(flights[,<span class="fu">c</span>(<span class="st">"month"</span>, <span class="st">"day"</span>, <span class="st">"dep_time"</span>, <span class="st">"origin"</span>, <span class="st">"dest"</span>,</span>
+<span id="cb68-11"><a href="#cb68-11" aria-hidden="true" tabindex="-1"></a>                <span class="st">"dest_name"</span>, <span class="st">"dest_lat"</span>, <span class="st">"dest_lon"</span>)])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  month day dep_time origin dest                         dest_name dest_lat
+1     6  25     2015    JFK  ABQ Albuquerque International Sunport 35.04022
+2     5   6     1956    JFK  ABQ Albuquerque International Sunport 35.04022
+3     5  21     1954    JFK  ABQ Albuquerque International Sunport 35.04022
+4     5  13     2053    JFK  ABQ Albuquerque International Sunport 35.04022
+5     5  20     1959    JFK  ABQ Albuquerque International Sunport 35.04022
+6     6  22     2006    JFK  ABQ Albuquerque International Sunport 35.04022
+   dest_lon
+1 -106.6092
+2 -106.6092
+3 -106.6092
+4 -106.6092
+5 -106.6092
+6 -106.6092</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="co"># j.</span></span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a>planes <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"../data/nyc13_planes.csv"</span>)</span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a><span class="co"># k.</span></span>
+<span id="cb70-5"><a href="#cb70-5" aria-hidden="true" tabindex="-1"></a>flights <span class="ot">&lt;-</span> <span class="fu">merge</span>(flights, planes[, <span class="fu">c</span>(<span class="st">"tail_num"</span>, <span class="st">"manufacturer"</span>, <span class="st">"model"</span>)],</span>
+<span id="cb70-6"><a href="#cb70-6" aria-hidden="true" tabindex="-1"></a>                 <span class="at">by =</span> <span class="st">"tail_num"</span>, <span class="at">all.x =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb70-7"><a href="#cb70-7" aria-hidden="true" tabindex="-1"></a>flights <span class="ot">&lt;-</span> flights[<span class="fu">order</span>(flights<span class="sc">$</span>dep_time_dt), ] <span class="co"># Re-order by departure time</span></span>
+<span id="cb70-8"><a href="#cb70-8" aria-hidden="true" tabindex="-1"></a><span class="fu">sprintf</span>(<span class="st">"For %d flights, no plane information was found!"</span>,</span>
+<span id="cb70-9"><a href="#cb70-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">sum</span>(<span class="fu">is.na</span>(flights<span class="sc">$</span>manufacturer)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "For 23400 flights, no plane information was found!"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="co"># l.</span></span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>plane_cols <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"manufacturer"</span>, <span class="st">"model"</span>)</span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(flights)[<span class="fu">names</span>(flights) <span class="sc">%in%</span> plane_cols] <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"plane_"</span>, plane_cols)</span>
+<span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(flights[,<span class="fu">c</span>(<span class="st">"month"</span>, <span class="st">"day"</span>, <span class="st">"dep_time"</span>, <span class="st">"origin"</span>, <span class="st">"dest"</span>,</span>
+<span id="cb72-5"><a href="#cb72-5" aria-hidden="true" tabindex="-1"></a>                <span class="st">"tail_num"</span>, <span class="st">"plane_manufacturer"</span>, <span class="st">"plane_model"</span>)])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       month day dep_time origin dest tail_num plane_manufacturer plane_model
+12392      1   1      517    EWR  IAH   N14228             BOEING     737-824
+29840      1   1      533    LGA  IAH   N24211             BOEING     737-824
+101559     1   1      542    JFK  MIA   N619AA             BOEING     757-223
+59037      1   1      554    EWR  ORD   N39463             BOEING   737-924ER
+109996     1   1      554    LGA  ATL   N668DN             BOEING     757-232
+80413      1   1      555    EWR  FLL   N516JB   AIRBUS INDUSTRIE    A320-232</code></pre>
+</div>
+</div></li>
+<li>The <code>UCI Adult Income</code> data set:
+<ol type="a">
+<li>Download the <code>Adult Income</code> data set from the <a href="https://archive.ics.uci.edu/dataset/2/adult">UCI Machine Learning Repository</a>. It contains socio-economic data on individuals from the 1994 US census. When you download the data from the provided link, you will receive a zip archive that contains five files. Import the file <code>adult.data</code> into R using <code>read.table</code> and give the resulting <code>data.frame</code> the name <code>income</code>. Hint: the file can be opened with any text editor to inspect the delimiter and the presence of a header.</li>
+<li>Using the information provided under the link above, give appropriate names to the columns of <code>income</code>.</li>
+<li>Have a look at the <code>head</code> of some individual columns. What do you notice?</li>
+<li>Additionally to the leading spaces, this data set uses a question mark <code>?</code> to indicate missing values. Both of these things would require manual work to handle. Fortunately, the <code>read.table</code> function has arguments <code>strip.white</code> to remove leading and trailing white space and <code>na.strings</code> to specify strings that are to be interpreted as <code>NA</code>. Use these two arguments to read <code>adult.data</code> into R again, redefining the <code>income</code> object you just created. Repeat exercise b. to rename the columns appropriately. Now, inspect the columns to verify that the leading spaces are gone and that the question marks have been turned into <code>NA</code>s.</li>
+<li>Verify that the variables in the <code>data.frame</code> have the correct data types for the data stored in them. Decide which of the included variables should be turned into a <code>factor</code> and go ahead with their transformation.</li>
+<li>A detail on factors left out from the lecture is that there are actually two types of them: unordered and ordered. Unordered factors should be used for nominal scales, while ordered factors should be used for ordinal scales. Turn the <code>income</code> variable in the data set into an ordered factor (you can use <code>as.ordered</code>) and verify that the two levels are in the correct order by inspecting head <code>head</code> of that variable.</li>
+<li>The variable <code>marital_status</code> uses three different levels to mean “married”, namely <code>Married-AF-spouse</code>, <code>Married-civ-spouse</code> and <code>Married-spouse-absent</code>. This distinction is not relevant for us, we want to subsume all of these levels under the category <code>Married</code>. To do this, redefine the <code>factor</code> for <code>marital_status</code> and use the <code>labels</code> argument of <code>factor</code> function to map all three “married”-levels to the level <code>Married</code>. Verify that redefining the factor worked by computing the frequency table for the different marital statuses.</li>
+<li>Using appropriate functions in R, answer the following questions:
+<ul>
+<li>What is the average age of individuals broken down by education level?</li>
+<li>Which proportion of men are married broken down by race? (Hint: you can create two-dimensional contingency tables by passing more than one vector into <code>table</code> and compute row or column percentages with <code>prop.table</code>.)</li>
+<li>How many hours per week do people with a doctorate work on average? Is that the highest average work load of all education levels?</li>
+<li>Which proportion of people whose native country is the US make more than 50k?</li>
+<li>How many people in the data set are black and have a masters or a doctoral degree?</li>
+</ul></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="co"># a.</span></span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a>income <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">"../data/adult.data"</span>, <span class="at">sep =</span> <span class="st">","</span>)</span>
+<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb74-4"><a href="#cb74-4" aria-hidden="true" tabindex="-1"></a><span class="co"># b.</span></span>
+<span id="cb74-5"><a href="#cb74-5" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(income) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"age"</span>, <span class="st">"workclass"</span>, <span class="st">"fnlwgt"</span>, <span class="st">"educ"</span>, <span class="st">"educ_num"</span>, <span class="st">"marital_status"</span>,</span>
+<span id="cb74-6"><a href="#cb74-6" aria-hidden="true" tabindex="-1"></a>                   <span class="st">"occup"</span>, <span class="st">"relationship"</span>, <span class="st">"race"</span>, <span class="st">"sex"</span>, <span class="st">"cap_gain"</span>, <span class="st">"cap_loss"</span>,</span>
+<span id="cb74-7"><a href="#cb74-7" aria-hidden="true" tabindex="-1"></a>                   <span class="st">"hrs_per_week"</span>, <span class="st">"native_country"</span>, <span class="st">"income"</span>)</span>
+<span id="cb74-8"><a href="#cb74-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb74-9"><a href="#cb74-9" aria-hidden="true" tabindex="-1"></a><span class="co"># c.</span></span>
+<span id="cb74-10"><a href="#cb74-10" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(income<span class="sc">$</span>workclass)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] " State-gov"        " Self-emp-not-inc" " Private"         
+[4] " Private"          " Private"          " Private"         </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(income<span class="sc">$</span>educ)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] " Bachelors" " Bachelors" " HS-grad"   " 11th"      " Bachelors"
+[6] " Masters"  </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(income<span class="sc">$</span>race)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] " White" " White" " White" " Black" " Black" " White"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(income<span class="sc">$</span>age)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 39 50 38 53 28 37</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="co"># All data in columns containing categorical data seem to have a leading space " ".</span></span>
+<span id="cb82-2"><a href="#cb82-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb82-3"><a href="#cb82-3" aria-hidden="true" tabindex="-1"></a><span class="co"># d.</span></span>
+<span id="cb82-4"><a href="#cb82-4" aria-hidden="true" tabindex="-1"></a>income <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">"../data/adult.data"</span>, <span class="at">sep =</span> <span class="st">","</span>, <span class="at">strip.white =</span> <span class="cn">TRUE</span>, <span class="at">na.strings =</span> <span class="st">"?"</span>)</span>
+<span id="cb82-5"><a href="#cb82-5" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(income) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"age"</span>, <span class="st">"workclass"</span>, <span class="st">"fnlwgt"</span>, <span class="st">"educ"</span>, <span class="st">"educ_num"</span>, <span class="st">"marital_status"</span>,</span>
+<span id="cb82-6"><a href="#cb82-6" aria-hidden="true" tabindex="-1"></a>                   <span class="st">"occup"</span>, <span class="st">"relationship"</span>, <span class="st">"race"</span>, <span class="st">"sex"</span>, <span class="st">"cap_gain"</span>, <span class="st">"cap_loss"</span>,</span>
+<span id="cb82-7"><a href="#cb82-7" aria-hidden="true" tabindex="-1"></a>                   <span class="st">"hrs_per_week"</span>, <span class="st">"native_country"</span>, <span class="st">"income"</span>)</span>
+<span id="cb82-8"><a href="#cb82-8" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(income<span class="sc">$</span>workclass)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "State-gov"        "Self-emp-not-inc" "Private"          "Private"         
+[5] "Private"          "Private"         </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb84"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(income<span class="sc">$</span>educ)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Bachelors" "Bachelors" "HS-grad"   "11th"      "Bachelors" "Masters"  </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb86"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="co"># No more leading white space</span></span>
+<span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sapply</span>(income, <span class="cf">function</span>(x) <span class="fu">sum</span>(x <span class="sc">==</span> <span class="st">"?"</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="co"># No more question marks</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           age      workclass         fnlwgt           educ       educ_num 
+             0              0              0              0              0 
+marital_status          occup   relationship           race            sex 
+             0              0              0              0              0 
+      cap_gain       cap_loss   hrs_per_week native_country         income 
+             0              0              0              0              0 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sapply</span>(income, <span class="cf">function</span>(x) <span class="fu">sum</span>(<span class="fu">is.na</span>(x))) <span class="co"># But now, several NA's in some columns</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           age      workclass         fnlwgt           educ       educ_num 
+             0           1836              0              0              0 
+marital_status          occup   relationship           race            sex 
+             0           1843              0              0              0 
+      cap_gain       cap_loss   hrs_per_week native_country         income 
+             0              0              0            583              0 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a><span class="co"># e.</span></span>
+<span id="cb90-2"><a href="#cb90-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sapply</span>(income, typeof)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           age      workclass         fnlwgt           educ       educ_num 
+     "integer"    "character"      "integer"    "character"      "integer" 
+marital_status          occup   relationship           race            sex 
+   "character"    "character"    "character"    "character"    "character" 
+      cap_gain       cap_loss   hrs_per_week native_country         income 
+     "integer"      "integer"      "integer"    "character"    "character" </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Factors should be: workclass, educ, marital_status, occup, relationship, race, sex,</span></span>
+<span id="cb92-2"><a href="#cb92-2" aria-hidden="true" tabindex="-1"></a><span class="co"># native_country and income.</span></span>
+<span id="cb92-3"><a href="#cb92-3" aria-hidden="true" tabindex="-1"></a>income<span class="sc">$</span>workclass <span class="ot">&lt;-</span> <span class="fu">factor</span>(income<span class="sc">$</span>workclass)</span>
+<span id="cb92-4"><a href="#cb92-4" aria-hidden="true" tabindex="-1"></a>income<span class="sc">$</span>educ <span class="ot">&lt;-</span> <span class="fu">factor</span>(income<span class="sc">$</span>educ)</span>
+<span id="cb92-5"><a href="#cb92-5" aria-hidden="true" tabindex="-1"></a>income<span class="sc">$</span>marital_status <span class="ot">&lt;-</span> <span class="fu">factor</span>(income<span class="sc">$</span>marital_status)</span>
+<span id="cb92-6"><a href="#cb92-6" aria-hidden="true" tabindex="-1"></a>income<span class="sc">$</span>occup <span class="ot">&lt;-</span> <span class="fu">factor</span>(income<span class="sc">$</span>occup)</span>
+<span id="cb92-7"><a href="#cb92-7" aria-hidden="true" tabindex="-1"></a>income<span class="sc">$</span>relationship <span class="ot">&lt;-</span> <span class="fu">factor</span>(income<span class="sc">$</span>relationship)</span>
+<span id="cb92-8"><a href="#cb92-8" aria-hidden="true" tabindex="-1"></a>income<span class="sc">$</span>race <span class="ot">&lt;-</span> <span class="fu">factor</span>(income<span class="sc">$</span>race)</span>
+<span id="cb92-9"><a href="#cb92-9" aria-hidden="true" tabindex="-1"></a>income<span class="sc">$</span>sex <span class="ot">&lt;-</span> <span class="fu">factor</span>(income<span class="sc">$</span>sex)</span>
+<span id="cb92-10"><a href="#cb92-10" aria-hidden="true" tabindex="-1"></a>income<span class="sc">$</span>native_country <span class="ot">&lt;-</span> <span class="fu">factor</span>(income<span class="sc">$</span>native_country)</span>
+<span id="cb92-11"><a href="#cb92-11" aria-hidden="true" tabindex="-1"></a>income<span class="sc">$</span>income <span class="ot">&lt;-</span> <span class="fu">factor</span>(income<span class="sc">$</span>income)</span>
+<span id="cb92-12"><a href="#cb92-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb92-13"><a href="#cb92-13" aria-hidden="true" tabindex="-1"></a><span class="co"># f.</span></span>
+<span id="cb92-14"><a href="#cb92-14" aria-hidden="true" tabindex="-1"></a>income<span class="sc">$</span>income <span class="ot">&lt;-</span> <span class="fu">as.ordered</span>(income<span class="sc">$</span>income)</span>
+<span id="cb92-15"><a href="#cb92-15" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(income<span class="sc">$</span>income) <span class="co"># Correct order! Note the "&lt;" sign between the factor levels.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] &lt;=50K &lt;=50K &lt;=50K &lt;=50K &lt;=50K &lt;=50K
+Levels: &lt;=50K &lt; &gt;50K</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a><span class="co"># g.</span></span>
+<span id="cb94-2"><a href="#cb94-2" aria-hidden="true" tabindex="-1"></a>income<span class="sc">$</span>marital_status <span class="ot">&lt;-</span> <span class="fu">factor</span>(income<span class="sc">$</span>marital_status,</span>
+<span id="cb94-3"><a href="#cb94-3" aria-hidden="true" tabindex="-1"></a>                                <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Divorced"</span>, <span class="st">"Married"</span>, <span class="st">"Married"</span>, <span class="st">"Married"</span>,</span>
+<span id="cb94-4"><a href="#cb94-4" aria-hidden="true" tabindex="-1"></a>                                           <span class="st">"Never-married"</span>, <span class="st">"Separated"</span>, <span class="st">"Widowed"</span>))</span>
+<span id="cb94-5"><a href="#cb94-5" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(income<span class="sc">$</span>marital_status)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+     Divorced       Married Never-married     Separated       Widowed 
+         4443         15417         10683          1025           993 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb96"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a><span class="co"># h.</span></span>
+<span id="cb96-2"><a href="#cb96-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tapply</span>(income<span class="sc">$</span>age, income<span class="sc">$</span>educ, mean)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        10th         11th         12th      1st-4th      5th-6th      7th-8th 
+    37.42980     32.35574     32.00000     46.14286     42.88589     48.44582 
+         9th   Assoc-acdm    Assoc-voc    Bachelors    Doctorate      HS-grad 
+    41.06031     37.38144     38.55355     38.90495     47.70218     38.97448 
+     Masters    Preschool  Prof-school Some-college 
+    44.04991     42.76471     44.74653     35.75627 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb98"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.table</span>(<span class="fu">table</span>(income<span class="sc">$</span>marital_status <span class="sc">==</span> <span class="st">"Married"</span>, income<span class="sc">$</span>race), <span class="at">margin =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+        Amer-Indian-Eskimo Asian-Pac-Islander     Black     Other     White
+  FALSE          0.5980707          0.4716073 0.7119078 0.5571956 0.5066508
+  TRUE           0.4019293          0.5283927 0.2880922 0.4428044 0.4933492</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb100"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a href="#cb100-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(income<span class="sc">$</span>hrs_per_week[income<span class="sc">$</span>educ <span class="sc">==</span> <span class="st">"Doctorate"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 46.97337</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb102"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a href="#cb102-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sort</span>(<span class="fu">tapply</span>(income<span class="sc">$</span>hrs_per_week, income<span class="sc">$</span>educ, mean), <span class="at">decreasing =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> Prof-school    Doctorate      Masters    Bachelors    Assoc-voc      HS-grad 
+    47.42535     46.97337     43.83633     42.61401     41.61071     40.57537 
+  Assoc-acdm      7th-8th      5th-6th Some-college      1st-4th          9th 
+    40.50422     39.36687     38.89790     38.85228     38.25595     38.04475 
+        10th    Preschool         12th         11th 
+    37.05252     36.64706     35.78060     33.92596 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb104"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a><span class="co"># No, Professors work even more hours per week on average (47.42 vs. 46.97)</span></span>
+<span id="cb104-2"><a href="#cb104-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb104-3"><a href="#cb104-3" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.table</span>(<span class="fu">table</span>(income<span class="sc">$</span>income[income<span class="sc">$</span>native_country <span class="sc">==</span> <span class="st">"United-States"</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    &lt;=50K      &gt;50K 
+0.7541652 0.2458348 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb106"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(<span class="fu">subset</span>(income, race <span class="sc">==</span> <span class="st">"Black"</span> <span class="sc">&amp;</span> (educ <span class="sc">==</span> <span class="st">"Masters"</span> <span class="sc">|</span> educ <span class="sc">==</span> <span class="st">"Doctorate"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 97</code></pre>
+</div>
+</div></li>
+</ol>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  const darkModeDefault = false;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/jamon-R\.github\.io\/cfpu-ds-da\/");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© Copyright 2025, Julian Amon, PhD</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+<p>This page is built with <a href="https://quarto.org/">Quarto</a>.</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
