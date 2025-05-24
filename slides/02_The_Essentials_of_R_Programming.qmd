@@ -1,0 +1,1358 @@
+---
+title: "Data Science and Data Analytics"
+subtitle: "The Essentials of R Programming"
+author: "Julian Amon, PhD"
+date: "March 21, 2025"
+date-format: long
+institute: Charlotte Fresenius Privatuniversität
+footer: "Data Science and Data Analytics -- R essentials"
+format:
+  revealjs:
+    theme:
+      - default
+      - slides.scss
+    width: 1350
+    height: 900
+    slide-number: true
+    logo: img/UOS_Logo.jpg
+    fig-width: 14
+    controls: true
+    embed-resources: true
+highlight-style: arrow
+execute: 
+  warning: true
+  echo: true
+editor_options: 
+  chunk_output_type: console
+---
+
+# R and RStudio
+
+```{r}
+#| echo: false
+#| include: false
+
+Sys.setlocale("LC_TIME", "en_GB.UTF-8")
+set.seed(42)
+```
+
+## Programming languages for Data Science
+
+![](img/rvspython1.jpg){fig-align="center"}
+
+. . .
+
+![](img/rvspython2.jpg){fig-align="center"}
+
+## What is R?
+
+![](img/r_logo.png){.absolute top="0" left="1150" width="8%"}
+
+-   **R** is an open-source statistical **programming language**.
+-   R is *not* a programming language like C or Java. It was not created by software engineers for software development. Instead, it was developed by statisticians as an environment for statistical computing and graphics.
+-   Some of its attractive features are:
+    -   R is free and [open source](https://opensource.org/history).
+    -   R runs on all major platforms: Windows, macOS, UNIX/Linux.
+    -   There is a large, growing, and active community of R users and, as a result, there are numerous resources for learning and asking questions.
+    -   It is easily extensible through **packages**. In this way, it is easy to share software implementations of new data science methodologies.
+
+## A (very) brief history of R
+
+![](img/r_logo.png){.absolute top="0" left="1150" width="8%"}
+
+-   R was first developed by Robert Gentleman and Ross Ihaka (University of Auckland, New Zealand) in the 1990s.
+-   Very early in the development of R, two statisticians at **TU Vienna** (Kurt Hornik and Fritz Leisch) got word about the initiative in New Zealand and started contributing to R.
+-   Soon, the growing interest in this project from researchers all over the world led to the establishment of the [**R Core team**](https://www.r-project.org/contributors.html), which maintains R to this day.
+-   The strong involvement of the two Viennese researchers also led to the establishment of the [**R Foundation for Statistical Computing**](https://www.r-project.org/foundation/) in Vienna (now at WU). Its main mission is the support of the continued development of R.
+-   Today, R is the lingua franca of statistics and an essential tool for data science.
+
+## Importance of R in Data Science
+
+![](img/ds_proglangs.jpg){fig-align="center"}
+
+## What is RStudio?
+
+![](img/rstudio_logo.png){.absolute top="0" left="1150" width="7.5%"}
+
+-   **RStudio** is a convenient interface for R called an integrated development environment (IDE). An IDE is the program on a computer that a developer uses to write code.
+-   RStudio is an open-source IDE by [Posit](https://posit.co/) specifically designed to support developers in writing **R code**. It is not a requirement for programming with R, but it is very commonly used by R programmers and data scientists.
+
+![](img/r_vs_rstudio.png){fig-align="center" width="75%"}
+
+## What is RStudio?
+
+![](img/rstudio_meme.jpg){fig-align="center"}
+
+## A Tour of RStudio
+
+![](img/rstudio_tour.png){fig-align="center"}
+
+## A Tour of RStudio
+
+-   While we can write and execute code directly in the **R console** in the bottom left pane in RStudio, it is better to write all code in an **R script**.
+-   An R script is simply a text file that contains R code.
+-   In RStudio, R scripts can be opened, viewed and edited in the top left pane. To open a new R script, go to `File > New File > R script`.
+-   A single line of code in an R script can be sent to the console for execution via `Ctrl + Enter` (or `Cmd + Enter` on Mac).
+-   To write a comment in an R script, simply put a hashtag (#) in front of the comment:
+
+```{r}
+# This is our first R script
+2 + 2 # We calculate 2 + 2
+```
+
+# First steps
+
+## First steps in R -- Mathematical operators
+
+First, let's use R as a **calculator**. We can write a calculation into our R script and R will give us the result, when the code is executed:
+
+```{r}
+2 + 3 # Addition
+2 - 4 # Subtraction
+3 * 4 # Multiplication
+4 / 2 # Division
+3^3 # Exponentiation
+(2 + 3)*(3 + 4) # Bracketing
+2^(3 + 4/2)*4 # All together
+```
+
+## First steps in R -- Relational and logical operators
+
+We can also perform comparisons using R:
+
+```{r}
+3 < 5
+3 > 5
+3 <= 3
+3 >= 5
+3 == 5 # Attention for the double equal sign!
+3 != 5
+```
+
+. . .
+
+With the help of `&` and `|`, we can also carry out `AND` and `OR` operations:
+
+```{r}
+(3 == 5) | (5 == 5) # OR
+(3 == 5) & (5 == 5) # AND
+```
+
+## First steps in R -- Functions
+
+R comes with many functions that you can use to perform tasks from simple to sophisticated. Functions have **inputs** (aka **arguments**) that you pass into them and **outputs** (aka **return values**) that they give back. Functions are fundamental to how R works.
+
+. . .
+
+Let's see an example. Say, we want to round the number 5.293586 to two decimal digits. Fortunately, there is a function in R called `round`. But how do we use it?
+
+To find out, we can bring up the R help, which provides documentation for every function in R, by typing `?` and the name of the function into the console:
+
+```{r}
+#| eval: false
+?round
+```
+
+## First steps in R -- Functions
+
+![](img/r_help_round.png){fig-align="center"}
+
+## First steps in R -- Functions
+
+```{r}
+round(5.293586, 2)
+```
+
+. . .
+
+Generally, we can use the `args` function to see the arguments that a function takes. For example, let's say, we wanted to simulate someone throwing a regular die, i.e. randomly **sample** numbers from 1 to 6. Luckily, there is an R function called `sample`. Let's inspect it.
+
+```{r}
+args(sample)
+```
+
+. . .
+
+To find out more information on what these arguments actually mean, let's consult the documentation again:
+
+```{r}
+?sample
+```
+
+## First steps in R -- Functions
+
+![](img/r_help_sample.png){fig-align="center"}
+
+## First steps in R -- Functions
+
+So, to simulate 20 throws of a regular die, we have to use the function like this:
+
+```{r}
+sample(6, 20, replace = TRUE)
+```
+
+. . .
+
+Note that we can give the arguments to the function
+
+::: incremental
+-   in the order that they are given in the documentation (then they do not need to be named).
+-   by explicitly naming them when calling the function (then the order does not matter).
+-   by mixing unnamed and named arguments (like we have done here). 
+:::
+
+. . .
+
+Let's see another example of this.
+
+## First steps in R -- Functions
+
+Let's say, we wanted to compute the base 2 logarithm of 10. For this, we need the `log` function in R:
+
+```{r}
+args(log)
+```
+
+. . .
+
+So, based on the three options given on the previous slide, all of the following three ways of calling `log` lead to the correct result:
+
+```{r}
+log(10, 2)
+log(base = 2, x = 10)
+log(10, base = 2)
+```
+
+However, options 1 and 3 are preferable, as switching the order of arguments tends to make code less easily readable for others (which could be yourself in the future...)
+
+## First steps in R -- Variables and assignment
+
+Let's say, you were given the task to solve the quadratic equation
+
+$$3x^2 - 5x - 1 = 0$$
+
+You will remember from back in your high school days that we can use the "midnight formula" for this:
+
+$$x_{1/2} = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$$
+
+With R, we can easily compute this of course:
+
+```{r}
+(-(-5) + sqrt((-5)^2 - 4*3*(-1)))/(2*3)
+(-(-5) - sqrt((-5)^2 - 4*3*(-1)))/(2*3)
+```
+
+## First steps in R -- Variables and assignment
+
+Next, we are given another quadratic equation
+
+$$4x^2 - 8x + 2 = 0$$
+
+To compute the solution with R, we would have to replace every occurrence of $a$, $b$ and $c$, so in total, we would have to make 10 replacements to get both solutions. That's too cumbersome and error-prone...
+
+. . .
+
+Instead, we can define **variables** $a$, $b$ and $c$ and simply **assign** different values to them every time we have to solve a quadratic equation. Such assignments happen in R with the help of the assignment operator `<-` (read it as "gets"):
+
+```{r}
+a <- 3
+b <- -5
+c <- -1
+# Note that nothing is printed to the console when assigning variables.
+```
+
+Now, we can write expressions using these variables like we would in maths.
+
+## First steps in R -- Variables and assignment
+
+```{r}
+(-b + sqrt(b^2 - 4*a*c))/(2*a)
+(-b - sqrt(b^2 - 4*a*c))/(2*a)
+```
+
+Now, to compute the solution to the second quadratic equation, we simply re-define the variables `a`, `b` and `c` and then evaluate the same expression again:
+
+```{r}
+a <- 4
+b <- -8
+c <- 2
+
+(-b + sqrt(b^2 - 4*a*c))/(2*a)
+(-b - sqrt(b^2 - 4*a*c))/(2*a)
+```
+
+. . .
+
+Note that R is **case-sensitive**, so it now knows variables with names `a`, `b` and `c`, but it does not know `A`, `B` or `C`:
+
+```{r}
+#| error: true
+A
+```
+
+
+## First steps in R -- Variables and assignment
+
+With assignments, we are creating **objects** in R that are saved and can be referenced by the names that we give them (e.g. `a`, `b` and `c`). Creating **objects** like this will make them appear in the work space in pane 4 of the RStudio window:
+
+![](img/workspace.png){.nostretch fig-align="center" width="75%"}
+
+We can also see all variables currently defined in the work space by typing `ls()`:
+
+```{r}
+ls()
+```
+
+## First steps in R -- User-defined functions
+
+With the assignment operator, we can also define our own functions of course! To define a function, we need a **function name**, **arguments**, a **function body** and a **return value**:
+
+![](img/r_function_syntax.png){.nostretch fig-align="center" width="75%"}
+
+
+## First steps in R -- User-defined functions
+
+Consider the following example: say we want to write a function called `quadratic_solver` (function **name**) that gives us the solution to any quadratic equation. It needs input **arguments** `a`, `b` and `c` and should **return** the two solutions. In the function **body**, the two solutions should be computed for the three inputs. So, we could create the function as follows:
+
+```{r}
+quadratic_solver <- function(a, b, c){
+  sol_1 <- (-b + sqrt(b^2 - 4*a*c))/(2*a)
+  sol_2 <- (-b - sqrt(b^2 - 4*a*c))/(2*a)
+  return(c(sol_1, sol_2))
+}
+```
+
+. . .
+
+Now, we can use this function like any other:
+
+```{r}
+quadratic_solver(3, -5, -1)
+quadratic_solver(4, -8, 2)
+```
+
+
+# Data types and Data structures
+
+## Data types in R
+
+In R, the following six **data types** are available:
+
+-   double (i.e., double precision floating-point number -- R lingo for real number),
+-   integer,
+-   character (sometimes referred to as string),
+-   logical/boolean (can only take values `TRUE` or `FALSE`),
+-   complex (as in complex numbers, not relevant for us),
+-   raw (not relevant for us),
+
+We can find the type of an object using the function `typeof`. We can verify, whether an object is of a certain `<type>` by using the function `is.<type>`. Let's see some examples.
+
+## Double
+
+By default, R will save any number that you type in as a `double`.
+
+```{r}
+a <- 2
+b <- 3.141593
+
+typeof(a)
+typeof(b)
+is.double(a)
+is.double(b)
+```
+
+Together with `integer`, the data type `double` is one of the two `numeric` types, i.e. representing numbers:
+
+```{r}
+is.numeric(a)
+is.numeric(b)
+```
+
+## Integer
+
+**Integers** (whole numbers) are (positive or negative) numbers that can be written without a decimal component. This data type is more important for developers as it saves memory (compared to doubles). To specify an integer over a double, the number has to be followed by an uppercase `L`:
+
+```{r}
+i <- 10L
+
+typeof(i)
+is.integer(i)
+is.double(i)
+```
+
+(Pure) integers are also `numeric` of course:
+
+```{r}
+is.numeric(i)
+```
+
+## Character
+
+Text data is represented in R with the help of the `character` data type. To demarcate a string of characters, you can use double or single quotes (`""` or `''`).
+
+```{r}
+letter <- "a"
+w <- 'Hello, world.'
+
+typeof(letter)
+typeof(w)
+is.character(letter)
+is.character(w)
+```
+
+Of course, `character` objects are *not* numeric.
+
+```{r}
+is.numeric(letter)
+is.numeric(w)
+```
+
+
+## Logical
+
+When working with relational operators, we already saw a couple of instances of the `logical` data type. It can only take the values TRUE and FALSE. Negation of a `logical` object (i.e. saying **NOT**) can be achieved with the help of the `!` operator:
+
+```{r}
+bigger <- 5 > 3
+
+typeof(bigger)
+is.logical(bigger)
+!bigger
+```
+
+`Logical` objects are also *not* numeric.
+
+```{r}
+is.numeric(bigger)
+is.numeric(!bigger)
+```
+
+
+## Type coercion
+
+We can **coerce** an object to be of a certain `<type>` by using the function `as.<type>`. This process is called **type coercion**.
+
+In some cases, this is very intuitive...
+
+```{r}
+as.double("2.71828")
+as.integer("10")
+as.numeric("10") # creates a double
+as.character(42)
+```
+
+. . .
+
+... in others, maybe not so much...
+
+```{r}
+as.integer(2.9) # returns the closest smaller integer
+as.logical(2.9) # returns TRUE for any number other than 0
+as.logical(0)
+```
+
+
+## Special values
+
+Non-sensical attempts at coercion are translated as `NA` (not available).
+
+```{r}
+as.numeric("Hello, world.")
+as.logical("5")
+```
+
+. . .
+
+`NA` is one of four **special values**. While `NA` can occur for any data type, the other three can only occur for `numeric` data types. These are:
+
+-   `Inf`: positive infinity
+-   `-Inf`: negative infinity
+-   `NaN`: not a number
+
+While they are not technically numbers, these special values still follow logical rules when applying mathematical operations on them.
+
+## Special values
+
+::::: columns
+::: {.column width="50%"}
+```{r}
+2 / 0
+2 / 0 + 2 / 0
+-2 / 0
+-2 / 0 - 2 / 0
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+0 / 0
+2 / 0 - 2 / 0
+- 1 / 0 + 2 / 0
+```
+:::
+:::::
+
+. . .
+
+Unlike `NaN`, `NA`s are genuinely **unknown** values. Nevertheless, they also have their logical rules. Consider the following example. Let's think about why each of the following four results makes sense:
+
+::::: columns
+::: {.column width="50%"}
+```{r}
+TRUE | NA
+TRUE & NA
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+FALSE | NA
+FALSE & NA
+```
+:::
+:::::
+
+. . .
+
+Note: all special values have their own `is.<special>` function to check for them, i.e. `is.na`, `is.nan` and `is.infinite`.
+
+
+## Data structures
+
+-   On top of these six basic **data types**, R builds several kinds of more complex **data structures** in different ways to suit different applications that are regularly encountered in the statistics / data science context.
+-   We will use the following regularly and hence discuss them in more detail:
+    -   (Atomic) `vector`
+    -   `list`
+    -   `matrix`
+    -   `data.frame`
+    -   `factor`
+    -   `Date`
+
+## Atomic vector
+
+An **atomic vector** is a simple vector of values of **one data type**. Values can be **concatenated** together into a vector using the `c` function. For example:
+
+```{r}
+x <- c(3, 4, 5)
+x
+```
+
+. . .
+
+Since we have filled the vector `x` with values of type `double`, it will itself also be of type `double`. It has several attributes / characteristics such as `length`:
+
+```{r}
+typeof(x)
+is.double(x)
+length(x)
+```
+
+. . .
+
+We can also assign names to the vector elements:
+
+```{r}
+names(x) <- c("a", "b", "c")
+x
+```
+
+
+## Atomic vector
+
+What happens if we try to create a vector with data of different types?
+
+```{r}
+y <- c(1, "a", TRUE)
+y
+```
+
+. . .
+
+When we attempt to combine different types, R will **coerce** the data in a fixed order, namely `character` $\to$ `double` $\to$ `integer` $\to$ `logical`, i.e. if any data of a higher-order type appears in the vector creation, the vector will be of that type:
+
+```{r}
+typeof(y)
+```
+
+. . . 
+
+So, what will be the type of the following vector?
+
+```{r}
+z <- c(0L, 1L, 2, TRUE)
+```
+
+. . .
+
+As the `2` is of type `double`, this is the highest-order type in the vector, so:
+
+```{r}
+typeof(z)
+```
+
+## Working with vectors -- Vectorization
+
+Most operations in R are **vectorized**, which means they are (automatically) performed element by element:
+
+```{r}
+x
+x^2
+log(x)
+```
+
+This also applies when we want to add / subtract / multiply / divide two vectors **element-wise**:
+
+```{r}
+y <- c(5, 12, 13)
+x + y
+x * y
+```
+
+
+## Working with vectors -- Vectorization
+
+If two vectors are of different lengths, then R recycles the smaller one to allow operations like the following:
+
+```{r}
+x <- c(1, 2, 3)
+y <- c(10, 20, 30, 40, 50, 60)
+x + 2
+x + y
+```
+
+However, **beware of recycling**:
+
+```{r}
+x <- c(1, 2, 3)
+y <- c(10, 20, 30, 40, 50, 60, 70)
+x + y
+```
+
+
+## Working with vectors -- Sequences
+
+To create vectors that are **sequences**, there is a very useful R function called `seq`:
+
+```{r}
+seq(1, 10)
+seq(2, 20, by = 2)
+seq(1.2, 0.2, by = -0.1)
+```
+
+. . .
+
+Sequences of **consecutive integers** -- like the first one we saw -- are particularly frequently needed in (R) programming. For this reason, there is a short-hand notation ("syntactic sugar") to create sequences of that kind, which is `start_value:end_value`:
+
+```{r}
+s <- 1:10
+typeof(s)
+s
+```
+
+
+## Working with vectors -- Subsetting
+
+If we want to extract or replace elements of a vector, you can use **square brackets** `[]` with logical or numeric input:
+
+```{r}
+alphabet <- c("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n",
+              "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z")
+# Numeric subsetting
+alphabet[1:3] # first three
+alphabet[3:1] # first three in descending order
+alphabet[c(2, 4)] # second and fourth
+alphabet[-(1:10)] # all except the first 10
+alphabet[5] <- "E" # replace the fifth element by a capital E
+
+# Logical subsetting
+alphabet == "E"
+alphabet[alphabet == "E"]
+```
+
+
+## Working with vectors -- Subsetting
+
+We can also use the `which` function to turn a logical vector into an integer vector that gives the indices of all elements in the vector that are `TRUE`:
+
+```{r}
+which(alphabet == "E")
+alphabet[which(alphabet == "E")]
+```
+
+. . .
+
+With the `%in%` operator, we can check whether elements of the vector are contained **in** another vector:
+
+```{r}
+alphabet %in% c("x", "y", "z")
+which(alphabet %in% c("x", "y", "z"))
+alphabet[alphabet %in% c("x", "y", "z")]
+```
+
+## Working with vectors -- Sorting
+
+For sorting vectors, we can use the `sort` function. This works with `character` vectors:
+
+```{r}
+# Sorting a character vector
+unsorted_letters <- sample(alphabet)
+unsorted_letters
+sorted_letters <- sort(unsorted_letters)
+sorted_letters
+```
+
+. . .
+
+... as well as with numeric vectors:
+
+```{r}
+# Sorting a numeric vector in decreasing order:
+unsorted_numbers <- sample(1:20)
+unsorted_numbers
+sorted_numbers <- sort(unsorted_numbers, decreasing = TRUE)
+sorted_numbers
+```
+
+
+## List
+
+Lists are a step up in complexity from atomic vectors: each element can be any type, not just vectors. We construct lists with the function `list`:
+
+```{r}
+l1 <- list(1:3, "R", c(TRUE, FALSE, TRUE), c(2.3, 5.9))
+
+l1
+typeof(l1)
+```
+
+Lists are sometimes called **recursive** vectors because a list can contain other lists. This makes them fundamentally different from atomic vectors.
+
+
+## List
+
+The elements of a list can also have names. These can be accessed with the help of the `$` operator. Alternatively, to access **a single** element of a list, we can also use **double square brackets** `[[]]`:
+
+```{r}
+names(l1) <- c("A", "B", "C", "D")
+l1
+l1$A
+l1[[3]]
+l1[["D"]]
+```
+
+
+## Working with lists -- Subsetting
+
+For subsetting lists, essentially the same rules apply as for atomic vectors, i.e. we can subset using numeric or logical arguments and single square brackets `[]`:
+
+```{r}
+# Numeric subsetting
+l1[1:2] # First two elements
+l1[-(1:2)] # All elements except the first
+
+# Logical subsetting
+l1[c(FALSE, FALSE, FALSE, TRUE)]
+```
+
+
+## Matrix
+
+One way to construct more complex data structures on top of elementary building blocks like vectors or lists is to assign a `class` to them. A **class** is metadata about the object that can determine how common functions operate on that object.
+
+. . .
+
+Probably the easiest example of this is a `matrix`. A matrix is just a two-dimensional array of numbers:
+
+```{r}
+m <- matrix(1:12, nrow = 3, ncol = 4)
+m
+```
+
+The function `matrix` will fill up the matrix column by column by default. There is an option to fill them by row instead, see `?matrix`.
+
+## Matrix
+
+Technically speaking, in R, a matrix is actually just a vector with an **attribute** that specifies the **dimensions** (i.e. number of rows and columns) of the matrix. We can access the dimensions of a matrix with the help of the functions `dim`, `nrow` and `ncol`:
+
+```{r}
+typeof(m) # just an integer vector behind the scenes
+dim(m) # but dimensions are 3 x 4 (3 rows, 4 columns)
+nrow(m) # number of rows
+ncol(m) # number of columns
+class(m) # It is of class matrix and array
+```
+
+
+## Matrix
+
+We can add additional rows or columns with the help of `rbind` or `cbind`:
+
+```{r}
+m <- cbind(m, c(13, 14, 15))
+m
+m <- rbind(rep(1, 5), m)
+m
+```
+
+. . .
+
+For a matrix, we can set both **row names** and **column names**:
+
+```{r}
+rownames(m) <- c("row_1", "row_2", "row_3", "row_4")
+colnames(m) <- c("A", "B", "C", "D", "E")
+m
+```
+
+
+## Working with matrices -- Subsetting
+
+As a matrix is a two-dimensional object, we need **two indices** separated by a comma for subsetting. If we do not specify one dimension, all elements across that dimension are selected:
+
+```{r}
+m[2, ] # 2nd row
+m[, 3] # 3rd column
+m[3, 4] # 3rd element of the 4th column
+m[c(FALSE, FALSE, FALSE, TRUE), ] # 4th row
+```
+
+. . .
+
+We can also subset by name if column and / or row names are provided:
+
+```{r}
+m["row_4", "E"]
+```
+
+
+## Data Frame
+
+As a matrix is basically just a vector underneath, all values still need to be of the same data type. However, real tabular data often includes **data of different types** (e.g. name, height, education). To represent this, we need a data structure where the columns can be of different types.
+
+. . . 
+
+In R, such a data structure is provided by the `data.frame`. Underlying it is a named list, whose elements represent columns. Therefore, all elements need to have **the same length**. Consider the following example:
+
+```{r}
+heights <- c(176, 178, 156)
+names <- c("Anna", "Jakob", "Lisa")
+educ <- c("BSc", "MA", "PhD")
+df <- data.frame(heights = heights, names = names, educ = educ)
+df
+```
+
+## Data Frame
+
+::: slightlysmall
+Let's inspect the "list nature" of the `data.frame` object `df` we just created:
+
+```{r}
+typeof(df)
+class(df)
+```
+:::
+
+. . .
+
+::: slightlysmall
+Even though `df` is fundamentally a `list`, it behaves differently than a standard list:
+
+```{r}
+df
+as.list(df)
+```
+
+This is because, on top of being a list, the object `df` is of class `data.frame`, which changes how common functions operate on it.
+:::
+
+
+## Working with Data Frames
+
+Since a `data.frame` also represents two-dimensional data, many of the functions we used for matrices work on it as well:
+
+```{r}
+dim(df)
+nrow(df)
+colnames(df)
+```
+
+. . . 
+
+In particular, all the subsetting methods we showed are also applicable:
+
+```{r}
+df[1, ]
+df[, 2]
+df[c(TRUE, TRUE, FALSE), 3]
+```
+
+
+## Working with Data Frames
+
+However, as `data.frame`s are lists underneath, we can also use the `$` operator to access the elements of the list as before. 
+
+```{r}
+df$heights
+df$names
+df$educ
+```
+
+. . .
+
+This is a particularly common action when working with real data, as it allows us to access the variables in the columns of the `data.frame`. For example, let's say we made a mistake and found out that Jakob was really 187 cm tall. We could change the corresponding data point as follows:
+
+```{r}
+df$heights[2] <- 187
+df
+```
+
+
+## Factor
+
+A `factor` is R's way to represent **categorical data**. Say, for example, we want to add the sex of the three people in our data set to the `data.frame`. For this, we create a factor and add it as an additional column to `df`:
+
+```{r}
+sex <- factor(c("f", "m", "f"))
+df$sex <- sex
+df
+```
+
+. . .
+
+A `factor` has **levels** that represent the categories that this variable can take (here: "m" for male and "f" for female). In the background, R stores these levels as integers and keeps a map to keep track of the labels. This is more memory efficient than storing all the characters.
+
+```{r}
+df$sex
+```
+
+## Factor
+
+A `factor` is another example of a data structure that is built on top of an atomic vector using a `class` attribute. The data is stored as an integer vector (**data type**), but because the object is of class `factor`, R uses different **methods** to act on the object (compared to a standard integer vector). This type of behaviour is one of the things that makes R very powerful for data science.
+
+```{r}
+typeof(df$sex)
+as.integer(df$sex)
+class(df$sex)
+df$sex
+```
+
+As we will see, properly encoding categorical data as factors is an essential step in data preparation.
+
+
+## Date
+
+Finally, a common type of data that needs to be represented in R are **dates**. Dates are typically represented in some sort of format like "DD-MM-YYYY" in the European context, for instance. Let's say, we are given Anna's, Jakob's and Lisa's birthday in different formats:
+
+```{r}
+bday_anna <- "1999-12-01" # YYYY-MM-DD
+bday_jakob <- "16.4.98" # MM.DD.YYYY
+bday_lisa <- "7/June/1995" # DD/MM/YYYY
+```
+
+. . .
+
+R has a specific way of recognizing such date formats using so called **format strings**. For each way of representing date information, there is a corresponding format string. Some important ones are:
+
+::: small
+
+| Format string | Description            | Format string | Description                  |
+|---------------|------------------------|---------------|------------------------------|
+| %Y            | Year with century      | %y            | Year without century         |
+| %m            | Month of year (01-12)  | %j            | Day of the year (0-366)      |
+| %d            | Day of month (01-31)   | %W            | Calendar week (0-53)         |
+| %B            | Full month (e.g. June) | %b            | Abbreviated month (e.g. Jun) |
+
+:::
+
+## Working with dates
+
+So let's try to use this to convert our dates (which are now just `character` objects) to actual dates that R understands using `as.Date`:
+
+```{r}
+bday_anna <- as.Date("1999-12-01", "%Y-%m-%d")
+bday_jakob <- as.Date("16.4.98", "%d.%m.%y")
+bday_lisa <- as.Date("7/June/1995", "%d/%B/%Y")
+bday_anna
+bday_jakob
+bday_lisa
+```
+
+. . .
+
+Now, we can add these dates as a column to our `data.frame`
+
+```{r}
+df$bday <- c(bday_anna, bday_jakob, bday_lisa)
+df
+```
+
+
+## Working with dates
+
+Dates are stored in R as the number of days since [Unix time](https://en.wikipedia.org/wiki/Unix_time), which is the 1st January, 1970. Hence, date vectors are simply `double` vectors of class `Date`.
+
+```{r}
+typeof(df$bday)
+as.double(df$bday)
+class(df$bday)
+```
+
+. . .
+
+With this underlying representation, we can do maths on dates:
+
+```{r}
+df$bday
+df$bday + 30
+df$bday[2] - df$bday[1]
+```
+
+## Working with dates
+
+Note that these operations cannot be performed on the original character strings representing the birthdays:
+
+```{r}
+#| error: true
+
+"1999-12-01" + 10
+```
+
+. . .
+
+To extract individual parts of a date (like year, month, day, weekday, etc.), we can use the `format` function in conjunction with the format strings we saw before for date creation:
+
+```{r}
+format(df$bday, "%Y") # extract birth year
+format(df$bday, "%B") # extract birth month
+format(df$bday, "%A") # extract week day of birth date
+```
+
+
+## Working with dates
+
+![](img/date_format_meme.jpg){fig-align="center"}
+
+
+# Programming basics
+
+## R programming for Data Science
+
+-   By coding in R, we can efficiently perform exploratory data analysis, build machine learning pipelines, and prepare beautiful plots to communicate results effectively using data visualization tools.
+-   However, R is not just a data analysis environment but a **programming language**.
+-   The goal of this is course is not to teach advanced R programming, but in order to facilitate our lives as data scientists, we do need access to certain core programming principles like **conditionals**, **loops** and **functionals**.
+-   So let's dive right in!
+
+
+## Conditionals
+
+**Conditionals** are one of the basic features of programming. They are used for what is called **control flow**. The most common conditional expression is the `if-else` statement. It's best illustrated with an example:
+
+```{r}
+a <- 0
+if (a != 0) {
+  print(1/a)
+} else{
+  print("Can't divide by zero!")
+}
+```
+
+. . .
+
+The condition `a != 0` was evaluated to be `FALSE` (since `a` was assigned 0). So, the conditional went to the `else` statement and printed "Can't divide by zero!" to the console as we told it to. By contrast:
+
+```{r}
+a <- 4
+if (a != 0) {
+  print(1/a)
+} else{
+  print("Can't divide by zero!")
+}
+```
+
+
+## Conditionals
+
+Let's incorporate conditionals into our `quadratic_solver` function from before. Remember that a quadratic equation has no real solutions if the **discriminant** $D$ is negative (because of the root in the "midnight" formula):
+
+$$D = b^2 - 4ac$$
+
+. . .
+
+So far, when this is case, our function produces `NaN`s and a warning:
+
+```{r}
+quadratic_solver(2, 2, 2)
+```
+
+. . .
+
+Let's fix this by:
+
+-   Returning no solutions / NA if $D < 0$.
+-   Returning one solution if $D = 0$.
+-   Returning two solutions (as before) if $D > 0$.
+
+
+## Conditionals
+
+One solution could be the following:
+
+```{r}
+#| code-line-numbers: "|2|3-5|6-10|11-14|"
+
+quadratic_solver_new <- function(a, b, c){
+  D <- b^2 - 4*a*c
+  if(D < 0){
+    print("Discriminant is negative, no real solutions!")
+    return(NA)
+  } else if(D > 0) {
+    print("Discriminant is positive, two real solutions!")
+    sol_1 <- (-b + sqrt(D))/(2*a)
+    sol_2 <- (-b - sqrt(D))/(2*a)
+    return(c(sol_1, sol_2))
+  } else {
+    print("Discriminant is zero, one real solution!")
+    sol <- -b/(2*a)
+    return(sol)
+  }
+}
+```
+
+. . .
+
+::::: columns
+::: {.column width="50%}
+```{r}
+quadratic_solver_new(2, 2, 2)
+quadratic_solver_new(3, -5, 1)
+```
+:::
+
+::: {.column width="50%}
+```{r}
+quadratic_solver_new(1, 2, 1)
+```
+:::
+:::::
+
+
+## Conditionals
+
+`if-else` statements like the ones we saw only work on a single logical. For a **vectorized** version, there is the very useful `ifelse` function: 
+
+```{r}
+a <- c(0, 2, 4, 6, 0, 8)
+ifelse(a != 0, 1/a, NA)
+```
+
+. . .
+
+This function takes three arguments: a logical and two possible answers. If the logical is TRUE, the value in the second argument is returned and if FALSE, the value in the third argument is returned. When operating on vectors, `ifelse` takes the corresponding **elements** of the second or third argument.
+
+Here' another example:
+
+```{r}
+x <- 1:10
+ifelse(x %% 2 == 0, "even", "odd")
+```
+
+Note: `x %% 2` gives the remainder when dividing x by 2.
+
+
+## For-loops
+
+In general, **loops** control flow structures that enable the repeated execution of a code block as long as a specified condition is met. This saves a lot of manual work and code duplication. We will discuss two types of loops: `for` loops and `while` loops.
+
+. . .
+
+`for` loops are used to **iterate** over items in a vector. The logic is "for every item in this vector, do the following". This logic is implemented in the following basic form:
+
+```{r}
+#| eval: false
+
+for(item in vector) {
+  perform_action
+}
+```
+
+. . .
+
+Following this notation, we can refer to the element of the `vector` in the current loop cycle with the name of `item`. In the first cycle, it will be the first element of the vector, in the second, it will be the second, and so on...
+
+## For-loops
+
+Let's see an example of a `for` loop that prints both solutions to the quadratic equation from before in a nice format:
+
+```{r}
+solutions <- quadratic_solver_new(3, -5, 1)
+n <- length(solutions)
+
+for(i in 1:n){
+  print(paste0("Solution ", i, ": ", round(solutions[i], 3)))
+}
+```
+
+. . .
+
+Note that we do not have to loop through an integer vector, we can loop through any atomic vector or list. For example, we could loop through all the elements of the list `l1` from earlier and print it to the console only if it is a numeric vector:
+
+```{r}
+for(el in l1){
+  if(is.numeric(el)){
+    print(el)
+  }
+}
+```
+
+
+## While-loops
+
+Another type of loop is a `while` loop. It repeats a specified action as long as a certain condition is met. It has the following basic form:
+
+```{r}
+#| eval: false
+
+while(condition){
+  perform_action
+}
+```
+
+. . .
+
+Note that `for` and `while` loops are interchangeable in **every circumstance**, i.e. every `for` loop can be implemented as a `while` loop and vice versa. Usually, the choice between the two is a question of code readability and efficiency considerations. Compare the following two examples:
+
+::::: columns
+::: {.column width="50%"}
+```{r}
+#| code-line-numbers: "|4"
+
+i <- 1L
+while(i <= 3L){
+  print(i)
+  i <- i + 1L
+}
+```
+
+Note that the last step in the loop is crucial. Otherwise we loop infinitely!
+
+:::
+
+::: {.column width="50%"}
+```{r}
+for(i in 1:3){
+  print(i)
+}
+```
+:::
+:::::
+
+
+## Functionals
+
+In R, a very commonly used alternative to loops is the use of **functionals**. Functionals are functions that take another function as an input and returns a vector as output. Common functionals we will have a look at are `lapply`, and `apply`. Let's start with `lapply`.
+
+. . .
+
+`lapply` requires as arguments an atomic vector or a list and a function that it should apply to each element of that atomic vector or list. Let's say we wanted to sort each vector in a list of vectors. We could do:
+
+```{r}
+l2 <- list(sample(1:10), sample(1:20))
+l2
+lapply(l2, sort)
+```
+
+
+## Functionals
+In fact, we can pass named arguments that we would usually pass to the function to be applied directly to `lapply` instead:
+
+```{r}
+lapply(l2, sort, decreasing = TRUE)
+```
+
+. . .
+
+Instead of using `lapply` with a pre-existing (or user-defined) function, we can also create an inline function that exists only for the purpose of that `lapply` call. For example, we might want to square each vector in the list after sorting:
+
+```{r}
+lapply(l2, function(x) sort(x, decreasing = TRUE)^2)
+```
+
+Such functions are called **anonymous functions** as they do not have a name.
+
+
+
+## Functionals
+
+The **matrix** equivalent of `lapply` is called `apply`. It can apply a given function to every row and / or every column of a matrix. Besides requiring the matrix and the function to be applied, it requires an indication of whether application should happen over **rows** (1) or **columns** (2). Consider the following example to compute the row and column sums of a matrix:
+
+```{r}
+m <- matrix(1:9, 3, 3)
+m
+apply(m, 1, sum)
+apply(m, 2, sum)
+```
+
+. . .
+
+The use of functionals like `lapply` and `apply` is usually preferable over loops because it pre-specifies what should happen with the result (e.g. `lapply` will always hold the results in a list).
+
+
+# Packages
+
+## Packages
+
+-   With the base installation, R comes with a lot of functionality already. However, statisticians and data scientists all over the world constantly come up with new methods and clever code to solve problems.
+-   To share this code, they create **R packages**: these include fundamental units of reproducible R code, including reusable R functions, the documentation that describes how to use them, and sample data.
+-   To make these packages available, the creators typically upload them to the **Comprehensive R Archive Network (CRAN)**.
+-   From there, any R user can download and install these packages and use them for their own workflows.
+
+## Packages
+
+-   As of 22nd February 2025, there are 22,100 R packages available for download on [CRAN](https://cran.r-project.org/web/packages/). Each of them has a unique name that we can use to obtain it.
+-   We will be working only with a select few of them.
+-   One of them will be **ggplot2**, which is one of the most popular R packages used for data visualization.
+-   As an R programmer, one typically finds packages that solve a given problem by googling the problem one is encountering. Chances are that someone else has had this problem before...
+
+. . .
+
+To install a package, we call the function `install.packages` on the name of the package:
+
+```{r}
+#| eval: false
+
+install.packages("ggplot2")
+```
+
+This downloads and installs the package on your computer. 
+
+## Packages
+
+As with any software, an R package only needs to be **installed** once.
+
+. . .
+
+After installation, we need to tell R to make the functions provided by this package available to us in our current R session. For this we call the function `library` on the name of the package:
+
+```{r}
+library(ggplot2)
+```
+
+-   Now, all data and functions offered by this package can be used. 
+-   A package comes with a [reference manual](https://cran.r-project.org/web/packages/ggplot2/ggplot2.pdf) and often additional documentation in the form of so called package [**vignettes**](https://cran.r-project.org/web/packages/ggplot2/vignettes/ggplot2.html).
+-   This helps the user understand how to use the functions in the package.
+-   Additionally, documentation on individual functions is always available through the help of the `?` operator.
+
+
+## Packages
+
+```{r}
+#| fig-height: 7.5
+#| fig-width: 16
+
+ggplot(mpg, aes(displ, hwy, colour = class)) + 
+  geom_point() + 
+  xlab("Engine Displacement") + ylab("MPG") + 
+  theme(legend.text = element_text(size=14), axis.text = element_text(size=14), axis.title = element_text(size=14))
+```
+
+

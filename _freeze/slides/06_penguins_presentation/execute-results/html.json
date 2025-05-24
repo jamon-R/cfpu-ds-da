@@ -1,0 +1,21 @@
+{
+  "hash": "fb7862e9311a71f40fd1e5e9c8ebbc20",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"Palmer Penguins\"\nsubtitle: \"A presentation on penguins in the Palmer Archipelago\"\nauthor: \"Julian Amon, PhD\"\ndate: \"May 28, 2025\"\ndate-format: long\nfooter: \"Palmer Penguins\"\nformat:\n  revealjs:\n    width: 1350\n    height: 900\n    slide-number: true\n    fig-width: 14\n    embed-resources: true\n    controls: true\nhighlight-style: arrow\n---\n\n\n\n# Introduction\n\n\n\n\n\n\n\n## Meet the penguins\n\n-   For this analysis, we will use the **penguins** data set from the `palmerpenguins` package. The website belonging to this package can be found [here](https://allisonhorst.github.io/palmerpenguins/).\n-   The data set comprises measurements of three types of penguins, namely:\n    -   Adelie 🐧\n    -   Chinstrap 🐧\n    -   Gentoo 🐧\n\n## Meet the penguins\n\n@fig-penguins shows a scatter plot of the flipper length against the body mass of all penguins in the data set:\n\n\n\n::: {.cell}\n\n```{.r .cell-code}\nggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) + \n  geom_point()\n```\n\n::: {.cell-output-display}\n![A scatter plot of flipper length against body mass](06_penguins_presentation_files/figure-revealjs/fig-penguins-1.png){#fig-penguins width=1344}\n:::\n:::\n",
+    "supporting": [
+      "06_penguins_presentation_files"
+    ],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {
+      "include-after-body": [
+        "\n<script>\n  // htmlwidgets need to know to resize themselves when slides are shown/hidden.\n  // Fire the \"slideenter\" event (handled by htmlwidgets.js) when the current\n  // slide changes (different for each slide format).\n  (function () {\n    // dispatch for htmlwidgets\n    function fireSlideEnter() {\n      const event = window.document.createEvent(\"Event\");\n      event.initEvent(\"slideenter\", true, true);\n      window.document.dispatchEvent(event);\n    }\n\n    function fireSlideChanged(previousSlide, currentSlide) {\n      fireSlideEnter();\n\n      // dispatch for shiny\n      if (window.jQuery) {\n        if (previousSlide) {\n          window.jQuery(previousSlide).trigger(\"hidden\");\n        }\n        if (currentSlide) {\n          window.jQuery(currentSlide).trigger(\"shown\");\n        }\n      }\n    }\n\n    // hookup for slidy\n    if (window.w3c_slidy) {\n      window.w3c_slidy.add_observer(function (slide_num) {\n        // slide_num starts at position 1\n        fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);\n      });\n    }\n\n  })();\n</script>\n\n"
+      ]
+    },
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

@@ -1,0 +1,35 @@
+/*-- scss:defaults --*/
+
+// fonts
+$presentation-heading-color: #3A5883;
+
+/*-- scss:rules --*/
+
+.reveal #title-slide .subtitle {
+  color: #3A5883;
+  font-weight: bold;
+}
+
+.xlarge {
+  font-size: 2em;
+}
+
+.large {
+  font-size: 1.5em;
+}
+
+.slightlysmall {
+  font-size: 0.9em;
+}
+
+.small {
+  font-size: 0.8em;
+}
+
+.xsmall {
+  font-size: 0.6em;
+}
+
+.xxsmall {
+  font-size: 0.5em;
+}

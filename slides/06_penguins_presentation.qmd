@@ -1,0 +1,50 @@
+---
+title: "Palmer Penguins"
+subtitle: "A presentation on penguins in the Palmer Archipelago"
+author: "Julian Amon, PhD"
+date: "May 28, 2025"
+date-format: long
+footer: "Palmer Penguins"
+format:
+  revealjs:
+    width: 1350
+    height: 900
+    slide-number: true
+    fig-width: 14
+    embed-resources: true
+    controls: true
+highlight-style: arrow
+---
+
+# Introduction
+
+```{r}
+#| echo: false
+#| include: false
+
+library(ggplot2)
+library(palmerpenguins)
+```
+
+## Meet the penguins
+
+-   For this analysis, we will use the **penguins** data set from the `palmerpenguins` package. The website belonging to this package can be found [here](https://allisonhorst.github.io/palmerpenguins/).
+-   The data set comprises measurements of three types of penguins, namely:
+    -   Adelie 🐧
+    -   Chinstrap 🐧
+    -   Gentoo 🐧
+
+## Meet the penguins
+
+@fig-penguins shows a scatter plot of the flipper length against the body mass of all penguins in the data set:
+
+```{r}
+#| label: fig-penguins
+#| fig-cap: A scatter plot of flipper length against body mass
+#| echo: true
+#| warning: false
+
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) + 
+  geom_point()
+```
+

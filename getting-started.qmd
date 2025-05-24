@@ -1,0 +1,9 @@
+---
+title: "Getting started"
+---
+
+```{=html}
+
+<iframe width="1350" height="900" src="slides/00_Getting_started.html" class="slide-deck"></iframe>
+
+```

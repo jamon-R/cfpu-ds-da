@@ -1,0 +1,1810 @@
+---
+title: "Data Science and Data Analytics"
+subtitle: "The Data Science Workflow II -- Visualize"
+author: "Julian Amon, PhD"
+date: "April 4, 2025"
+date-format: long
+institute: Charlotte Fresenius Privatuniversität
+footer: "Data Science and Data Analytics -- The Data Science Workflow II"
+format:
+  revealjs:
+    theme:
+      - default
+      - slides.scss
+    width: 1350
+    height: 900
+    slide-number: true
+    logo: img/UOS_Logo.jpg
+    fig-width: 14
+    controls: true
+    embed-resources: true
+highlight-style: arrow
+execute: 
+  warning: true
+  echo: true
+editor_options: 
+  chunk_output_type: console
+---
+
+# First steps in data visualization
+
+```{r}
+#| echo: false
+#| include: false
+
+if(!require("ggplot2")) install.packages("ggplot2")
+if(!require("ggthemes")) install.packages("ggthemes")
+if(!require("ggrepel")) install.packages("ggrepel")
+if(!require("gganimate")) install.packages("gganimate")
+if(!require("gifski")) install.packages("gifski")
+if(!require("paletteer")) install.packages("paletteer")
+if(!require("gridExtra")) install.packages("gridExtra")
+if(!require("RColorBrewer")) install.packages("RColorBrewer")
+if(!require("socviz")) install.packages("socviz")
+if(!require("palmerpenguins")) install.packages("palmerpenguins")
+
+Sys.setlocale("LC_TIME", "en_GB.UTF-8")
+set.seed(42)
+```
+
+## The Data Science workflow -- Visualize
+
+![](img/data-science-cycle.004.png){fig-align="center"}
+
+## Why even look at data?
+
+-   Given the multitude of ways we can describe data numerically (using descriptive statistics), why do we even bother to present data visually?
+-   The answer is that descriptive statistics can never tell us the full story about our data. Consider the following artificial data set from Anscombe (1973):
+
+```{r}
+#| echo: false
+quartet <- reshape(anscombe, list(names(anscombe)[1:4], names(anscombe)[5:8]), v.names = c("x", "y"),
+                   direction = "long", timevar = "data_id")
+quartet <- quartet[, -4]
+rownames(quartet) <- NULL
+```
+
+. . .
+
+:::::: columns
+::: {.column width="2%"}
+:::
+
+::: {.column width="49%"}
+It is a collection of four data sets, each with 11 observations for variables `x` and `y`. Here is the first 2 rows of each:
+
+```{r}
+#| echo: false
+
+quartet[c(1, 2, 12, 13, 24, 25, 36, 37), ]
+```
+:::
+
+::: {.column width="49%"}
+All these four data sets have: same mean and SD in `x` and `y`, and same correlation between them:
+
+```{r}
+#| echo: false
+
+quartet_summary <- aggregate(quartet[,-1], by = list(quartet$data_id), FUN = function(x) c(mean(x), sd(x)))
+quartet_summary <- round(cbind(quartet_summary$Group.1, quartet_summary$x, quartet_summary$y), 3)
+quartet_summary <- cbind(quartet_summary,
+                         round(sapply(1:4, function(i) cor(quartet[quartet$data_id == i, c("x", "y")])[1,2]), 3))
+colnames(quartet_summary) <- c("data_id", "mean_x", "sd_x", "mean_y", "sd_y", "cor")
+as.data.frame(quartet_summary)
+```
+
+So, seems like these data sets should look pretty similar, right?
+:::
+::::::
+
+## Why even look at data?
+
+```{r}
+#| echo: false
+#| warning: false
+#| fig-height: 8
+
+library(ggplot2)
+
+ggplot(quartet, aes(x = x, y = y)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  facet_wrap(~data_id)
+
+```
+
+## Why even look at data?
+
+-   While this is an extreme, manufactured example, it does prove a point: visualizing data offers insight that the study of pure statistics does not.
+-   But that does not mean looking at data is all one needs to do:
+    -   Real data sets are often complicated and messy, displaying them graphically presents problems of its own.
+    -   The core problem of visualization is how to **map** relations between observations to visual representations in the plot, like shape, lines, colour, size, etc.
+    -   How to do this optimally for each given data set is subject to considerable debate. There is no simple recipe to follow.
+-   Fortunately, however, there is software that provides a lot of support in our data visualization endeavours.
+
+## Data visualization in R
+
+::: {.callout-note appearance="minimal"}
+"The simple graph has brought more information to the data analyst's mind than any other device."
+
+John Tukey (Statistician, 1915 - 2000)
+:::
+
+-   There are many tools for visualizing data. Of course, we use R 😉
+-   Even with R, there are many approaches / systems / packages for creating data visualizations. By far the most common one is the package `ggplot2`.
+-   The **gg** in `ggplot2` stands for the **grammar of graphics**, which is a coherent system for describing and building graphs developed by statistician Leland Wilkinson in his aptly named 2005 book.
+-   As we will see in great detail, this system constructs plots in layers that are built on top of one another in an additive fashion.
+
+## The grammar of graphics
+
+::: slightlysmall
+The grammar is a set of rules for producing graphics from data, taking pieces of data and mapping them to **geometric objects** (like points and lines) that have **aesthetic attributes** (like position, colour and size), together with further rules for transforming the data if needed, adjusting scales, adapting coordinate system and themes.
+:::
+
+:::::: columns
+::: {.column width="10%"}
+:::
+
+::: {.column width="33%"}
+![](img/grammar_of_graphics_book.jpeg){width="60%"}
+:::
+
+::: {.column width="54%"}
+![](img/grammar_of_graphics.png){width="75%"}
+:::
+::::::
+
+::: {.callout-note appearance="simple"}
+**Note**: a grammar limits the structure of what you can say, but it does not automatically make what you say meaningful, i.e. your code just being "grammatically" correct does not make the resulting plot sensible.
+:::
+
+
+## An introductory example -- Palmer penguins
+
+Let's see an example of how this works with `ggplot2` in practice.
+
+. . .
+
+-   The data set we will use for our first `ggplot` is the [**palmerpenguins**](https://education.rstudio.com/blog/2020/07/palmerpenguins-cran/) data set that can be obtained from CRAN in a package that bears exactly that name.
+-   It contains size measurements, clutch observations, and blood isotope ratios for **three penguin species** observed on three islands in the Palmer Archipelago, Antarctica over a study period of three years.
+
+![](img/palmer_penguins.jpg){fig-align="center" width="50%"}
+
+
+## An introductory example -- Palmer penguins
+
+Make sure the required packages `palmerpenguins` and `ggplot2` are installed. Then we can load them and start by inspecting the data set:
+
+```{r}
+library(palmerpenguins)
+library(ggplot2)
+
+penguins <- as.data.frame(penguins)
+head(penguins)
+```
+
+![](img/penguins_beak.png){.absolute top="550" left="200" width="35%"}
+
+::::: columns
+::: {.column width="90%}
+
+:::
+
+::: {.column width="10%"}
+::: xsmall
+Artwork by [@allison_horst](https://allisonhorst.com/)
+:::
+:::
+:::::
+
+
+## An introductory example -- Palmer penguins
+
+As zoologists, we might be interested in the following questions about the different types of Palmer penguins:
+
+-   Do penguins with longer flippers weigh more or less than penguins with shorter flippers?
+-   What does the relationship between **flipper length** and **body mass** look like? Is it positive? Negative? Linear? Non-linear?
+-   Does the relationship vary by the species of the penguin? How about by the island where the penguin lives?
+
+Let's answer all of these questions using a single visualization.
+
+
+## An introductory example -- Ultimate goal
+
+Ultimately, we want to create the following plot:
+
+```{r}
+#| echo: false
+#| warning: false
+#| fig-height: 7.75
+
+library(ggthemes)
+
+ggplot(penguins,
+       aes(x = flipper_length_mm,
+           y = body_mass_g)) +
+  geom_point(aes(color = species,
+                 shape = species)) +
+  geom_smooth(method = "lm") +
+  labs(x = "Flipper length (mm)",
+       y = "Body mass (g)",
+       title = "Body mass and flipper length",
+       subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
+       color = "Species",
+       shape = "Species") +
+  scale_color_colorblind() +
+  theme_grey(base_size = 16)
+```
+
+
+## First step -- Telling ggplot about our data set
+
+Let's recreate this plot step-by-step.
+
+. . .
+
+With `ggplot2`, we begin a plot with the function `ggplot`. Its first argument is the dataset to use in the graph.
+
+::: columns
+::: {.column width="50%"}
+```{r}
+#| label: penguins-1
+#| fig-show: hide
+
+ggplot(data = penguins)
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+#| ref.label: penguins-1
+#| echo: false
+#| fig-asp: 0.7
+```
+:::
+:::
+
+. . .
+
+For now, we have not told `ggplot` how to visualize the data, so we only have an empty canvas. Now, we will "paint" onto this canvas in layers.
+
+
+## Second step -- Specifying aesthetic mappings
+
+::: slightlysmall
+The second argument of `ggplot` is called `mapping`. It defines how variables in our data set are **mapped** to visual properties (**aesthetics**) of our plot. This argument is always defined in the `aes` function, and the `x` and `y` arguments of `aes` specify which variables to map to the x- and y-axes. We want flipper length on the `x` and body mass on the `y` axis.
+:::
+
+::: columns
+::: {.column width="50%"}
+```{r}
+#| label: penguins-2
+#| fig-show: hide
+#| code-line-numbers: "2-3"
+
+ggplot(data = penguins,
+       mapping = aes(x = flipper_length_mm,
+                     y = body_mass_g))
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+#| ref.label: penguins-2
+#| echo: false
+#| fig-asp: 0.7
+```
+:::
+:::
+
+. . .
+
+::: slightlysmall
+Now, our empty canvas has more structure: x- and y-axis have a range, ticks and labels. But the penguins themselves are not yet on the plot.
+:::
+
+
+## Third step -- Additively layer on geoms
+
+::: slightlysmall
+This is because we have not yet articulated, in our code, **how** to represent the observations from our data frame on our plot. To do so, we need a **geom**, a geometrical object used for data representation. In the example, we want our data represented by points, so we use `geom_point`:
+:::
+
+::: columns
+::: {.column width="50%"}
+```{r}
+#| label: penguins-3
+#| fig-show: hide
+#| code-line-numbers: "4"
+
+ggplot(data = penguins,
+       mapping = aes(x = flipper_length_mm,
+                     y = body_mass_g)) +
+  geom_point()
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+#| ref.label: penguins-3
+#| warning: false
+#| echo: false
+#| fig-asp: 0.7
+```
+:::
+:::
+
+. . .
+
+::: slightlysmall
+Now, we start to have an actual **scatter plot**. Note that R warns us about missing data points. We will suppress this warning in the plots to come.
+:::
+
+
+## A note about geoms
+
+In **ggplot2**, geometric objects are made available with functions that start with `geom_`. People often describe plots by the type of geom that the plot uses, for example:
+
+-   Scatter plots use point geoms (`geom_point`) as we just saw.
+-   Bar charts use bar geoms (`geom_bar`)
+-   Line charts use line geoms (`geom_line`)
+-   Boxplots use boxplot geoms (`geom_boxplot`)
+-   ...
+
+We layer a **geom** onto a ggplot literally in an **additive way**, i.e. by combining the two with a `+` sign. We will learn how to deal with many different geoms in this way.
+
+
+## Fourth step -- Adding aesthetics and layers
+
+::: slightlysmall
+Does the relationship between flipper length and body mass differ by species? To answer this, let's represent species with different coloured points. To achieve this, we modify the **aesthetic** to additionally map species to colour:
+:::
+
+::: columns
+::: {.column width="50%"}
+```{r}
+#| label: penguins-4
+#| warning: false
+#| fig-show: hide
+#| code-line-numbers: "4"
+
+ggplot(data = penguins,
+       mapping = aes(x = flipper_length_mm,
+                     y = body_mass_g,
+                     color = species)) +
+  geom_point()
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+#| ref.label: penguins-4
+#| warning: false
+#| echo: false
+#| fig-asp: 0.7
+```
+:::
+:::
+
+. . .
+
+::: slightlysmall
+In mapping a categorical variable to the colour aesthetic, `ggplot2` automatically assigns a unique colour to each factor level (i.e. each species), a process known as **scaling**. `ggplot2` will also add a legend that explains which values correspond to which levels.
+:::
+
+
+## Fourth step -- Adding aesthetics and layers
+
+::: slightlysmall
+Now, let's add one more layer, a smooth curve displaying the relationship between body mass and flipper length. Since this is a new geometric object representing our data, we will add a new **geom**, namely `geom_smooth` based on a linear model (`lm`):
+:::
+
+::: columns
+::: {.column width="50%"}
+```{r}
+#| label: penguins-5
+#| warning: false
+#| fig-show: hide
+#| code-line-numbers: "6"
+
+ggplot(data = penguins,
+       mapping = aes(x = flipper_length_mm,
+                     y = body_mass_g,
+                     color = species)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+#| ref.label: penguins-5
+#| warning: false
+#| echo: false
+#| fig-asp: 0.7
+```
+:::
+:::
+
+. . .
+
+::: slightlysmall
+We have successfully added lines, but this plot does not look like our ultimate goal. Instead of having only one line for the entire data set, we have separate lines for each of the three penguin species. What went wrong?
+:::
+
+
+## Fourth step -- Adding aesthetics and layers
+
+::: slightlysmall
+When aesthetics are defined in `ggplot()`, at the top level, they’re passed down to each of the subsequent **geom** layers of the plot. However, each geom function can also take a mapping argument, which allows for aesthetics at the local level. Here, we want point colours, but not lines separated by species, so we should specify `color = species` **locally** for `geom_point` only:
+:::
+
+::: columns
+::: {.column width="50%"}
+```{r}
+#| label: penguins-6
+#| warning: false
+#| fig-show: hide
+#| code-line-numbers: "4"
+
+ggplot(data = penguins,
+       mapping = aes(x = flipper_length_mm,
+                     y = body_mass_g)) +
+  geom_point(mapping = aes(color = species)) +
+  geom_smooth(method = "lm")
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+#| ref.label: penguins-6
+#| warning: false
+#| echo: false
+#| fig-asp: 0.7
+```
+:::
+:::
+
+. . .
+
+::: slightlysmall
+We are getting close to our ultimate goal... Some minor details are still missing though.
+:::
+
+
+## Fourth step -- Adding aesthetics and layers
+
+::: slightlysmall
+Due to differences in colour perception (e.g. colour blindness), it is generally not a good idea to represent information using only colours on a plot. Therefore, in addition to colour, we can also map `species` to the `shape` aesthetic:
+:::
+
+::: columns
+::: {.column width="50%"}
+```{r}
+#| label: penguins-7
+#| warning: false
+#| fig-show: hide
+#| code-line-numbers: "5"
+
+ggplot(data = penguins,
+       mapping = aes(x = flipper_length_mm,
+                     y = body_mass_g)) +
+  geom_point(mapping = aes(color = species,
+                           shape = species)) +
+  geom_smooth(method = "lm")
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+#| ref.label: penguins-7
+#| warning: false
+#| echo: false
+#| fig-asp: 0.7
+```
+:::
+:::
+
+. . .
+
+::: slightlysmall
+Note that the legend is automatically updated to reflect the different shapes of the points as well.
+:::
+
+
+## Fifth step -- Adjust scales, labels, titles, ...
+
+::: slightlysmall
+The "clean-up" work involves setting appropriate labels for title, subtitle, axes, and legend using the `labs` function and using the colourblind safe colour palette **scale_color_colorblind** from the `ggthemes` package (an extension of `ggplot2`):
+:::
+
+::: columns
+::: {.column width="50%"}
+```{r}
+#| label: penguins-8
+#| warning: false
+#| fig-show: hide
+#| code-line-numbers: "|3|4-5|6-7|8|9-14|1,15"
+
+library(ggthemes)
+
+ggplot(data = penguins,
+       mapping = aes(x = flipper_length_mm,
+                     y = body_mass_g)) +
+  geom_point(mapping = aes(color = species,
+                           shape = species)) +
+  geom_smooth(method = "lm") +
+  labs(x = "Flipper length (mm)",
+       y = "Body mass (g)",
+       title = "Body mass and flipper length",
+       subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
+       color = "Species",
+       shape = "Species") +
+  scale_color_colorblind()
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+#| ref.label: penguins-8
+#| warning: false
+#| echo: false
+#| fig-asp: 0.7
+```
+:::
+:::
+
+. . .
+
+::: slightlysmall
+Now, we are done, we have built the plot of our ultimate goal step-by-step from the ground up. The example highlights the core principles of how `ggplot2` allows us to build nice-looking informative graphs with relatively little coding effort.
+:::
+
+
+
+# Basic types of plots with `ggplot2`
+
+## Steps in creating a plot with `ggplot2`
+
+Conceptually, the steps we went through are the same for every plot created with `ggplot2`. Based on a **tidy** data set, we always proceed as follows:
+
+-   Telling `ggplot` about our data set.
+-   Specifying **aesthetic mappings**, i.e. what relationships we want to see and by what we want them represented.
+-   Additively layer on **geoms** as needed.
+-   Add and adapt aesthetics and layers until all relationships are displayed.
+-   Adjust scales, labels, titles, ...
+
+. . .
+
+These steps are always the same. We will now only learn in greater detail about how to tell `ggplot` what to do by going through several examples of different data sets, aesthetic mappings, geoms and more. As with anything, the key to improvement is **LOTS** of trial and error...
+
+## Visualizing a numerical variable -- Histogram
+
+Let's say we want to visualize the distribution of body mass (in grams) across all penguins in the sample using a **histogram**. For this, we map the variable `body_mass_g` to `x` and use `geom_histogram`:
+
+::: panel-tabset
+### Code
+
+```{r}
+#| label: hist-1
+#| eval: false
+
+ggplot(penguins, aes(x = body_mass_g)) +
+  geom_histogram()
+```
+
+### Plot
+
+```{r}
+#| ref.label: hist-1
+#| warning: false
+#| echo: false
+#| fig-height: 5.5
+```
+:::
+
+
+## Visualizing a numerical variable -- Histogram
+
+A histogram divides the x-axis into equally spaced bins and then uses the height of a bar to display the number of observations that fall in each bin. `ggplot2` by default creates 30 such bins. We can control this by setting `bins` ourselves:
+
+::: panel-tabset
+### Code
+
+```{r}
+#| label: hist-2
+#| eval: false
+
+ggplot(penguins, aes(x = body_mass_g)) +
+  geom_histogram(bins = 15)
+```
+
+### Plot
+
+```{r}
+#| ref.label: hist-2
+#| warning: false
+#| echo: false
+#| fig-height: 5.5
+```
+:::
+
+
+## Visualizing a numerical variable -- Histogram
+
+We do not like the colour of this histogram. Previously, we set the `color` aesthetic, but here we do not want to **map** colour to a variable. Instead we want to **set** it to a specific colour. This we do in the **geom**, not in the `aes`:
+
+::: panel-tabset
+### Code
+
+```{r}
+#| label: hist-3
+#| eval: false
+
+ggplot(penguins, aes(x = body_mass_g)) +
+  geom_histogram(color = "deepskyblue4", bins = 15)
+```
+
+### Plot
+
+```{r}
+#| ref.label: hist-3
+#| warning: false
+#| echo: false
+#| fig-height: 5.5
+```
+:::
+
+
+## Visualizing a numerical variable -- Histogram
+
+Hm, this is not what we wanted... `ggplot` only coloured the border line of the bars. Turns out that if we want to **fill** the bars in a specific colour, we need to use the `fill` argument of the `geom_histogram` function:
+
+::: panel-tabset
+### Code
+
+```{r}
+#| label: hist-4
+#| eval: false
+
+ggplot(penguins, aes(x = body_mass_g)) +
+  geom_histogram(fill = "deepskyblue4", bins = 15)
+```
+
+### Plot
+
+```{r}
+#| ref.label: hist-4
+#| warning: false
+#| echo: false
+#| fig-height: 5.5
+```
+:::
+
+
+## Visualizing a numerical variable -- Density plot
+
+An alternative visualization for distributions of numerical variables is a **density plot**, which is a smoothed-out version of a histogram. To create one, we simply switch out our **geom** to `geom_density`:
+
+::: panel-tabset
+### Code
+
+```{r}
+#| label: density-1
+#| eval: false
+
+ggplot(penguins, aes(x = body_mass_g)) +
+  geom_density()
+```
+
+### Plot
+
+```{r}
+#| ref.label: density-1
+#| warning: false
+#| echo: false
+#| fig-height: 5.5
+```
+:::
+
+
+## Visualizing a numerical variable -- Density plot
+
+That's a bit boring, let's change the colour again (both of the line itself using `color` and the area below the curve using `fill`):
+
+::: panel-tabset
+### Code
+
+```{r}
+#| label: density-2
+#| eval: false
+
+ggplot(penguins, aes(x = body_mass_g)) +
+  geom_density(color = "deepskyblue4", fill = "deepskyblue4")
+```
+
+### Plot
+
+```{r}
+#| ref.label: density-2
+#| warning: false
+#| echo: false
+#| fig-height: 6
+```
+:::
+
+
+## Visualizing a categorical variable -- Barplot
+
+A simple **bar chart** visualizes the (absolute or relative) frequencies of the levels of a categorical variable. While we could use `ggplot` directly on the data, it is generally preferable to compute frequencies explicitly ourselves, e.g. for species:
+
+::: panel-tabset
+### Code
+
+```{r}
+#| label: bar-1
+#| eval: false
+
+species_freq <- as.data.frame(table(penguins$species))
+names(species_freq)[1] <- "species"
+
+# As we have already computed frequencies, we have to tell the bar geom
+# that it should use the values as they are, i.e. use the "identity":
+ggplot(species_freq, aes(x = species, y = Freq)) +
+  geom_bar(stat = "identity", fill = "deepskyblue4")
+```
+
+### Plot
+
+```{r}
+#| ref.label: bar-1
+#| warning: false
+#| echo: false
+#| fig-height: 5.5
+```
+:::
+
+
+## Visualizing a categorical variable -- Barplot
+
+If the variable has a nominal (and not ordinal) scale, then it is usually preferable to order the bars based on their frequency. For this, we have to **reorder** the factor levels for the species:
+
+::: panel-tabset
+### Code
+
+```{r}
+#| label: bar-2
+#| eval: false
+
+ggplot(species_freq, aes(x = reorder(species, Freq, decreasing = TRUE), y = Freq)) +
+  geom_bar(stat = "identity", fill = "deepskyblue4")
+```
+
+### Plot
+
+```{r}
+#| ref.label: bar-2
+#| warning: false
+#| echo: false
+#| fig-height: 5.5
+```
+:::
+
+
+## Visualizing a categorical variable -- Barplot
+
+Often, we want the bars to be horizontal rather than vertical. To achieve this, we simply flip the axes using `coord_flip`. Additionally, we add nice axis labels:
+
+::: panel-tabset
+### Code
+
+```{r}
+#| label: bar-3
+#| eval: false
+
+ggplot(species_freq, aes(x = reorder(species, Freq, decreasing = TRUE), y = Freq)) +
+  geom_bar(stat = "identity", fill = "deepskyblue4") +
+  labs(x = "Penguin Species", y = "Observed frequency") +
+  coord_flip()
+```
+
+### Plot
+
+```{r}
+#| ref.label: bar-3
+#| warning: false
+#| echo: false
+#| fig-height: 6
+```
+:::
+
+
+## A categorical and a numerical variable
+
+To visualize the relationship between a categorical and a numerical variable, we can create **parallel boxplots**. For example, for the distribution of body weight by species, we could try:
+
+::: panel-tabset
+### Code
+
+```{r}
+#| label: parbox-1
+#| eval: false
+
+ggplot(penguins, aes(x = species, y = body_mass_g, fill = species)) +
+  geom_boxplot()
+```
+
+### Plot
+
+```{r}
+#| ref.label: parbox-1
+#| warning: false
+#| echo: false
+#| fig-height: 5.5
+```
+:::
+
+
+## A categorical and a numerical variable
+
+An alternative to boxplots are so-called **violin plots**. In their simplest form, these are rotated density plots of the numerical variable in each category mirrored to create a symmetric, "violin-like" object:
+
+::: panel-tabset
+### Code
+
+```{r}
+#| label: violin-1
+#| eval: false
+
+ggplot(penguins, aes(x = species, y = body_mass_g, fill = species)) +
+  geom_violin()
+```
+
+### Plot
+
+```{r}
+#| ref.label: violin-1
+#| warning: false
+#| echo: false
+#| fig-height: 5.5
+```
+:::
+
+
+## A categorical and a numerical variable
+
+Since density plots can also mask certain aspects of the distribution of the data, it is often advisable to additionally plot the actual data points on top of the violin plots. We can do this by layering a **point geom** on top:
+
+::: panel-tabset
+### Code
+
+```{r}
+#| label: violin-2
+#| eval: false
+
+ggplot(penguins, aes(x = species, y = body_mass_g, color = species)) +
+  geom_violin() +
+  geom_point()
+```
+
+### Plot
+
+```{r}
+#| ref.label: violin-2
+#| warning: false
+#| echo: false
+#| fig-height: 5.5
+```
+:::
+
+
+## A categorical and a numerical variable
+
+If we have a lot of points close together, then they overlap and it becomes impossible to tell their distribution. To avoid this, we can slightly perturb the points in the `x` direction. This is achieved by switching to `geom_jitter`.
+
+::: panel-tabset
+### Code
+
+```{r}
+#| label: violin-3
+#| eval: false
+
+ggplot(penguins, aes(x = species, y = body_mass_g, color = species)) +
+  geom_violin() +
+  geom_jitter()
+```
+
+### Plot
+
+```{r}
+#| ref.label: violin-3
+#| warning: false
+#| echo: false
+#| fig-height: 5.5
+```
+:::
+
+
+## A categorical and a numerical variable
+
+Another alternative to displaying the distribution of body weights in the three penguin species is to combine their densities into one plot in the usual way, i.e. with the numerical variable on the `x` axis.
+
+::: panel-tabset
+### Code
+
+```{r}
+#| label: multidensity-1
+#| eval: false
+
+ggplot(penguins, aes(x = body_mass_g, fill = species)) +
+  geom_density()
+```
+
+### Plot
+
+```{r}
+#| ref.label: multidensity-1
+#| warning: false
+#| echo: false
+#| fig-height: 5.5
+```
+:::
+
+
+## A categorical and a numerical variable
+
+Now, the densities are overlapping. To avoid this, we could of course not map the `fill` aesthetic. A nice alternative is to set the `alpha` aesthetic, which controls **transparency**. 0 is max transparency, 1 is max opaqueness (default).
+
+::: panel-tabset
+### Code
+
+```{r}
+#| label: multidensity-2
+#| eval: false
+
+ggplot(penguins, aes(x = body_mass_g, fill = species)) +
+  geom_density(alpha = 0.5)
+```
+
+### Plot
+
+```{r}
+#| ref.label: multidensity-2
+#| warning: false
+#| echo: false
+#| fig-height: 5.5
+```
+:::
+
+
+## Two categorical variables
+
+We can use **grouped or stacked bar plots** to visualize the relationship between two categorical variables. For example, we might want to see how often the different species occur on the different islands.
+
+::: panel-tabset
+### Code
+
+```{r}
+#| label: stackedbar-1
+#| eval: false
+
+species_freq <- as.data.frame(table(penguins$species, penguins$island))
+names(species_freq)[1:2] <- c("species", "island")
+
+ggplot(species_freq, aes(x = island, y = Freq, fill = species)) +
+  geom_bar(stat = "identity")
+```
+
+### Plot
+
+```{r}
+#| ref.label: stackedbar-1
+#| warning: false
+#| echo: false
+#| fig-height: 5.5
+```
+:::
+
+
+## Two categorical variables
+
+We can create variations of this plot by changing the `position` argument of `geom_bar`. The default is `stack`. Most useful for comparing distributions are relative frequency plots achieved with `position = "fill"`:
+
+::: panel-tabset
+### Code
+
+```{r}
+#| label: stackedbar-2
+#| eval: false
+
+ggplot(species_freq, aes(x = island, y = Freq, fill = species)) +
+  geom_bar(stat = "identity", position = "fill")
+```
+
+### Plot
+
+```{r}
+#| ref.label: stackedbar-2
+#| warning: false
+#| echo: false
+#| fig-height: 5.5
+```
+:::
+
+
+## Two numerical variables
+
+In the introductory example, we have already seen **scatter plots** and **smooth curves** as ways to illustrate the relationship between two numerical variables. Scatter plots are an absolute staple in a data scientist's toolbox:
+
+::: panel-tabset
+### Code
+
+```{r}
+#| label: scatter-1
+#| eval: false
+
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point()
+```
+
+### Plot
+
+```{r}
+#| ref.label: scatter-1
+#| warning: false
+#| echo: false
+#| fig-height: 5.5
+```
+:::
+
+
+## Three or more variables
+
+The introductory example displayed three variables: `flipper_length_mm` (`x`), `body_mass_g` (`y`) and `species` (`color` and `shape`). In general, we have the following options to introduce additional variables into a scatter plot:
+
+-   Use additional **aesthetics**:
+    -   Colour $\to$ `color` (categorical or numerical variables)
+    -   Shape $\to$ `shape` (categorical)
+    -   Size $\to$ `size` (categorical or numerical variables)
+    -   Transparency $\to$ `alpha` (categorical or numerical variables)
+-   Split plot into **facets**, subplots that each display one subset of the data (categorical variables).
+-   Animate the plot (categorical or numerical variables, especially time).
+-   Create a 3D scatter plot (categorical or numerical variables).
+
+
+## Three or more variables
+
+-   When using aesthetics to represent additional variables, we must be aware that different sorts of variables can be represented more or less well by different kinds of visual representations.
+-   While there are no one-size-fits-all recipes, consider the following order as a heuristic when introducing additional variables into a 2D scatter plot:
+    -   For **continuous variables**: size, colour, transparency.
+    -   For **categorical variables**: colour, shape.
+- For example, in our scatter plot of penguin flipper lengths vs. body masses, we might want to introduce categorical information on **species** and **island**. By the heuristic, we use colour for the first and shape for the second.
+
+
+## Three or more variables -- Colour and shape
+
+In the default setting, the points are quite small, which makes it hard to distinguish the shapes. To mitigate this, we additionally set the `size` aesthetic to something larger, namely 3.
+
+::: panel-tabset
+### Code
+
+```{r}
+#| label: scatter-2
+#| eval: false
+
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g,
+                     color = species, shape = island)) +
+  geom_point(size = 3)
+```
+
+### Plot
+
+```{r}
+#| ref.label: scatter-2
+#| warning: false
+#| echo: false
+#| fig-height: 5.5
+```
+:::
+
+
+## Three or more variables -- Colour and size
+
+Let's say we wanted a scatter plot of penguin bill length vs. bill depth for different species. Additionally, we want information on body mass included as well. A logical choice to represent the latter would be `size`:
+
+::: panel-tabset
+### Code
+
+```{r}
+#| label: scatter-3
+#| eval: false
+
+ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm,
+                     color = species, size = body_mass_g)) +
+  geom_point()
+```
+
+### Plot
+
+```{r}
+#| ref.label: scatter-3
+#| warning: false
+#| echo: false
+#| fig-height: 5.5
+```
+:::
+
+
+## Three or more variables -- Multiple aesthetics
+
+If we now really wanted to go mad, we could add the island back in via the `shape` aesthetic and additionally include the flipper length via the `alpha` aesthetic, so that longer flippers are represented by more opaque points:
+
+::: panel-tabset
+### Code
+
+```{r}
+#| label: scatter-4
+#| eval: false
+
+ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm,
+                     color = species, size = body_mass_g,
+                     shape = island, alpha = flipper_length_mm)) +
+  geom_point()
+```
+
+### Plot
+
+```{r}
+#| ref.label: scatter-4
+#| warning: false
+#| echo: false
+#| fig-height: 5.5
+```
+:::
+
+
+## Three or more variables -- Faceting
+
+-   Clearly, there is now **too much information** in this plot.
+-   Adding too many aesthetic mappings to a plot makes it **cluttered** and difficult to make sense of.
+-   Another way to introduce additional categorical variables is to split your plot into several **facets**.
+-   A facet is a **subplot** that displays one subset of the data. For example, there could be one facet for each factor level of a categorical variable.
+-   We can use facets to explore **conditional relationships**, like the relationship between flipper length and body weight on each of the three islands.
+
+
+## Three or more variables -- Faceting
+
+To facet a plot by a single variable, we use `facet_wrap`. It takes a so-called **formula** as its first argument, which we create with `~` followed by the name of a categorical variable.
+
+::: panel-tabset
+### Code
+
+```{r}
+#| label: facet-1
+#| eval: false
+
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g,
+                     color = species)) +
+  geom_point() +
+  facet_wrap(~island)
+```
+
+### Plot
+
+```{r}
+#| ref.label: facet-1
+#| warning: false
+#| echo: false
+#| fig-height: 5.5
+```
+:::
+
+
+## Three or more variables -- Faceting
+
+To facet a plot by two variables, we use `facet_grid`. We specify the variable to be faceted in the **rows** before the `~` and the variable to be faceted in the **columns** after it. For example, we could additionally facet `sex` in the rows:
+
+::: panel-tabset
+### Code
+
+```{r}
+#| label: facet-2
+#| eval: false
+
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g,
+                     color = species)) +
+  geom_point() +
+  facet_grid(sex~island)
+```
+
+### Plot
+
+```{r}
+#| ref.label: facet-2
+#| warning: false
+#| echo: false
+#| fig-height: 5.5
+```
+:::
+
+
+## Three or more variables -- Labels
+
+-   For some data sets, we can also display an additional variable in a scatter plot by creating informative **labels** for the points.
+-   Our penguin data set is not a good example to illustrate this, so we consider the `elections_historic` data set from the `socviz` package instead:
+    ```{r}
+    library(socviz)
+    elections_historic <- as.data.frame(elections_historic)
+    head(elections_historic[, c("year", "winner", "win_party", "ec_pct",
+                                "popular_pct", "winner_label")])
+    ```
+
+-   This data set contains information on US presidential elections from 1824 to 2016. We will have a look at the winner's share of the electoral college vote and the popular vote.
+
+
+## Three or more variables -- Labels
+
+In a scatter plot, we want to have the popular vote share on the `x` axis and the electoral college vote share on the `y` axis. If we only map these two aesthetics, the plot looks quite uninformative...
+
+::: panel-tabset
+### Code
+
+```{r}
+#| label: labels-1
+#| eval: false
+
+ggplot(elections_historic, aes(x = popular_pct, y = ec_pct)) +
+  geom_point()
+```
+
+### Plot
+
+```{r}
+#| ref.label: labels-1
+#| warning: false
+#| echo: false
+#| fig-height: 5.5
+```
+:::
+
+
+## Three or more variables -- Labels
+
+We do not know who any of these points represent. This is a perfect use case for **labeling** the points. For this, we can use the `label` aesthetic together with the `text` **geom** (there is also a `label` geom, which would work as well):
+
+::: panel-tabset
+### Code
+
+```{r}
+#| label: labels-2
+#| eval: false
+
+ggplot(elections_historic, aes(x = popular_pct, y = ec_pct, label = winner_label)) +
+  geom_text() +
+  geom_point()
+```
+
+### Plot
+
+```{r}
+#| ref.label: labels-2
+#| warning: false
+#| echo: false
+#| fig-height: 5.5
+```
+:::
+
+
+## Three or more variables -- Labels
+
+That is much better already. However, now, there is a lot of overlap. To remedy this, we need an additional library called `ggrepel`, which provides us with a `text_repel` **geom** to avoid overlapping labels:
+
+::: panel-tabset
+### Code
+
+```{r}
+#| label: labels-3
+#| eval: false
+
+library(ggrepel)
+ggplot(elections_historic, aes(x = popular_pct, y = ec_pct, label = winner_label)) +
+  geom_text_repel() +
+  geom_point()
+```
+
+### Plot
+
+```{r}
+#| ref.label: labels-3
+#| warning: false
+#| echo: false
+#| fig-height: 5.5
+```
+:::
+
+
+## Customizing our plots
+
+-   So far, we have seen how to create and extend basic plots, like bar plots, density plots, histograms, and scatter plots by tailoring aesthetic mappings and layering on suitable **geoms** according to our needs.
+-   However, the customization usually does not stop there. We might want to ...
+    -   ... add informative titles, subtitles, captions and axis labels to the plot.
+    -   ... use colours and shapes different from the ones `ggplot` uses by default.
+    -   ... adapt the scale of the `x` and / or `y` axis.
+    -   ... change the font type and size for labels and titles.
+    -   ... set the whole plot in a different theme to suit corporate guidelines.
+    -   ... and so much more...
+-   In `ggplot2`, virtually every aspect of a plot is **customizable**. We will only have a look at how to customize some of the most important ones.
+
+
+# Getting the details right -- Scales, guides and themes
+
+## Understanding scales, guides and themes
+
+-   Outside of aesthetic mappings and geoms, there are three types of functions that do most of the heavy lifting when it comes to customizing our plot:
+    -   The family of `scale_` functions
+    -   The `guides` function and
+    -   The `theme` function.
+-   Due to the sheer amount of options for customizability and the partial overlap between some of these functions, things can become confusing very quickly when working through these functions.
+-   Let's start with a basic delineation of scales, guides and themes.
+
+
+## Understanding scales, guides and themes
+
+-   A rough guide on the use of these functions is the following:
+    -   **Scales**: every aesthetic mapping has a scale. If we want to adjust how that scale is marked or graduated, we use a `scale_` function.
+    -   **Guides**: Many scales come with a legend to help us interpret the graph. These are called guides and can be adjusted with the help of the `guides` function.
+    -   **Themes**: graphs have other features not strictly connected to the structure of the data being displayed. These include background colour, font size, legend placement, etc. To adjust these, we use the `theme` function.
+-   We will now dig deeper into each of these three domains of customization and see examples of how the corresponding functions are used to change the appearance of the data displayed.
+
+
+## Understanding scales
+
+Let's come back to an earlier example from the penguin data set:
+
+::: panel-tabset
+### Code
+
+```{r}
+#| ref.label: scatter-2
+#| eval: false
+```
+
+### Plot
+
+```{r}
+#| ref.label: scatter-2
+#| warning: false
+#| echo: false
+#| fig-height: 6.5
+```
+:::
+
+
+## Understanding scales
+
+This plot has four aesthetic mappings:
+
+-   The variable `flipper_length_mm` is mapped to `x`.
+-   The variable `body_mass_g` is mapped to `y`.
+-   The variable `species` is mapped to `color`.
+-   The variable `island` is mapped to `shape`.
+
+. . .
+
+And each of these mappings has a **scale**:
+
+-   `flipper_length_mm` is a **continuous** variable, so the `x` scale is continuous.
+-   `body_mass_g` is a **continuous** variable, so the `y` scale is continuous.
+-   `species` is an unordered **categorical** variable, so the `color` scale is discrete.
+-   `island` is an unordered **categorical** variable, so the `shape` scale is discrete.
+
+
+## Understanding scales
+
+-   Scales for these mappings may have labels, axis tick marks at particular positions, or specific colours or shapes. If we want to adjust them, we use one of the `scale_` functions.
+-   These functions have the following general structure:
+
+    ![](img/scale_funcs.png){fig-align="center"}
+
+-   So, for example:
+    -   `scale_x_continuous` controls `x` scales for continuous variables
+    -   `scale_y_continuous` controls `y` scales for continuous variables
+    -   `scale_color_discrete` controls `color` scales for discrete variables
+    -   `scale_shape_discrete` controls `shape` scales for discrete variables
+
+
+## Scales in action
+
+Let's see this in action. Say we wanted to override the default for tick marks by having a mark every 5 mm on the `x` axis and every 500 g on the `y` axis. We can use the `breaks` argument to control the position of the tick marks:
+
+::: panel-tabset
+### Code
+
+```{r}
+#| label: scales-1
+#| eval: false
+
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g,
+                     color = species, shape = island)) +
+  geom_point(size = 3) +
+  scale_x_continuous(breaks = seq(170, 230, by = 5)) +
+  scale_y_continuous(breaks = seq(3000, 6000, by = 500))
+```
+
+### Plot
+
+```{r}
+#| ref.label: scales-1
+#| warning: false
+#| echo: false
+#| fig-height: 5.5
+```
+:::
+
+
+## Scales in action
+
+Now, let's say we also wanted to change the colours and shapes used to represent species and island, respectively. For **manually** adapting them, we use `scale_color_manual` and `scale_shape_manual`:
+
+::: panel-tabset
+### Code
+
+```{r}
+#| label: scales-2
+#| eval: false
+
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g,
+                     color = species, shape = island)) +
+  geom_point(size = 3) +
+  scale_x_continuous(breaks = seq(170, 230, by = 5)) +
+  scale_y_continuous(breaks = seq(3000, 6000, by = 500)) +
+  scale_color_manual(values = c("red", "blue", "green")) +
+  scale_shape_manual(values = c(17, 18, 8))
+```
+
+### Plot
+
+```{r}
+#| ref.label: scales-2
+#| warning: false
+#| echo: false
+#| fig-height: 5.5
+```
+:::
+
+
+## A word on shapes
+
+-   The following shapes are most commonly used in R:
+
+    ![](img/points_symbols.png){fig-align="center" width="30%"}
+
+-   You can reference them by using the numbers indicated and passing them to `scale_shape_manual` in the order of the factor levels.
+-   In the example before, we had `Biscoe = 17`, `Dream = 18` and `Torgersen = 8`.
+
+
+## A word on colour
+
+-   Whenever we map `color` or `fill` as an aesthetic, `ggplot2` uses default colour or fill scales that do a fine enough job for exploratory data analysis, but typically have to be tweaked for publication-ready plots.
+-   In the example before, we have **manually** overridden the default using `scale_color_manual` and the names of three colours (red, blue and green).
+-   Choosing the right colour(s) for data visualization is actually a very complex problem that has to consider adequate representation of the underlying data as well as differences in colour perception.
+-   We will only briefly skim the surface of colour choice by looking into some of the excellent options for setting colours that already exist out of the box in `ggplot2`.
+
+
+## A word on colour
+
+-   A collection of colours used for representing data is called a **palette**.
+-   A very popular family of such palettes available in `ggplot2` are the `colorbrewer` palettes. For **discrete** variables, they come in three different types:
+    -   **Qualitative**: best suited to represent unordered categorical data, e.g. penguin species.
+    -   **Sequential**: best suited to represent ordered data that progresses from low to high, e.g. school grades or counts.
+    -   **Diverging**: best suited to represent ordered data with a neutral midpoint and extremes diverging in both directions, e.g. Likert scales.
+-   Depending on the type of data we want represented, we can choose a palette from the corresponding family.
+
+
+## A word on colour -- Qualitative palettes
+
+```{r}
+#| echo: false
+#| fig-height: 7.5
+
+library(RColorBrewer)
+display.brewer.all(type="qual")
+```
+
+
+## A word on colour -- Sequential palettes
+
+```{r}
+#| echo: false
+#| fig-height: 7.5
+
+display.brewer.all(type="seq")
+```
+
+
+## A word on colour -- Diverging palettes
+
+```{r}
+#| echo: false
+#| fig-height: 7.5
+
+display.brewer.all(type="div")
+```
+
+
+## A word on colour -- How to use colorbrewer
+
+-   We can access all of these palettes in our plots by referencing them using the names given in the functions `scale_color_brewer` and `scale_fill_brewer`, respectively.
+-   In our example, we have the `species` variable mapped to colour, which is an unordered categorical variable. A suitable palette to represent it might therefore be `Dark2`, for example.
+-   To do this, we would run the following code (result on the next slide):
+
+    ```{r}
+    #| label: scales-3
+    #| eval: false
+    #| code-line-numbers: "6"
+
+    ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g,
+                         color = species, shape = island)) +
+      geom_point(size = 3) +
+      scale_x_continuous(breaks = seq(170, 230, by = 5)) +
+      scale_y_continuous(breaks = seq(3000, 6000, by = 500)) +
+      scale_color_brewer(palette = "Dark2")
+    ```
+
+
+## A word on colour -- How to use colorbrewer
+
+```{r}
+#| ref.label: scales-3
+#| warning: false
+#| echo: false
+#| fig-height: 7.5
+```
+
+
+## A word on colour -- How to use colorbrewer
+
+-   With these `colorbrewer` palettes, we can represent data from **discrete** variables, like categorical or count data.
+-   However, what if we want to represent a **continuous** variable using colour, such as penguin bill length?
+-   All **sequential** and **diverging** `colorbrewer` palettes can also be used for continuous scales. Depending on the aesthetic, we only have to pass them into the functions `scale_color_distiller` or `scale_fill_distiller`.
+-   Penguin bill length does not have a neutral midpoint, so we use a sequential palette like `YlOrRd` to represent it (result on the next slide):
+
+    ```{r}
+    #| label: scales-4
+    #| eval: false
+    #| code-line-numbers: "2,6"
+
+    ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g,
+                         color = bill_length_mm)) +
+      geom_point(size = 3) +
+      scale_x_continuous(breaks = seq(170, 230, by = 5)) +
+      scale_y_continuous(breaks = seq(3000, 6000, by = 500)) +
+      scale_color_distiller(palette = "YlOrRd")
+    ```
+
+
+## A word on colour -- How to use colorbrewer
+
+```{r}
+#| ref.label: scales-4
+#| warning: false
+#| echo: false
+#| fig-height: 7.5
+```
+
+
+## A final word on colour
+
+-   The options for colour choice are virtually endless. The goal here was merely to introduce colour scales and how to change them.
+-   If you find yourself unhappy with the colour palettes provided by `colorbrewer`, have a look at the [Palette Finder](https://r-graph-gallery.com/color-palette-finder) in the R Graph Gallery:
+
+    ![](img/palette_finder.png){fig-align="center" width="72.5%"}
+
+
+## Understanding guides
+
+Now let's discuss **guides**. For this, consider again our violin plot from earlier:
+
+```{r}
+#| ref.label: violin-1
+#| warning: false
+#| echo: false
+#| fig-height: 5.5
+```
+
+This plot contains redundant information: the species can be inferred from the axis labels, we do not need the additional legend for `species`.
+
+
+## Understanding guides
+
+To "switch off" the guide for a particular aesthetic, we can simply call the `guides` function with the name of the aesthetic as a named argument set to `"none"`:
+
+::: panel-tabset
+### Code
+
+```{r}
+#| label: guides-1
+#| eval: false
+
+ggplot(penguins, aes(x = species, y = body_mass_g, fill = species)) +
+  geom_violin() +
+  guides(fill = "none")
+```
+
+### Plot
+
+```{r}
+#| ref.label: guides-1
+#| warning: false
+#| echo: false
+#| fig-height: 5.5
+```
+:::
+
+
+## Understanding guides
+
+-   Of course, the `guides` function can do much more than simply to "switch off" legends for individual scales.
+-   In fact, it can be used to customize virtually every aspect of a legend such as:
+    -   where the title of the legend should go
+    -   where the labels should be placed
+    -   in which orders the labels should be displayed
+    -   and much more...
+-   As with many aspects of `ggplot2`, this bridge is best crossed, when you first come to it...
+
+
+
+## Understanding themes
+
+-   Finally, a very important domain of plot customization is opened up by the `theme` function. It allows us to customize all aspects that are not directly related to the data being displayed.
+-   A very common basic use of the `theme` function is to place the legend at a different location in the plot and to change font sizes of different labels (result on the next slide):
+
+    ```{r}
+    #| label: themes-1
+    #| eval: false
+
+    ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g,
+                         color = species, shape = island)) +
+      geom_point(size = 3) +
+      labs(title = "Body mass and flipper length",
+           subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
+           caption = "Source: palmerpenguins package",
+           color = "Species",
+           shape = "Island") +
+      theme(legend.position = "bottom",
+            plot.title = element_text(size = rel(1.75)),
+            plot.subtitle = element_text(size = rel(1.5)),
+            plot.caption = element_text(size = rel(0.75)))
+    ```
+
+
+## Understanding themes
+
+```{r}
+#| ref.label: themes-1
+#| warning: false
+#| echo: false
+#| fig-height: 7.5
+```
+
+
+## Using pre-built themes
+
+-   While customizing every single aspect of a plot is definitely possible in `ggplot2`, it is also incredibly cumbersome and usually not necessary.
+-   Instead, we can simply layer on a pre-built **theme** that changes the overall look of a plot all at once.
+-   **Themes** that come shipped with `ggplot2` are: `bw`, `classic`, `dark`, `gray` (default), `light`, `linedraw`, `minimal`, `test` and `void`.
+-   The following slide gives an overview of our plot would look like in each of these themes. If none of those suit your needs, you can have a look at the `ggthemes` package that has plenty more to [offer](https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/).
+
+
+## Using pre-built themes
+
+```{r}
+#| echo: false
+#| warning: false
+#| fig-height: 7.5
+
+library(gridExtra)
+
+my_theme <- theme(plot.subtitle = element_text(size = rel(0.75)),
+                  plot.caption = element_text(size = rel(0.6)),
+                  axis.title = element_text(size = rel(0.8)))
+themes <- c("bw", "classic", "dark", "gray", "light", "linedraw", "minimal", "test", "void")
+
+p <- ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g,
+                     color = species, shape = island)) +
+      geom_point() +
+      labs(subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
+           caption = "Source: palmerpenguins package",
+           color = "Species",
+           shape = "Island")
+plots <- lapply(themes, function(theme_name) p + labs(title = sprintf("theme_%s", theme_name)) + get(sprintf("theme_%s", theme_name))() + my_theme)
+do.call(grid.arrange, plots)
+```
+
+
+## Saving your work
+
+-   Now that we know how to create and customize our own plots, we might want to **save** them to include them in a presentation or send them to a colleague.
+-   The easiest way to do this is to use the function `ggsave`. By default, it will save the most recently created plot into the file name you provide:
+
+    ```{r}
+    #| eval: false
+    
+    ggsave(filename = "my_figure.png")
+    ```
+
+-   You can save the plot as PDF, JPG, PNG (or several other formats) by changing the **file ending** accordingly.
+-   You can also change the dimensions and the resolution of the plot by changing arguments `width`, `height` and `dpi`, respectively.
+-   As always, for more details, refer to the documentation via `?ggsave`.
+
+
+# A sneak peek into what is possible
+
+## A sneak peek into what is possible
+
+```{r}
+#| echo: false
+#| eval: false
+#| warning: false
+#| fig-height: 8
+
+library(paletteer)
+library(gganimate)
+library(gifski)
+
+gdp <- read.csv("data/gm_gdp.csv")
+lex <- read.csv("data/gm_lex.csv")
+pop <- read.csv("data/gm_pop.csv")
+geo <- read.csv("data/gm_geo.csv")
+names(gdp)[4] <- "gdp_percap_2021"
+names(lex)[4] <- "life_exp"
+names(pop)[4] <- "population"
+label_countries <- c("aut", "chl", "chn", "gha")
+year_range <- 1850:2020
+
+df <- merge(gdp[, c("geo", "time", "gdp_percap_2021")],
+            lex[, c("geo", "year", "life_exp")],
+            by.x = c("geo", "time"),
+            by.y = c("geo", "year"))
+df <- merge(df,
+            pop[, c("geo", "time", "population")],
+            by = c("geo", "time"))
+df <- merge(df,
+            geo[, c("geo", "four_regions", "name")],
+            by = "geo")
+df <- df[df$time %in% year_range, ]
+
+p <- ggplot(df, aes(x = gdp_percap_2021, y = life_exp,
+                    size = population, fill = four_regions)) + 
+  geom_text(data = df[!duplicated(df$time), ],
+            mapping = aes(x = 6000, y = 50, label = format(round(time))),
+            size = 70, color = "grey90") + 
+  geom_point(alpha = 0.5, shape = 21) + 
+  geom_text_repel(data = subset(df, geo %in% label_countries),
+                  mapping = aes(x = gdp_percap_2021, y = life_exp, label = name),
+                  max.overlaps = 12, size = 4) + 
+  scale_x_continuous(breaks = 250*2^(0:9), minor_breaks = NULL, transform = "log2") + 
+  scale_y_continuous(breaks = seq(10, 90, by = 10), minor_breaks = NULL, limits = c(8, 95)) + 
+  scale_size_continuous(range = c(0.5, 25)) + 
+  scale_fill_paletteer_d("nbapalettes::warriors_00s",
+                         labels = c("Africa", "Americas", "Asia", "Europe")) + 
+  labs(title = "Economic well-being and life expectancy over time",
+       subtitle = "GDP per capita and life expectancy at birth in countries of the world",
+       x = "GDP per capita (in 2021 USD, PPP)",
+       y = "Life expectancy",
+       fill = "World region",
+       caption = "Source: gapminder") + 
+  guides(size = "none", fill = guide_legend(override.aes = list(size = 4))) + 
+  theme_minimal(base_size = 18) +
+  transition_time(time)
+
+anim <- animate(p, fps = 10, nframes = length(year_range)*2,
+                width = 1400, height = 850,
+                renderer = gifski_renderer())
+anim_save("gifs/gapminder.gif", animation = anim)
+```
+
+
+![](gifs/gapminder.gif)
+

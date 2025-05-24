@@ -1,0 +1,13 @@
+---
+title: "Image sources"
+---
+
+The following table displays the sources of all images used in the slides:
+
+```{r}
+#| echo: False
+
+image_sources <- read.csv2("image_sources.csv")
+knitr::kable(image_sources)
+```
+

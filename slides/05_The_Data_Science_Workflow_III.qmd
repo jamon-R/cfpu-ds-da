@@ -1,0 +1,3065 @@
+---
+title: "Data Science and Data Analytics"
+subtitle: "The Data Science Workflow III -- Model"
+author: "Julian Amon, PhD"
+date: "April 30, 2025"
+date-format: long
+institute: Charlotte Fresenius Privatuniversität
+footer: "Data Science and Data Analytics -- The Data Science Workflow III"
+format:
+  revealjs:
+    theme:
+      - default
+      - slides.scss
+    width: 1350
+    height: 900
+    slide-number: true
+    logo: img/UOS_Logo.jpg
+    fig-width: 14
+    controls: true
+    embed-resources: true
+highlight-style: arrow
+execute: 
+  warning: true
+  echo: true
+editor_options: 
+  chunk_output_type: console
+---
+
+# Introduction to Machine Learning
+
+```{r}
+#| echo: false
+#| include: false
+
+if(!require("ggplot2")) install.packages("ggplot2")
+if(!require("ggthemes")) install.packages("ggthemes")
+if(!require("gridExtra")) install.packages("gridExtra")
+if(!require("palmerpenguins")) install.packages("palmerpenguins")
+if(!require("ISLR")) install.packages("ISLR")
+if(!require("FNN")) install.packages("FNN")
+if(!require("rpart")) install.packages("rpart")
+if(!require("rpart.plot")) install.packages("rpart.plot")
+if(!require("gifski")) install.packages("gifski")
+if(!require("clusteringdatasets")) devtools::install_github("https://github.com/elbamos/clusteringdatasets")
+
+Sys.setlocale("LC_TIME", "en_GB.UTF-8")
+set.seed(42)
+```
+
+## The Data Science workflow -- Model
+
+![](img/data-science-cycle.005.png){fig-align="center"}
+
+## Time to put the data to use...
+
+-   Having imported, tidied, transformed and visualized our data, now it is time to actually put this data to good use...
+-   The goal of the **modeling** stage of the data science workflow is therefore to **detect patterns** and **extract information** from data.
+-   The tools and processes we use for this purpose stem from a field called **machine learning** (or **statistical learning**).
+-   To motivate our study of this field, let's begin with a simple example:
+    -   We are statistical consultants hired to investigate the association between **advertising** and **sales** of a particular product.
+    -   We are given a data set consisting of the `sales` of that product in 200 different markets, along with advertising budgets for three different media: `social_media`, `radio` and `newspaper`.
+
+
+## Machine learning -- A motivating example
+
+-   Our client cannot directly increase sales of course... But, they can control advertising expenses in each of the three media.
+-   Our goal is therefore to develop an accurate **model** that can be used to predict sales on the basis of the three media budgets.
+
+. . .
+
+```{r}
+#| echo: false
+#| warning: false
+
+library(ggplot2)
+advertising <- read.csv("data/advertising.csv")
+advertising <- advertising[, -c(1, 2, 7)]
+
+ads_long <- reshape(advertising,
+                    varying = names(advertising)[1:3],
+                    v.names = "budget",
+                    direction = "long",
+                    times = names(advertising)[1:3],
+                    timevar = "media",
+                    new.row.names = as.character(seq(1, nrow(advertising)*3)))
+
+ggplot(ads_long, aes(x = budget, y = sales)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  facet_wrap(~ media, scales = "free_x") +
+  theme_test()
+```
+
+
+## Machine learning -- A motivating example
+
+-   In this setting, the advertising budgets are **input variables**:
+    -   Input variables are also called **predictors** or **features**.
+    -   We denote them by $X$ with a subscript to distinguish them.
+    -   In the example, $X_1$ is the `social_media` budget, $X_2$ the `radio` budget and $X_3$ the `newspaper` budget.
+-   On the other hand, `sales` is an **output variable**:
+    -   The output variable is also called the **response (variable)** or **label**.
+    -   We denote it by $Y$.
+
+
+## Machine learning -- A motivating example
+
+-   Using this notation more generally, suppose that we observe a **quantitative** response $Y$ and $p$ different predictors $X_1, X_2, \ldots, X_p$.
+-   We assume that there is some relationship between $Y$ and $X = (X_1, X_2, \ldots, X_p)$, which can be written in the very general form
+    $$Y = f(X) + \epsilon,$$
+    where $f$ is some fixed but **unknown** function of $X_1, \ldots, X_p$, and $\epsilon$ is a random **error term**, which is independent of $X$ and has mean zero.
+-   We can think of $f$ as the **systematic information** that $X$ provides about $Y$.
+-   A large part of the **machine learning** literature revolves around different approaches for estimating $f$.
+
+
+## Why estimate $f$? -- Prediction
+
+-   Estimate $f$ for **prediction** purposes: For inputs $X$, we can predict $Y$ using
+    $$\hat{Y} = \hat{f}(X),$$
+    where $\hat{f}$ represents our estimate for $f$ and $\hat{Y}$ represents the resulting prediction for $Y$.
+-   The accuracy of $\hat{Y}$ as a prediction for $Y$ depends on two quantities:
+    -   **Reducible error**: $\hat{f}$ will not be a perfect estimate for $f$ and this inaccuracy will introduce some error. However, it is **reducible** by using more appropriate learning techniques or collecting more data.
+    -   **Irreducible error**: Even if we knew $f$, our prediction would have some error in it. This is because of the random error term $\epsilon$ affecting $Y$.
+
+
+## Why estimate $f$? -- Inference
+
+-   We might also estimate $f$ for **inference** purposes, i.e. to understand the association between $Y$ and $X_1, \ldots, X_p$.
+-   In this context, one may be interested in answering the following questions:
+    -   *Which predictors are associated with the response?* Often only a small subset of the available predictors are important in explaining $Y$.
+    -   *What is the relationship between the response and each predictor?* Is it positive, negative, linear, non-linear, ...?
+-   In the **advertising** example, specific inference-related questions are:
+    -   Which media are associated with sales?
+    -   Which media generate the biggest boost in sales?
+    -   How large of an increase in sales is associated with a given increase in social media advertising?
+
+
+## How do we estimate $f$?
+
+-   We assume that we have observed a set of $n$ different data points. Let $x_{ij}$ represent the value of the $j$th predictor for observation $i$, where $i = 1, 2, \ldots, n$ and $j = 1, 2, \ldots, p$. Correspondingly, let $y_i$ represent the response variable for observation $i$.
+-   With this, our data set consists of
+    $$\{ (x_1, y_1), (x_2, y_2), \ldots, (x_n, y_n) \},$$
+    where $x_i = (x_{i1}, \ldots, x_{ip})$. These observations are called the **training data** because we will use them to **train** our method on how to estimate $f$.
+-   Our goal with this is to estimate the unknown function $f$, i.e. find a function $\hat{f}$ such that $Y \approx \hat{f}(X)$ for any observation $(X, Y)$.
+
+
+## Parametric methods for estimating $f$
+
+-   Broadly speaking, most statistical learning methods for this task can be characterized as either **parametric** or **non-parametric**.
+-   **Parametric methods** involve a two-step model-based approach:
+    1.  Make an assumption about the function form of $f$. For example, one very simple assumption is that $f$ is linear in $X$:
+        $$f(X) = \beta_0 + \beta_1X_1 + \beta_2X_2 + \ldots + \beta_pX_p$$
+    2.  Find and apply a procedure that uses training data to **fit** or **train** the model. In case of the linear model, that means finding values of parameters $\beta_0, \beta_1, \ldots, \beta_p$ such that:
+        $$Y \approx \beta_0 + \beta_1X_1 + \beta_2X_2 + \ldots + \beta_pX_p$$
+
+
+## Non-parametric methods for estimating $f$
+
+-   **Non-parametric** methods do not make explicit assumptions about the functional form of $f$. Instead, they seek an estimate of $f$ that gets as close to the training data points as possible without being too wiggly.
+-   **Advantage**: can accommodate a much wider range of possible shapes for $f$ compared to parametric approaches.
+-   **Disadvantage**: do not reduce the problem of estimating $f$ to a small number of parameters $\to$ a very large number of observations is needed.
+
+::::: {.columns}
+::: {.column width="10%"}
+:::
+
+::: {.column width="45%"}
+![Parametric fit](img/fit_parametric.png){.nostretch width="55%"}
+:::
+
+::: {.column width="45%"}
+![Non-parametric fit](img/fit_nonparametric.png){.nostretch width="55%"}
+:::
+:::::
+
+
+## Estimating $f$ as part of supervised learning
+
+-   Fitting a model for the purposes of prediction or inference based on labeled training data $(x_i, y_i)$ characterizes a class of machine learning problems called **supervised learning**.
+-   For these problems, there is an associated output $y_i$ for each input $x_i$. These **labels** act as a "supervisor" guiding the learning process, similar to a student learning under a teacher's guidance.
+
+![](img/supervised_learning.png){fig-align="center"}
+
+
+## Regression vs. classification problems
+
+-   Supervised learning problems can be further sub-categorized into **regression** and **classification** problems depending on the type of response variable:
+    -   Problems with a **quantitative response** are called **regression problems**, e.g. modeling sales on the basis of the three media budgets.
+    -   Problems with a **categorical response** are called **classification problems**, e.g. modeling consumer credit default based on economic variables. Depending on the number of categories, these problems are either **binary** (e.g. yes/no) or **multiclass** (e.g. Adelie/Chinstrap/Gentoo).
+-   While we select supervised learning methods on the basis of whether the response is quantitative or categorical, the type of the **predictors** is less important. Typically, methods can be applied with both quantitative and categorical predictors.
+
+
+## Unsupervised learning
+
+-   By contrast, **unsupervised learning** describes the somewhat more challenging situation in which we only observe a vector of measurements $x_i$, but no associated response $y_i$.
+-   We cannot fit a model because there is no response variable to predict.
+-   What sort of analysis can we do then?
+    -   **Clustering**: Assigning observations into relatively distinct groups, e.g. market segmentation: grouping customers into clusters based on socio-demographic characteristics.
+    -   **Outlier detection**: Identifying data points that significantly deviate from the norm within a data set, potentially revealing errors, unusual events, or important discoveries.
+    -   ...
+
+
+## Unsupervised learning -- Clustering
+
+```{r}
+#| echo: false
+#| warning: false
+#| fig-height: 8
+
+library(ggthemes)
+library(gridExtra)
+library(palmerpenguins)
+
+p1 <- ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point() +
+  scale_color_colorblind() +
+  labs(x = "", y = "", title = "Data set 1") +
+  theme_minimal()
+p2 <- ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = species)) +
+  geom_point() +
+  scale_color_colorblind() +
+  labs(x = "", y = "", title = "Groups are easier to identify") +
+  guides(color = "none") +
+  theme_minimal()
+p3 <- ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point() +
+  scale_color_colorblind() +
+  labs(x = "", y = "", title = "Data set 2") +
+  theme_minimal()
+p4 <- ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
+  geom_point() +
+  scale_color_colorblind() +
+  labs(x = "", y = "", title = "Groups are more difficult to identify") +
+  guides(color = "none") +
+  theme_minimal()
+
+grid.arrange(p1, p2, p3, p4, ncol = 2)
+```
+
+
+## Machine learning -- Overview with examples
+
+![](img/ml_overview.png){fig-align="center"}
+
+
+# Assessing model accuracy
+
+## Regression -- Measuring the quality of fit
+
+-   In order to evaluate the performance of a statistical learning method on a given data set, we need some way to quantify how far the **predicted** response values are from the **true** response values.
+-   For **regression** problems, the most commonly-used measure is the **mean squared error (MSE)**:
+    $$\text{MSE}_{\text{train}} = \frac{1}{n} \sum_{i=1}^n (y_i - \hat{f}(x_i))^2$$
+    -   The MSE will be **small** if the predicted responses are very close to the true responses.
+    -   The MSE will be **large** if the predicted responses and the true responses differ substantially.
+
+## Training vs. test MSE
+
+-   As we use our $n$ training observations to compute the MSE on the previous slide, we call this the **training MSE**.
+-   However, in general, we do not really care about how well the method works on the training data. Rather, we are interested in the prediction accuracy on previously unseen **test data**.
+-   Consider the following examples:
+    -   When fitting a model to predict a stock price, we do not really care about how well it does on historical stock prices. Instead, we care about how well it predicts **tomorrow's** stock price.
+    -   When estimating a model to predict whether someone has diabetes based on clinical measurements (e.g. weight, blood pressure, age, ...), we want to use this model to predict diabetes risk for **future** patients, not for the ones used for training.
+
+
+## Training vs. test MSE
+
+-   Mathematically speaking, suppose we have a set of $n'$ previously unseen test observations $(x_i', y_i')$ that were **not used to train the machine learning method**. Then we can compute the **test MSE** as:
+    $$\text{MSE}_{\text{test}} = \frac{1}{n'} \sum_{i=1}^{n'} (y_i' - \hat{f}(x_i'))^2$$
+-   We can use this quantity to compare different methods: we want to select the method for which it is **as small as possible**.
+-   Now, how do we go about minimizing **test MSE** on unseen data? Can't we just select the method that minimizes **training MSE**? Turns out this is not a good idea at all...
+
+
+## Training vs. test MSE
+
+::: slightlysmall
+-   Suppose we observe the data points in the left panel, which come from the true $f$ shown in black. We estimate it using three different methods with increasing levels of flexibility (low: [orange]{style="color: #e69f00;"}, medium: [blue]{style="color: #56b4e9;"}, high: [green]{style="color: #009e73;"}).
+-   The right panel shows the corresponding [training]{style="color: grey;"} and [test]{style="color: #cd3333;"} MSEs.
+:::
+
+![](img/train_test_mse.png){fig-align="center" width="72.5%"}
+
+
+## Training vs. test MSE
+
+-   Clearly, the best fit is achieved by the [blue]{style="color: #56b4e9;"} curve, the [orange]{style="color: #e69f00;"} (linear) one is too inflexible, the [green]{style="color: #009e73;"} one is too flexible (too wiggly).
+-   The comparison of train and test MSE as a function of flexibility reveals an interesting pattern:
+    -   The **training MSE** is monotonically decreasing: the more flexible the method, the better we fit our training data.
+    -   However, the all-important **test MSE** exhibits a U-shape: it initially decreases with increasing flexibility, but then levels off and eventually increases again.
+-   This is a fundamental property of statistical learning that holds regardless of data set and statistical method:
+
+    **As model flexibility increases, the training MSE will decrease, but the test MSE may not.**
+
+
+## Over- and underfitting
+
+-   The [green]{style="color: #009e73;"} fit has small training MSE, but high test MSE. We call this **overfitting**:
+    -   With its high flexibility, this method is fitting patterns in the training data that are just caused by **random chance** rather than by true properties of $f$.
+    -   The **test MSE** will then be very large because the supposed patterns that the method found in the training data simply do not exist
+in the test data.
+-   Conversely, the [orange]{style="color: #e69f00;"} (linear) fit has large training MSE and large test MSE. We call this **underfitting**:
+    -   With its low flexibility, namely its assumption of linearity, this method is not able to fit the non-linearity of the true $f$ well, even on the training data.
+    -   By increasing flexibility from here, we are able to use more information contained in $X$ to improve the fit.
+-   Consequently, the [blue]{style="color: #56b4e9;"} fit with medium-level flexibility is close to optimal.
+
+
+## Over- and underfitting
+
+Let's see two more examples.
+
+::::: columns
+::: {.column .small width="50%}
+![](img/train_test_mse2.png)
+
+-   Here, the true $f$ is approximately linear.
+-   The U-shape in test MSE is still there, but because the truth is close to linear, the test MSE only decreases slightly before increasing again.
+:::
+
+::: {.column .small width="50%}
+![](img/train_test_mse3.png)
+
+-   Here, the true $f$ is highly non-linear.
+-   The MSE curves still exhibit the same general patterns, but now there is a rapid decrease in both curves before the test MSE starts to increase slowly.
+:::
+:::::
+
+
+## The bias-variance trade-off
+
+-   The U-shape observed in test MSE curves turns out to be the result of two competing properties of statistical learning methods:
+    $$\text{Expected test MSE} = \text{Var}(\hat{f}) + \text{Bias}(\hat{f})^2 + \text{Var}(\epsilon)$$
+-   So we want methods that simultaneously achieve **low variance** and **low bias**. What is meant by these terms in this context?
+    -   **Variance** refers to the amount by which $\hat{f}$ would change if we estimated it using a different training data set. In general, more flexible statistical methods have higher variance.
+    -   **Bias** refers to the error that is introduced by approximating a complicated real-life problem by a much simpler model. In general, more flexible statistical methods result in less bias.
+
+
+## The bias-variance trade-off
+
+Below, we decompose the three [MSE curves]{style="color: #a8262d;"} from earlier into their three constituent parts: the [variance]{style="color: #f59546;"} of $\hat{f}$, its [squared bias]{style="color: #00d2ef;"} and $\text{Var}(\epsilon)$, the irreducible error (represented by the dashed line):
+
+![](img/bias_var_tradeoff.png){fig-align="center"}
+
+
+## The bias-variance trade-off
+
+-   These plots reveal the following insights:
+    -   As the method's flexibility increases, the **variance increases** and the **bias decreases**.
+    -   The relative rate of change of these two quantities determine whether the test MSE (as the sum of the two plus $\text{Var}(\epsilon)$) increases or decreases.
+    -   This is what we call the **bias-variance trade-off**: bias and variance need to be balanced optimally to minimize test MSE.
+    -   This trade-off is different for every data set and method applied to it.
+-   Due to the particularities of different data sets, there is **no free lunch** in statistical learning: no one method optimally trades off bias and variance on all possible data sets.
+
+
+## Classification -- Measuring the quality of fit
+
+-   With MSE, our discussion of model performance has so far focused on the **regression** setting. But many concepts we encountered easily transfer over to the classification setting.
+-   One thing that does change is the metric for measuring the quality of fit. With $y_1, \ldots, y_n$ now **categorical**, the most common approach for quantifying model accuracy is the training **error rate** $ER$:
+    $$ER_{\text{train}} = \frac{1}{n} \sum_{i=1}^n I(y_i \neq \hat{y}_i),$$
+    where $\hat{y}_i$ is the predicted class label for the $i$th observation using $\hat{f}$ and $I(y_i \neq \hat{y}_i)$ is an indicator variable that equals 1 if $\hat{y}_i \neq y_i$ and 0 if $\hat{y}_i = y_i$.
+
+
+## Training vs. test error rate
+
+-   As in the regression context, we are mostly interested in the prediction accuracy on previously unseen **test data**.
+-   Therefore, if we have a test set of $n'$ observations $(x_i',y_i')$ that were not used to train our method, we can compute the **test error rate** as:
+    $$ER_{\text{test}} = \frac{1}{n'} \sum_{i=1}^n I(y_i' \neq \hat{y}_i')$$
+-   Again, we can use this quantity to compare different **classification** methods: we want to select the method for which the test error rate is **as small as possible**.
+-   Let's consider an example...
+
+
+## Classification example
+
+Suppose we wanted to predict whether an individual will default on his or her credit card payment on the basis of annual income ($X_1$) and monthly credit card balance ($X_2$). Then we might use the $x$ and the $y$ axis to display the two predictors and colour to indicate default (orange) or no default (blue), like so:
+
+::::: columns
+::: {.column width="55%"}
+![](img/classification.png){fig-align="center" width="85%"}
+:::
+
+::: {.column .slightlysmall width="45%"}
+-   Orange and blue circles indicate training observations.
+-   For each value of $X_1$ and $X_2$, there is a different probability of the response being orange or blue.
+-   The orange shaded region reflects the set of points for which $\Pr(Y = \text{orange}|X) > 0.5$.
+-   The purple line indicates the true **decision boundary**.
+:::
+:::::
+
+
+## Classification example
+
+-   The displayed data set is based on simulation, so that we know the **true** decision boundary.
+-   Typically, this is not the case of course and we only observe training data points. The goal then is to come as close as possible to the (unknown) true decision boundary.
+-   Note two parallels to the regression setting:
+    -   Even if we knew the true decision boundary, we would commit errors. This is because there is some **irreducible** error.
+    -   In choosing a classification method, we also have to **trade off bias and variance** to avoid over-/underfitting.
+
+
+## Over- and underfitting -- Regression vs. classification
+
+![](img/overfitting.svg){fig-align="center" width="100%"}
+
+
+## How to get test data
+
+-   To assess when we are likely to overfit, we need some way of measuring the MSE (regression) or ER (classification) on **unseen test data**. How do we do that?
+-   **Answer**: use the training data in a smart way!
+-   There are many different approaches, two prominent ones are:
+    -   **Train/test split**: split the data randomly into a train and test sample and compute error on the test sample.
+    -   **K-fold cross-validation**: split the entire data randomly into $K$ folds. Fit the model using the $K-1$ folds and evaluate the model using the remaining fold. Repeat this process until every fold has served as the test set.
+
+
+## How to get test data -- Train/test split
+
+![](img/train_test_split.jpg){.absolute top=200 right=80 width="90%"}
+
+
+## How to get test data -- K-fold cross validation
+
+![](img/kfold_cv.png){.absolute top=120 right=220 width="70%"}
+
+
+# Linear Regression
+
+## Introduction to linear regression
+
+-   Let's finally get to building our first machine learning model!
+-   One of the most widely used tools for predicting a quantitative variable is **linear regression**.
+-   As the name suggests, linear regression assumes that the dependence of a response variable $Y$ on predictors $X_1, \ldots, X_p$ is linear.
+-   Even if true relationships are rarely linear, this simple approach is extremely useful both conceptually and practically.
+-   Let's start with the simplest case: predicting a quantitative variable $Y$ on the basis of a single predictor $X$. We assume therefore:
+    $$Y = \beta_0 + \beta_1 \cdot X + \epsilon,$$
+    where $\beta_0$ and $\beta_1$ are unknown **parameters** or **coefficients**.
+
+
+## Introduction to linear regression
+
+-   In the case of **simple** linear regression, there are only two coefficients:
+    -   The slope coefficient $\beta_1$. It specifies how much $Y$ changes on average for a given change in $X$.
+    -   The intercept $\beta_0$. It specifies the value that $Y$ takes on average, if $X = 0$.
+-   Given some estimates $\hat{\beta}_0$ and $\hat{\beta}_1$, we can predict future values of $Y$ by using the regression line:
+    $$\hat{y} = \hat{\beta}_0 + \hat{\beta}_1 \cdot x,$$
+    where $\hat{y}$ indicates a prediction of $Y$ on the basis of $X$ being equal to $x$.
+-   For the purposes of illustration, let's come back to the example with sales as a function of advertising budgets.
+
+
+## Introduction to linear regression
+
+Suppose we are only interested in the relationship between the `social_media` budget and `sales`. Our goal is to obtain estimates $\hat{\beta}_0$ and $\hat{\beta}_1$, such that $y_i \approx \hat{\beta}_0 + \hat{\beta}_1x_i$ for $i = 1, \ldots, n$. There are multiple ways to do this.
+
+```{r}
+#| echo: false
+#| warning: false
+#| fig-height: 6
+
+m1 <- lm(sales ~ social_media, data = advertising)
+
+ggplot(advertising, aes(x = social_media, y = sales)) +
+  geom_point(size = 2, color = "#c7363f") +
+  geom_smooth(method = "lm", se = FALSE) +
+  geom_segment(aes(xend = social_media, yend = fitted(m1))) +
+  theme_test()
+```
+
+
+## Estimating coefficients through OLS
+
+::: slightlysmall
+-   Let $\hat{y}_i = \hat{\beta}_0 + \hat{\beta}_1x_i$ be the **fitted value** for $Y$ based on the $i$th observation for $X$. Then $e_i = y_i - \hat{y}_i$ represents the $i$th **residual**.
+-   One possibility to choose the estimates for the coefficients is to minimize the **residual sum of squares (RSS)**:
+    $$RSS = \sum_{i=1}^n e_i^2 = \sum_{i=1}^n (y_i - \hat{y}_i)^2 = \sum_{i=1}^n (y_i - (\hat{\beta}_0 + \hat{\beta}_1x_i))^2.$$
+-   The values of $\hat{\beta}_0$ and $\hat{\beta}_1$ that minimize this expression are called **ordinary least squares (OLS)** estimators and are given by:
+    $$\hat{\beta}_1 = \frac{\frac{1}{n} \sum_i (x_i - \bar{x})(y_i - \bar{y})}{\frac{1}{n} \sum_i (x_i - \bar{x})^2}, \quad \quad \hat{\beta}_0 = \bar{y} - \hat{\beta}_1\bar{x},$$
+    where $\bar{x}$ and $\bar{y}$ denote the means of the variables.
+:::
+
+## Estimating coefficients -- Example
+
+-   Estimating the parameters for the simple linear regression where `social_media` is $X$ and `sales` is $Y$, we get:
+    $$\hat{Y} = \hat{\beta}_0 + \hat{\beta}_1 \cdot X = 7.0326 + 0.0475 \cdot X$$
+-   Interpretation of the coefficients:
+    -   $\hat{\beta}_0 = 7.0326$: when no money is invested in social media advertising, the model expects average sales of 7.0326 units.
+    -   $\hat{\beta}_1 = 0.0475$: for every additional 100 dollars spent on social media advertising, the expected sales increase by around $100 \cdot 0.0475 \approx 4.75$ units on average.
+
+
+## Estimating coefficients -- Example
+
+```{r}
+#| echo: false
+#| warning: false
+#| fig-height: 8
+
+m1 <- lm(sales ~ social_media, data = advertising)
+preds <- predict(m1, newdata = data.frame(social_media = c(100, 200)))
+
+ggplot(advertising, aes(x = social_media, y = sales)) +
+  geom_point(size = 2, color = "#c7363f", alpha = 0.4) +
+  geom_segment(aes(xend = social_media, yend = fitted(m1)), color = "darkgrey", alpha = 0.7) +
+  geom_abline(intercept = coef(m1)[1], slope = coef(m1)[2], linewidth = 1.5, color = "#3366ff") +
+  geom_smooth(method = "lm", se = FALSE, linewidth = 1.5) +
+  geom_segment(data = data.frame(x = c(100, 200), y = rep(preds[1], 2), xend = rep(200, 2), yend = preds),
+               mapping = aes(x = x, y = y, xend = xend, yend = yend),
+               linewidth = 1.5) +
+  geom_segment(data = data.frame(x = -2, y = coef(m1)[1], xend = 40, yend = coef(m1)[1]),
+               mapping = aes(x = x, y = y, xend = xend, yend = yend),
+               linewidth = 1.5, linetype = 2) +
+  annotate(geom = "text", x = 150, y = 11, label = "100", hjust = 0.5, size = 6) +
+  annotate(geom = "text", x = 202, y = 14, label = "4.75", hjust = 0, size = 6) +
+  annotate(geom = "text", x = 42.5, y = coef(m1)[1], label = "7.0326", hjust = 0, size = 6) +
+  geom_hline(yintercept = 0) +
+  geom_vline(xintercept = 0) +
+  labs(title = "Simple linear regression of sales on social_media") +
+  theme_test()
+```
+
+
+## Assessing the goodness-of-fit
+
+-   How well a regression line fits the data is described by its **goodness-of-fit**. It is typically assessed by the **coefficient of determination** $R^2$.
+-   The $R^2$ measures the proportion of explained variance:
+    $$R^2 = \frac{TSS - RSS}{TSS} = 1 - \frac{RSS}{TSS} = 1 - \frac{\sum_{i=1}^n (y_i - \hat{y}_i)^2}{\sum_{i=1}^n (y_i - \bar{y})^2},$$
+    where $TSS$ is the total sum of squares as defined by the expression in the denominator.
+-   The value of the $R^2$ lies between 0 and 1:
+    -   $R^2 = 1$: 100% of the variance of $Y$ can be explained by $X$.
+    -   $R^2 = 0$: 0% of the variance of $Y$ can be explained by $X$.
+
+
+## Assessing the goodness-of-fit
+
+```{r}
+#| echo: false
+#| fig-height: 8
+
+par(mfrow = c(1, 2), mar = c(1, 1, 3, 1))
+n1 <- 100
+xvals <- rnorm(n1, 20, 5)
+xbar <- mean(xvals)
+yvals1 <- 2*xvals + 5
+yvals2 <- rnorm(n1 - 1, 45, 5)
+y100 <- (xbar*sum(yvals2) - sum(xvals[-n1]*yvals2))/(xvals[n1] - xbar)
+yvals2 <- c(yvals2, y100)
+
+model1 <- lm(yvals1 ~ xvals)
+model2 <- lm(yvals2 ~ xvals)
+plot(xvals, yvals1, pch = 19, xaxt = "n", yaxt = "n", main = expression(paste(R^2 == 1, ": X explains all of the variance of Y")))
+abline(model1, col = 4, lwd = 3)
+plot(xvals, yvals2, pch = 19, xaxt = "n", yaxt = "n", main = expression(paste(R^2 == 0, ": X explains none of the variance of Y")))
+abline(model2, col = 4, lwd = 3)
+
+```
+
+
+## Statistical properties of OLS estimators
+
+-   Under certain assumptions on the underlying true regression model, we can derive **sampling distributions** of the OLS estimators $\hat{\beta}_0$ and $\hat{\beta}_1$, i.e. how these estimators will be distributed when computing them over several data sets.
+-   We can use these sampling distributions use for **testing hypotheses** like
+    $$H_0: \beta_1 = 0, \quad \quad H_1: \beta_1 \neq 0$$
+-   ... or to compute two-sided **confidence intervals** like
+    $$[\hat{\beta}_1 - t_{1-\alpha/2;n-2} \cdot \hat{\sigma}_{\hat{\beta}_1}; \hat{\beta}_1 + t_{1-\alpha/2;n-2} \cdot \hat{\sigma}_{\hat{\beta}_1}],$$
+    where $t_{1-\alpha/2;n-2}$ is the $(1-\alpha/2)$-quantile of a $t$-distribution with $n-2$ degrees of freedom and $\hat{\sigma}_{\hat{\beta}_1}$ is the standard error of the estimator of the slope coefficient $\hat{\beta}_1$.
+
+
+## Linear Regression in R
+
+-   However, this is a data science course and not a statistics course, so we will not compute these quantities by hand. Instead, we want to use R for all this.
+-   To estimate a linear regression model in R, we need two things to pass into the function `lm` (which stands for "linear model"):
+    -   A `data.frame` holding the variables we want included in the model.
+    -   A `formula` that specifies the model. In simple linear regression, this will take the form of `response ~ predictor`.
+-   So, in our advertising example, we would do the following:
+    ```{r}
+    advertising <- read.csv("data/advertising.csv")
+    advertising <- advertising[, -c(1, 2, 7)]
+
+    simple_reg <- lm(sales ~ social_media, data = advertising)
+    ```
+
+
+## Linear Regression in R
+
+-   We can then have a look at the result using the `summary` function:
+    ```{r}
+    simple_reg_summary <- summary(simple_reg)
+    simple_reg_summary
+    ```
+
+-   This output contains a lot of useful information. First of all:
+    -   `Call`: summary of the estimated regression model
+    -   `Residuals`: a five-point-summary of the residuals $e_i$
+
+## Linear Regression in R
+
+::: slightlysmall
+
+-   Then, it displays a table called `Coefficients` with six columns:
+    -   1st column: name of the variable pertaining to the corresponding coefficient (here only `(Intercept)` and `social_media`).
+    -   2nd column (`Estimate`): OLS estimate of the coefficient, so $\hat{\beta}_i$ for $i = 0, 1$.
+    -   3rd column (`Std. Error`): Estimate of the coefficient standard errors, so $\hat{\sigma}_{\hat{\beta}_i}$.
+    -   4th column (`t value`): Test statistic $t$ for the two-sided hypothesis test against 0, i.e. to test the null hypothesis $H_0: \beta_i = 0$ against the alternative $H_1: \beta_i \neq 0$.
+    -   5th column (`Pr(>|t|)`): $p$-value of the corresponding hypothesis test.
+    -   6th column: "stars of significance"
+-   Finally, additional information is displayed:
+    -   `Residual standard error`: Estimate of the square root of $\text{Var}(\epsilon)$.
+    -   `Multiple R-squared`: $R^2$
+    -   `Adjusted R-squared` / `F-statistic`: see example with multiple predictors.
+:::
+
+
+## Linear Regression in R -- Accessor functions
+
+::: slightlysmall
+
+From the created model object `simple_reg`, we can extract:
+
+-   The coefficient estimates $\hat{\beta}_0$ and $\hat{\beta}_1$ using the function `coef`:
+```{r}
+coef(simple_reg)
+```
+-   The fitted values $\hat{y}_i$ using the function `fitted`:
+```{r}
+head(fitted(simple_reg))
+```
+-   The residuals $e_i = y_i - \hat{y}_i$ using the function `residuals`:
+```{r}
+head(residuals(simple_reg))
+```
+-   The residual standard error using the function `sigma`:
+```{r}
+sigma(simple_reg)
+```
+:::
+
+
+## Linear Regression in R -- Accessor functions
+
+::: slightlysmall
+
+-   Confidence intervals for all regression coefficients at level $1 - \alpha$ using the function `confint` and its `level` argument:
+```{r}
+confint(simple_reg, level = 0.95)
+```
+:::
+
+. . .
+
+::: slightlysmall
+
+Additionally, we can extract the following quantities from the created model summary object `simple_reg_summary`:
+
+-   The coefficient estimates, their standard errors, $t$ and $p$ values using the function `coef`:
+```{r}
+coef(simple_reg_summary)
+```
+-   The $R^2$ by accessing the `r.squared` field of the corresponding list:
+```{r}
+simple_reg_summary$r.squared
+```
+:::
+
+
+## Linear Regression in R -- Prediction
+
+-   If we are interested in **prediction** rather than **inference**, we need a way to predict new data points. In R, this functionality is provided by the `predict` function.
+-   It requires the estimated model we want to use for prediction and the values of the features for which predictions should be generated in a `data.frame`.
+-   Suppose, we want to predict `sales` for `social_media` budgets of 100 and 200:
+    ```{r}
+    new_data <- data.frame(social_media = c(100, 200))
+    predict(simple_reg, newdata = new_data)
+    ```
+-   Note that the names of the features (here only `social_media`) in `newdata` have to be identical to their names in the training data:
+    ```{r}
+    #| error: true
+
+    new_data <- data.frame(social_med = c(100, 200))
+    predict(simple_reg, newdata = new_data)
+    ```
+
+
+## K-fold cross-validation in R
+
+-   Now, we have all we need to estimate the test MSE of our model using **K-fold cross validation**! Let's say for $K = 5$.
+-   Let's go step by step: first, we randomly assign each observation to one of the 5 folds. The randomness is once again introduced via the function `sample`:
+    ```{r}
+    n <- nrow(advertising)
+    K <- 5
+
+    advertising$fold <- sample(rep(1:K, length.out = n))
+    head(advertising, 10)
+    ```
+
+
+## K-fold cross-validation in R
+
+-   Next, we write a loop, in which for every fold $k = 1, ..., 5$:
+    -   We fit our simple linear regression model on all data except the $k$th fold.
+    -   Using this model, we predict `sales` on the $k$th fold.
+    -   Since we know the true `sales` for all observations, we can then compute the MSE on the $k$th fold.
+    -   Save the MSE of the $k$th fold in a vector.
+    ```{r}
+    mses_linear <- numeric(K)
+
+    for(k in 1:K){
+      m <- lm(sales ~ social_media, data = subset(advertising, fold != k))
+      preds <- predict(m, newdata = subset(advertising, fold == k))
+      mse <- mean((preds - advertising$sales[advertising$fold == k])^2)
+      mses_linear[k] <- mse
+    }
+    mses_linear
+    ```
+
+
+## K-fold cross-validation in R
+
+-   Finally, we can compute the **cross-validated MSE** by calculating the mean of the MSEs across the 5 folds:
+    ```{r}
+    mean(mses_linear)
+    ```
+-   Since the MSE lives on a squared scale (due to the squaring in its computation), we can bring the scale back to the original linear scale by taking the square root. The result is called the **root mean squared error (RMSE)**:
+    ```{r}
+    sqrt(mean(mses_linear))
+    ```
+-   In and of itself, these numbers do not tell us too much yet. However, we will be comparing them against the cross-validated (R)MSE of other methods, to see which one is the best.
+
+
+## Incorporating non-linearities
+
+-   The term **linear** in "linear regression" actually refers only to linearity in parameters $\beta_0$ and $\beta_1$.
+-   We can therefore easily incorporate **non-linearities** by appropriately defining the dependent variable $Y$ and the independent variable $X$. For example:
+    -   $\log(Y) = \beta_0 + \beta_1 \cdot X + \epsilon$
+    -   $\log(Y) = \beta_0 + \beta_1 \cdot \log(X) + \epsilon$
+    -   $Y = \beta_0 + \beta_1 \cdot \sqrt{X} + \epsilon$
+-   Let's estimate each of these models in our advertising example and assess their test MSEs using 5-fold cross validation again. First, we add the log and square root of the relevant variable to our data set:
+
+    ```{r}
+    advertising$log_sales <- log(advertising$sales)
+    advertising$log_social_media <- log(advertising$social_media)
+    advertising$sqrt_social_media <- sqrt(advertising$social_media)
+    ```
+
+
+## Incorporating non-linearities
+
+-   Now, let's assess the test MSE of each of the three above models using 5-fold cross validation:
+
+    ```{r}
+    mses_nonlinear <- matrix(0, K, 3)
+
+    for(k in 1:K){
+      m1 <- lm(log_sales ~ social_media, data = subset(advertising, fold != k))
+      m2 <- lm(log_sales ~ log_social_media, data = subset(advertising, fold != k))
+      m3 <- lm(sales ~ sqrt_social_media, data = subset(advertising, fold != k))
+
+      preds1 <- exp(predict(m1, newdata = subset(advertising, fold == k)))
+      preds2 <- exp(predict(m2, newdata = subset(advertising, fold == k)))
+      preds3 <- predict(m3, newdata = subset(advertising, fold == k))
+
+      mses_nonlinear[k, 1] <- mean((preds1 - advertising$sales[advertising$fold == k])^2)
+      mses_nonlinear[k, 2] <- mean((preds2 - advertising$sales[advertising$fold == k])^2)
+      mses_nonlinear[k, 3] <- mean((preds3 - advertising$sales[advertising$fold == k])^2)
+    }
+    colMeans(mses_nonlinear)
+    ```
+
+-   The model $Y = \beta_0 + \beta_1 \cdot \sqrt{X}$ gives the lowest test MSE out of the three and lower than the linear model as well, albeit not by much.
+
+
+## Multiple linear regression
+
+-   To improve our model even further, we probably have to include additional features into it. For instance, `sales` will probably also depend on the `radio` and `newspaper` advertising budget.
+-   In the context of the linear model, we can include additional variables to create a **multiple linear regression** of the form
+    $$Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \ldots + \beta_p X_p + \epsilon$$
+-   We interpret $\beta_j$ as the average effect on $Y$ of a one unit increase in $X_j$, **holding all other predictors fixed** (i.e. ceteris paribus).
+-   As before, the regression coefficients $\beta_0, \beta_1, \ldots, \beta_p$ are unknown and need to be estimated from the training data.
+
+
+## Multiple linear regression -- OLS estimation
+
+-   As in the simple linear regression case, we choose the parameters to minimize the **residual sum of squares (RSS)**:
+    $$RSS = \sum_{i=1}^n e_i^2 = \sum_{i=1}^n (y_i - \hat{y}_i)^2 = \sum_{i=1}^n (y_i - (\hat{\beta}_0 + \hat{\beta}_1x_{1i} + \ldots + \hat{\beta}_px_{pi}))^2$$
+-   The values of $\hat{\beta}_0, \hat{\beta}_1, \ldots, \hat{\beta}_p$ that minimize this expression are complicated formulas of the data that are most easily represented using matrix algebra. These formulas do not really matter to us, as R computes them for us anyway.
+-   Estimating parameters for the multiple linear regression where `sales` is $Y$, `social_media` is $X_1$, `radio` is $X_2$ and `newspaper` is $X_3$, we get:
+    $$\hat{Y} = 2.9389 + 0.0458 \cdot X_1 + 0.1885 \cdot X_2 - 0.0010 \cdot X_3$$
+
+
+## Multiple linear regression -- OLS estimation
+
+-   Let's again go through the interpretation of each of those coefficients:
+    -   $\hat{\beta}_0 = 2.9389$: when no money is invested in advertising through any of the three channels, the model expects average sales of 2.9389 units.
+    -   $\hat{\beta}_1 = 0.0458$: for every additional 100 dollars spent on social media advertising **ceteris paribus**, the expected sales increase by around $100 \cdot 0.0458 \approx 4.58$ units on average.
+    -   $\hat{\beta}_2 = 0.1885$: for every additional 100 dollars spent on radio advertising **ceteris paribus**, the expected sales increase by around $100 \cdot 0.1885 \approx 18.85$ units on average.
+    -   $\hat{\beta}_3 = -0.0010$: for every additional 100 dollars spent on newspaper advertising **ceteris paribus**, the expected sales **decrease** by around $100 \cdot 0.0010 \approx 0.10$ units on average.
+
+
+## Assessing the goodness-of-fit
+
+-   The $R^2$ is still computed and interpreted in the same way as before:
+    $$R^2 = \frac{TSS - RSS}{TSS} = 1 - \frac{RSS}{TSS} = 1 - \frac{\sum_{i=1}^n (y_i - \hat{y}_i)^2}{\sum_{i=1}^n (y_i - \bar{y})^2}$$
+-   It now measures the proportion of the variance of $Y$ explained **jointly** by the predictors $X_1, \ldots, X_p$. Alternatively, one can say that it measures the proportion of the variance of $Y$ explained by the model.
+-   When adding additional variables to the model, the $R^2$ **never decreases** and usually increases. This makes it a poor tool for deciding whether an additional variable should be added to the model.
+
+
+## Assessing the goodness-of-fit
+
+-   An alternative to the $R^2$ that  is the so-called **adjusted $R^2$**:
+    $$R_{\text{adj}}^2 = 1 - \frac{(1 - R^2)(n - 1)}{n - p - 1}$$
+-   It no longer has the interpretation of the $R^2$, but it is more useful for **comparing models**. Consider the following example:
+    -   The simple linear regression of `sales` on `social_media` had an adjusted $R^2$ of 0.6099 (see corresponding R output from earlier).
+    -   The multiple linear regression of `sales` on all three advertising budgets has an adjusted $R^2$ of 0.8956 (see upcoming R output).
+    -   Therefore, the adjusted $R^2$ strongly suggests that the bigger model is superior to the smaller model.
+
+
+## Statistical properties of OLS estimators
+
+-   Using the standard assumptions of the multiple linear regression model, we can again derive **sampling distributions** of the OLS estimators $\hat{\beta}_0, \ldots, \hat{\beta}_p$ and thus construct $t$-tests for hypotheses like
+    $$H_0: \beta_j = 0, \quad \quad H_1: \beta_j \neq 0$$
+-   Additionally, we can test the null hypothesis that none of the coefficients are useful in predicting the response, i.e.
+    $$H_0: \beta_1 = \beta_2 = \ldots = \beta_p = 0, \quad \quad H_1: \beta_j \neq 0 \text{ für min. ein } j,$$
+    using the $F$-statistic
+    $$F = \frac{n-p-1}{p} \cdot \frac{TSS - RSS}{RSS} \sim F_{p, n-p-1}$$
+
+
+## Multiple linear regression in R
+
+-   However, again, this course focuses on how to use R to estimate these types of models and compute these types of statistics.
+-   To estimate a **multiple** linear regression in R, we simply combine the predictors on the right side of the `~` using a `+` sign, i.e. `response ~ predictor1 + predictor2 + ... + predictorp`
+-   So, to estimate the model with all three predictors in our advertising example, we would run the following line of code:
+    ```{r}
+    multiple_reg <- lm(sales ~ social_media + radio + newspaper, data = advertising)
+    ```
+-   Fortunately, many of the other functionalities we have seen in simple linear regression neatly generalize to the multiple linear regression case!
+
+
+## Multiple linear regression in R
+
+-   Again, we inspect the result using the `summary` function:
+    ```{r}
+    summary(multiple_reg)
+    ```
+    -   All predictors except for `newspaper` have a significant influence on `sales` on the 0.1% significance level.
+    -   Around 89.7% of the variance of `sales` can be explained with this model.
+
+
+## Comparing model performance
+
+```{r}
+#| echo: false
+
+model_names <- c("$Y \\sim X_1$",
+                 "$\\log(Y) \\sim X_1$",
+                 "$\\log(Y) \\sim \\log(X_1)$",
+                 "$Y \\sim \\sqrt{X_1}$",
+                 "$Y \\sim X_1 + X_2 + X_3$")
+```
+
+
+But how does its test MSE hold up to the models estimated so far? Let's investigate this question using our cross-validation routine again:
+
+::::: columns
+
+::: {.column width="55%"}
+```{r}
+#| label: results-1
+#| eval: false
+
+mses_big <- numeric(K)
+
+for(k in 1:K){
+  m <- lm(sales ~ social_media + radio + newspaper,
+          data = subset(advertising, fold != k))
+  preds <- predict(m, newdata = subset(advertising, fold == k))
+  mse <- mean((preds - advertising$sales[advertising$fold == k])^2)
+  mses_big[k] <- mse
+}
+
+results <- data.frame(model_id = factor(1:5),
+                      model_names = model_names,
+                      test_mse = c(mean(mses_linear),
+                                   colMeans(mses_nonlinear),
+                                   mean(mses_big)))
+knitr::kable(results[,-1], col.names = c("Model", "Test MSE"),
+             digits = 2, row.names = TRUE)
+```
+:::
+
+::: {.column width="45%"}
+```{r}
+#| ref.label: results-1
+#| echo: false
+#| results: asis
+```
+:::
+:::::
+
+. . .
+
+Unsurprisingly, the model that uses all three advertising budgets as predictors is **much** better than any of the models that just uses the social media budget!
+
+
+## Comparing model performance
+
+::: panel-tabset
+### Plot
+
+```{r}
+#| label: results-2
+#| eval: true
+#| echo: false
+#| fig-height: 7.5
+
+ggplot(results, aes(x = model_id, y = test_mse, fill = model_id)) +
+  geom_bar(stat = "identity") +
+  labs(x = "Model ID", y = "Test MSE",
+       title = "Test MSE of the linear models estimated",
+       subtitle = "Test MSE determined via 5-fold cross validation",
+       caption = "Source: advertising data") +
+  guides(fill = "none") +
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal()
+```
+
+### Code
+
+```{r}
+#| ref.label: results-2
+#| echo: true
+#| eval: false
+```
+:::
+
+
+## Categorical predictors
+
+-   So far, all the predictors we have looked at have been **quantitative** variables. In practice, we often have to deal with **categorical predictors** as well.
+-   To see an example, let's consider the `Credit` data set from the `ISLR` package. It contains socio-economic information on 400 credit card customers.
+-   The data set contains seven quantitative variables:
+    ```{r}
+    library(ISLR)
+    head(Credit[, c("Income", "Limit", "Rating", "Cards", "Age", "Education", "Balance")])
+    ```
+-   The goal here is to build a predictive model for `balance`, the average credit card balance of a given customer.
+
+
+## Categorical predictors
+
+-   However, aside from the quantitative variables, the data set also contains four **qualitative (categorical)** variables:
+    ```{r}
+    head(Credit[, c("Gender", "Student", "Married", "Ethnicity")])
+    ```
+-   So how can we include the information in these qualitative predictors to benefit our linear model for `balance`?
+-   The answer lies in **dummy variables**, i.e. variables that only take on the values 0 or 1. For a categorical variable with $K$ levels, we create $K-1$ dummy variables. Let's see an example of how this works.
+
+
+## Dummy variables
+
+-   The variable `Ethnicity` takes on $K = 3$ different values:
+    ```{r}
+    table(Credit$Ethnicity)
+    ```
+-   So, we can **encode** the information in the `Ethnicity` variable in $K - 1 = 2$ dummy variables, called $d_1$ and $d_2$. For example, one could be used to indicate Asian ethnicity and the other to indicate Caucasian:
+    $$d_{1i} = \begin{cases}
+    1 & \text{if person } i \text{ is of Asian ethnicity} \\
+    0 & \text{otherwise}
+    \end{cases}$$
+    $$d_{2i} = \begin{cases}
+    1 & \text{if person } i \text{ is of Caucasian ethnicity} \\
+    0 & \text{otherwise}
+    \end{cases}$$
+    Note that a third dummy variable is not necessary.
+
+
+## Dummy variables
+
+-   We could manually add these dummy variables to the data set:
+    ```{r}
+    Credit$Asian <- ifelse(Credit$Ethnicity == "Asian", 1, 0)
+    Credit$Caucasian <- ifelse(Credit$Ethnicity == "Caucasian", 1, 0)
+    head(Credit[,c("Ethnicity", "Asian", "Caucasian")], 8)
+    ```
+-   With the categorical data now numerically encoded, we can estimate the following model:
+    $$\hat{y}_i = \hat{\beta}_0 + \hat{\beta}_1 d_{1i} + \hat{\beta}_2 d_{2i},$$
+    where $y_i$ is the $i$th observation of the `balance` variable.
+
+
+## Dummy variables
+
+::: slightlysmall
+
+-   Note that since $d_{1i}$ and $d_{2i}$ can only take two possible values (0 or 1), this model can only predict three distinct values:
+    $$\hat{y}_i = \hat{\beta}_0 + \hat{\beta}_1 d_{1i} + \hat{\beta}_2 d_{2i} = \begin{cases}
+    \hat{\beta}_0 + \hat{\beta}_1 & \text{if } i \text{ is Asian} \\
+    \hat{\beta}_0 + \hat{\beta}_2 & \text{if } i \text{ is Caucasian} \\
+    \hat{\beta}_0 & \text{if } i \text{ is African American} \\
+    \end{cases}$$
+-   Therefore, we can interpret the regression coefficients as follows:
+    -   $\hat{\beta}_0$ is the average credit card balance of people of African American ethnicity. This category constitutes the so-called **reference category**.
+    -   $\hat{\beta}_1$ is the difference in average credit card balance between people of Asian ethnicity and the reference category (African American).
+    -   $\hat{\beta}_2$ is the difference in average credit card balance between people of Caucasian ethnicity and the reference category (African American).
+
+:::
+
+
+## Dummy variables in R
+
+-   Let's estimate this model with R. Fortunately, as long as the categorical variables are properly encoded as `factor`s, we do not have to create the dummy variables ourselves. Let's check:
+    ```{r}
+    class(Credit$Ethnicity)
+    levels(Credit$Ethnicity)
+    ```
+-   This looks good! Note that R will always automatically use the first factor level as the **reference category** when estimating a linear model with factors:
+    ```{r}
+    credit_model1 <- lm(Balance ~ Ethnicity, data = Credit)
+    ```
+-   Note that with the proper `factor` encoding of `Ethnicity`, we do not need to make use of the dummy variables `Asian` and `Caucasian` we manually added to the data set.
+
+
+## Dummy variables in R
+
+-   Let's have a look at the created model object:
+    ```{r}
+    summary(credit_model1)
+    ```
+-   This shows that on average...
+    -   people of African American ethnicity have a balance of $531$.
+    -   people of Asian ethnicity have a balance of $531-18.69=512.31$.
+    -   people of Caucasian ethnicity have a balance of $531-12.50=518.50$.
+
+
+## Dummy variables in R
+
+-   However, as the regression output shows, these differences in average credit card balances by ethnicity are clearly not significant.
+-   Note that the group averages inferred from the regression coefficients genuinely correspond to the group averages:
+    ```{r}
+    round(tapply(Credit$Balance, Credit$Ethnicity, mean), 2)
+    ```
+-   Based on this approach of **dummy variable encoding**, we can include any number of categorical variables into the regression equation.
+-   As an example, the next slide displays the regression output from using **all available predictors** (quantitative and qualitative) to model credit card balance in the usual additive fashion.
+
+
+## Quantitative and qualitative predictors
+
+```{r}
+credit_model2 <- lm(Balance ~ Income + Limit + Rating + Cards + Age + Education +
+                              Gender + Student + Married + Ethnicity,
+                    data = Credit)
+summary(credit_model2)
+```
+
+With over 95% variance explained, this is a very good model for credit card balance. However, is it reasonable to leave all of the predictors in the model? Or are we better off removing some of them?
+
+
+## Variable selection
+
+-   The task of determining which predictors are associated with the response and are thus to be included in the model, is referred to as **variable selection**.
+-   We can decide which variables to select on the basis of statistics like
+    -   cross-validated MSE (the lower the better).
+    -   adjusted $R^2$ (the higher the better).
+    -   Akaike information criterion (AIC, the lower the better)
+-   Most direct approach: **best subset regression**: compute OLS fit for every subset of variables and choose the best according to some metric:
+    -   Unfortunately, there are a total of $2^p$ models to consider.
+    -   For $p = 2$, that's 4 models, but for $p = 30$ that is 1,073,741,824 models to estimate! This is not practical.
+-   Instead, we need a more efficient approach to select a smaller set of models.
+
+
+## Forward selection
+
+-   One approach to this task is **forward** selection (using AIC):
+    -   Begin with a **null model**, i.e. a model that contains no predictors.
+    -   Fit $p$ simple linear regressions (one for each predictor individually) and add to the null model the variable that results in the lowest AIC.
+    -   Add to that model the variable that results in the lowest AIC for the new two-variable model.
+    -   Continue until some stopping rule is satisfied, e.g. no model with a smaller AIC can be fitted.
+-   In R, forward selection can be achieved with the help of the `step` function. It requires the null model (as a lower bound) and the full model with all variables (as an upper bound) as input.
+
+
+## Forward selection
+
+```{r}
+m0 <- lm(Balance ~ 1, data = Credit)
+credit_model_fw <- step(m0, scope = Balance ~ Income + Limit + Rating + Cards + Age +
+                                    Education + Gender + Student + Married + Ethnicity,
+                        direction = "forward")
+```
+
+The final model found with forward selection contains predictors `Rating`, `Income`, `Student`, `Limit`, `Cards` and `Age`. It has an AIC of 3679.9. The object `credit_model_fw` can be used like any other `lm` object.
+
+
+## Backward selection
+
+-   Another approach to the task of variable selection is **backward** selection:
+    -   Begin with a **full model**, i.e. a model that contains all available predictors.
+    -   Fit $p$ individual linear regressions, removing one variable from the full model at a time. Choose the model that has the lowest AIC.
+    -   Repeat with the resulting model and continue until some stopping rule is satisfied, e.g. no model with a smaller AIC can be fitted.
+-   In R, backward selection can also be achieved with the help of the `step` function. It only requires the full model (as an upper bound) and the direction `backward` as input.
+
+
+## Backward selection
+
+```{r}
+credit_model_bw <- step(credit_model2, direction = "backward")
+```
+
+The final model found with backward selection also contains predictors `Rating`, `Income`, `Student`, `Limit`, `Cards` and `Age`. With an AIC of 3679.9, it is the same model that was found with forward selection. The object `credit_model_bw` can be used like any other `lm` object.
+
+
+
+# K-nearest neighbours (KNN) regression
+
+## K-nearest neighbours (KNN) regression
+
+-   Parametric methods like linear regression make strong assumptions about the form of $f(X)$ (namely linearity in all predictors).
+-   By contrast, non-parametric methods do not assume a parametric form for $f(X)$, thereby providing a more flexible alternative for regression tasks.
+-   One of the simplest non-parametric regression methods is **K-nearest neighbours (KNN) regression**, which works as follows:
+    -   Given a value for $K$ and a prediction point $x_0$, we first identify the $K$ training observations that are closest to $x_0$, represented by $\mathcal{N}_0$.
+    -   We then estimate $f(x_0)$ using the average of all the training responses in $\mathcal{N}_0$, i.e. formally we have
+    $$\hat{f}(x_0) = \frac{1}{K} \sum_{x_i \in \mathcal{N}_0} y_i$$
+
+
+## K-nearest neighbours (KNN) regression
+
+![](img/knn_reg.png){fig-align="center"}
+
+Plots of $\hat{f}(X)$ using KNN regression on a two-dimensional data set with 64 observations (orange dots). Left: $K = 1$ results in a rough step function fit. Right: $K = 9$ produces a much smoother fit.
+
+
+## K-nearest neighbours (KNN) regression
+
+-   The number of neighbours $K$ is what we call a **hyperparameter**. It changes the exact behaviour of the algorithm: a small value for $K$ provides lots of flexibility (low bias, high variance), while a large value for $K$ provide a smoother, less variable fit (high bias, low variance).
+-   The optimal value for $K$ will be different in every data set and can be determined via cross-validation, for instance.
+-   So, how will the performance of KNN and linear regression compare? That depends on the true form of $f$:
+    -   If $f$ is close to linear, then linear regression will generally be better.
+    -   If $f$ is highly non-linear, then KNN regression will generally be better.
+    -   As we do not know the true $f$, we have to judge which one is better based on estimates of test MSE, individually for every data set under investigation.
+
+
+## KNN vs. linear regression
+
+![](img/knn_vs_lm.png){fig-align="center"}
+
+Plots of $\hat{f}(X)$ using KNN regression on a one-dimensional data set with 50 observations. Clearly, when the true relationship (black line) is linear, KNN regression is sub-optimal, regardless of whether $K = 1$ (left) or $K = 9$ (right).
+
+
+## KNN vs. linear regression
+
+![](img/knn_vs_lm2.png){fig-align="center"}
+
+For a non-linear relationship between $X$ and $Y$, however, KNN outperforms linear regression. On the left, we see KNN fits for $K = 1$ (blue) and $K = 9$ (red) compared to the true relationship (black). On the right, we see that the test set MSE for linear regression (horizontal black line) is significantly higher than the test set MSE for KNN with different values of $K$ (displayed as $1/K$).
+
+
+## Caveats of KNN regression
+
+-   **First caveat of KNN regression**: The **curse of dimensionality**:
+    -   As we saw, with small $p$, KNN typically performs slightly worse than linear regression when $f$ is linear, but much better if $f$ is non-linear.
+    -   However, when $p$ becomes larger (with $n$ constant), KNN performance typically **deteriorates**.
+    -   This is because, in high dimensions (e.g. $p = 50$), the $K$ observations that are nearest to $x_0$ may still be very far away from $x_0$, leading to a very poor prediction of $f(x_0)$.
+-   As a general rule therefore: parametric methods will tend to outperform non-parametric approaches when the number of observations per predictor (i.e. $n/p$) is small.
+
+
+## Caveats of KNN regression
+
+-   **Second caveat of KNN regression**: **feature scaling**:
+    -   Since KNN predicts a test observation by identifying the training observations that are **nearest** to it, the scale of the variables matter.
+    -   If all features are measured on the same scale (like in the advertising example), there is nothing to worry about.
+    -   However, consider the features `salary` (in USD) and `age` (in years): for the KNN, a difference of 1000 USD in salary is enormous compared to a difference of 50 years in age.
+    -   Consequently, all the predictions will be driven by `salary` rather than age.
+-   As a general rule therefore: when feature scales differ, perform **variable standardization** before doing KNN regression.
+
+
+## KNN regression in R
+
+In R, KNN regression can be achieved with the help of the `FNN` package. It provides a function called `knn.reg`, which requires a data frame of features, a vector of responses and a value for $K$ to estimate a KNN model. Let's apply that to our advertising example, say for $K = 3$:
+
+```{r}
+library(FNN)
+
+knn_ad <- knn.reg(train = advertising[, 1:3], y = advertising$sales, k = 3)
+knn_ad
+```
+
+-   As there are no coefficients to interpret or inferential statistics to analyse, the pure model fit is not that interesting.
+-   Instead, the value of KNN regression lies mostly in prediction.
+-   Let's therefore see how KNN regression with different values of $K$ performs in cross-validation compared to the best-performing linear regression model from earlier.
+
+
+## KNN regression in R
+
+With the `knn.reg` function, we can do fitting and predicting in one function call. This requires passing the prediction features as the `test` argument to the function. We use this functionality in our existing cross-validation scheme:
+
+```{r}
+n_neighbours <- 1:10 # number of neighbours considered
+mses_knn <- matrix(NA, K, length(n_neighbours))
+colnames(mses_knn) <- sprintf("K = %d", n_neighbours)
+
+for(k in 1:K){
+  preds <- lapply(n_neighbours, function(x) knn.reg(train = subset(advertising, fold != k, 1:3),
+                                                    test = subset(advertising, fold == k, 1:3),
+                                                    y = advertising$sales[advertising$fold != k],
+                                                    k = x)$pred)
+  mses_knn[k, ] <- colMeans((do.call(cbind, preds) - advertising$sales[advertising$fold == k])^2)
+}
+round(colMeans(mses_knn), 2)
+```
+
+The best test MSE is achieved by setting $K = 2$. The resulting model has a test MSE of 1.94, which is also considerably better than the best-performing linear model, which had test MSE 3.06.
+
+
+## KNN regression in R
+
+```{r}
+#| echo: false
+#| fig-height: 8
+
+knn_cv <- data.frame(test_mse = colMeans(mses_knn), K = n_neighbours)
+ggplot(knn_cv, aes(x = K, y = test_mse)) +
+  geom_line(color = "deepskyblue4") +
+  geom_point(color = "deepskyblue4") +
+  geom_hline(yintercept = results$test_mse[5], linetype = 2) +
+  scale_x_continuous(breaks = n_neighbours) +
+  labs(title = "Test MSE of KNN regression for different values of K",
+       subtitle = "Test MSE of full linear model as a reference dashed line",
+       y = "Test MSE") +
+  theme_minimal()
+```
+
+
+# Classification
+
+## An overview of classification
+
+-   So far, we have dealt with situations in which the response variable $Y$ was **quantitative**. However, often it is **qualitative / categorical**.
+-   Predicting a qualitative response is also referred to as **classifying** that observation, as it involves assigning the observation to a class / category.
+-   A **classifier** is an algorithm that maps input data (i.e. the predictors) to a category. Some of them first predict a probability for each of the categories. In this sense, they behave like regression methods.
+-   In this first part, we will discuss the following two simple classifiers:
+    -   Logistic regression
+    -   KNN classification
+
+
+## Evaluation of classifiers
+
+-   In the introduction, we already saw that a common way of evaluating classifiers is the **error rate**, i.e. the proportion of misclassified observations.
+-   However, there are many more ways to evaluate classifiers. One typically looks at the joint distribution of observed response and predicted response.
+-   For binary classification, we can illustrate this distribution with the help of a so-called **confusion matrix**:
+
+    |   | **observed/true = 0**   | **observed/true = 1**   |
+    |:-:|:-:|:-:|
+    | **predicted = 0**  |  [true negatives  (TN)]{.class style="color:#006400"} |  [false negatives (FN)]{.class style="color:#FF0000"} |
+    | **predicted = 1**  |  [false positives (FP)]{.class style="color:#FF0000"} | [true positives (TP)]{.class style="color:#006400"} |
+
+-   For an extended version of this table, see [here](https://en.wikipedia.org/wiki/Evaluation_of_binary_classifiers).
+
+## Evaluation of classifiers
+
+![](img/type 1 and 2 errors.jpg){fig-align="center"}
+
+
+## Evaluation of classifiers
+
+-   From this confusion matrix, we can compute several metrics:
+    -   **Accuracy**: percentage of correctly classified observations:
+    $$accuracy = (TN + TP) / (TN + TP + FN + FP)$$
+    -   **Recall**: percentage of correctly classified positives:
+    $$recall = TP/(FN + TP)$$
+    -   **Precision**: percentage of correctly classified predicted positives:
+    $$precision = TP/(FP + TP)$$
+    -   **F1 score**: harmonic mean of precision and recall
+    $$F1 = 2 \cdot recall \cdot precision/(recall + precision)$$
+
+
+## Evaluation of classifiers
+
+-   The choice of the evaluation measure is application- and data-dependent. One typically evaluates the relative costs of **false negatives** and **false positives**.
+-   Consider the following example:
+    -   Say, we have built a classifier that predicts whether someone has cancer based on an MRI image.
+    -   **False positive**: telling someone they have cancer even though they do not.
+    -   **False negative**: telling someone they don't have cancer, although they do.
+    -   If the first is considered more problematic, optimize for **precision**.
+    -   If the second is considered more problematic, optimize for **recall**.
+    -   If both are important, optimize for **F1** or **accuracy**.
+-   However, the sole use of accuracy can also be misleading...
+
+
+## Using accuracy for evaluation
+
+-   Suppose we have a data set of 100 credit card customers, of which 5 have defaulted on their credit card debt. We want to build a classifier that tells us whether someone will default or not.
+-   After training, the classifier produced the following confusion matrix:
+
+    |                   | **observed/true = 0** | **observed/true = 1** | **Total** |
+    |-------------------|-----------------------|-----------------------|-----------|
+    | **predicted = 0** | 94                    | 4                     | 98        |
+    | **predicted = 1** | 1                     | 1                     | 2         |
+    | **Total**         | 95                    | 5                     | 100       |
+
+    -   Our classifier achieves **95% accuracy (5% error rate)** on the training data!
+    -   But recall is only 1/5, only one default was correctly identified.
+    -   Precision is only 1/2, only one of the two default predictions was correct.
+
+-   **Accuracy can be misleading for unbalanced class distributions!**
+
+
+# Logistic Regression
+
+## Click data set
+
+-   Advertising companies want to target advertisements to users based on a user's **likelihood to click**.
+-   For this purpose, we are using a data set from [Kaggle](https://www.kaggle.com/datasets/ahmedyoussefelhewag/user-interaction-ad-click-behavior-on-a-website), which contains information about the behaviour of 1000 users.
+-   A total of 9 variables are available for each user:
+    -   The binary variable **clicked_on_ad** indicates whether the user clicked the ad or not. This will be our response variable.
+    -   Personal information such as age, sex, time spent on the website.
+    -   Other information, such as average annual income of the area where the user resides, city and country.
+
+    ```{r}
+    click <- read.csv("data/click.csv")
+    ```
+
+
+## Simple logistic regression model
+
+Let's visualize the relationship between `area_income` and the response `clicked_on_ad` in a scatter plot (with a slight jitter):
+
+::: panel-tabset
+### Plot
+
+```{r}
+#| label: logreg
+#| eval: true
+#| echo: false
+#| fig-height: 6.25
+
+ggplot(click, aes(x = area_income, y = clicked_on_ad)) +
+  geom_jitter(height = 0.02) +
+  theme_minimal()
+```
+
+### Code
+
+```{r}
+#| ref.label: logreg
+#| echo: true
+#| eval: false
+```
+:::
+
+
+## Simple logistic regression model
+
+-   Now, of course, we could simply lay a linear regression line into this scatter plot. This would amount to estimating a regression for the probability of a click ($Y = 1$) using area income as the explanatory variable $X$:
+    $$p_{\text{click}} = P(Y=1|X) = \beta_0 + \beta_1X + \epsilon$$
+-   However, this would not be appropriate as the possible values lie between $-\infty$ and $\infty$, but a probability should be between 0 and 1.
+-   So, we need to transform the right-hand side in order to ensure that it lies between 0 and 1. In **logistic regression**, this transformation is given by the so-called **logistic function**:
+    $$p_{\text{click}} = P(Y=1|X) = \frac{e^{\beta_0 + \beta_1X}}{1 + e^{\beta_0 + \beta_1X}}$$
+
+
+## Linear vs. logistic regression model
+
+```{r}
+#| echo: false
+#| warning: false
+#| fig-height: 8
+
+l1 <- glm(clicked_on_ad ~ area_income, data = click, family = binomial())
+
+p1 <- ggplot(click, aes(x = area_income, y = clicked_on_ad)) +
+  geom_jitter(height = 0.02) +
+  geom_smooth(method = "lm", se = FALSE) +
+  scale_y_continuous(limits = c(-0.05, 1.05)) +
+  labs(title = "Linear model") +
+  theme_minimal()
+
+p2 <- ggplot(click, aes(x = area_income, y = clicked_on_ad)) +
+  geom_jitter(height = 0.02) +
+  geom_function(fun = function(x) plogis(coef(l1)[1] + coef(l1)[2]*x), color = "blue", linewidth = 1) +
+  scale_y_continuous(limits = c(-0.05, 1.05)) +
+  labs(title = "Logistic model") +
+  theme_minimal()
+
+grid.arrange(p1, p2, ncol = 2)
+```
+
+
+## Interpretation of simple logistic regression
+
+-   Note that with some re-arrangement of the terms, the simple logistic regression model can also be written as
+    $$\log\left( \frac{p_{\text{click}}}{1 - p_{\text{click}}} \right) = \beta_0 + \beta_1X$$
+-   The left-hand side of this equation are the so-called **log odds**. In logistic regression, we model the log odds of the success probability as a **linear function** of the predictors. This implies:
+    -   Increasing $X$ by one unit changes the log odds by $\beta_1$.
+    -   Equivalently, it **multiplies** the odds by $e^{\beta_1}$.
+    -   However, because the relationship between $p_{\text{click}}$ and $X$ is not a straight line, $\beta_1$ does **not** correspond to the change in $p_{\text{click}}$ associated with a one-unit increase in $X$. This is a difference to linear regression.
+
+
+## Multiple logistic regression
+
+-   Given multiple covariates $X_1, X_2, \ldots, X_p$, we can easily generalize the simple logistic regression model to the following:
+    $$p = P(Y=1|X_1, \ldots, X_p) = \frac{e^{\beta_0 + \beta_1X_1 + \ldots + \beta_pX_p}}{1 + e^{\beta_0 + \beta_1X_1 + \ldots + \beta_pX_p}}$$
+-   Again, we model log odds as a linear function of the predictors:
+    $$\log\left( \frac{p}{1 - p} \right) = \beta_0 + \beta_1X_1 + \ldots + \beta_pX_p$$
+    -   $\beta_0$ gives the baseline log odds for $Y=1$ when $X_1 = X_2 = \ldots = X_p = 0$.
+    -   A one unit increase in covariate $X_j$ changes the log odds for $Y = 1$ by $\beta_j$, keeping all other covariates constant (**ceteris paribus**).
+
+
+## Multiple logistic regression
+
+-   In logistic regression, the linear combination of the covariates $\beta_0 + \beta_1X_1 + \ldots + \beta_pX_p$ is called the **linear predictor**.
+-   It has the following interpretation:
+    -   If $\beta_0 + \beta_1X_1 + \ldots + \beta_pX_p = 0$, then $P(Y=1|X_1, \ldots, X_p) = 0.5$, i.e. $Y=1$ and $Y=0$ are equally likely.
+    -   If $\beta_0 + \beta_1X_1 + \ldots + \beta_pX_p > 0$, then $P(Y=1|X_1, \ldots, X_p) > 0.5$, i.e. $Y=1$ is more likely.
+    -   If $\beta_0 + \beta_1X_1 + \ldots + \beta_pX_p < 0$, then $P(Y=1|X_1, \ldots, X_p) < 0.5$, i.e. $Y=0$ is more likely.
+-   In practice, the coefficients $\beta_0, \beta_1, \ldots, \beta_p$ are **unknown** and must be estimated on the basis of available training data.
+-   Estimation no longer happens with OLS, but with **maximum likelihood (ML)**, a very common procedure in statistics.
+
+
+## Statistical inference in logistic regression
+
+-   Broadly speaking, the idea of **ML estimation** is to choose parameters $\beta_0, \beta_1, \ldots, \beta_p$ such that the probability of observing the data we observed is **maximized**. The details are beyond the scope of this course.
+-   Fortunately, R has efficient algorithms for ML estimation of logistic regression models, which we will soon see how to use.
+-   Besides estimating the regression coefficients, ML estimation allows us to perform inferential statistics akin to the linear regression case:
+    -   Hypothesis tests for $H_0: \beta_j = 0$ vs. $H_1: \beta_j \neq 0$.
+    -   Confidence intervals for regression coefficients.
+    -   Goodness-of-fit measures similar to the $R^2$.
+-   However, when using logistic regression as a classification algorithm in machine learning, we are mostly interested in **prediction**, not **inference**.
+
+
+## Making predictions
+
+-   Once the coefficients have been estimated, we can compute the probability for $Y=1$ for every combination of values of the predictors.
+-   We get $\hat{p}(x_1, \ldots, x_p) = \hat{P}(Y=1|X_1 = x_1, \ldots, X_p = x_p)$ by simply plugging in the coefficient estimates $\hat{\beta}_0, \ldots, \hat{\beta}_p$ into the logistic regression formula:
+    $$\hat{p}(x_1, \ldots, x_p) = \frac{e^{\hat{\beta}_0 + \hat{\beta}_1x_1 + \ldots + \hat{\beta}_px_p}}{1 + e^{\hat{\beta}_0 + \hat{\beta}_1x_1 + \ldots + \hat{\beta}_px_p}}$$
+-   The prediction of the conditional response is straightforward:
+    $$\hat{Y}|(X_1 = x_1, \ldots, X_p = x_p) = \begin{cases}
+    0 & \text{ if } \hat{p}(x_1, \ldots, x_p) < 0.5 \\
+    1 & \text{ if } \hat{p}(x_1, \ldots, x_p) \geq 0.5
+    \end{cases}$$
+
+
+## Logistic regression in R
+
+-   Let's finally see an example of how to do all this in R!
+-   To estimate a logistic regression in R, we need three things to pass into the function `glm` (which stands for "generalized linear model"):
+    -   A `data.frame` holding the variables we want included in the model, especially the binary response as a `factor` or `numeric`.
+    -   A `formula` that specifies the model, similar to the `lm` case.
+    -   A `family` that specifies the type of generalized linear model. For logistic regression, this is always equal to `binomial()`.
+-   So, if we wanted to use `area_income` and `age` as predictors for the response `clicked_on_ad`, we would do the following:
+    ```{r}
+    logreg <- glm(clicked_on_ad ~ area_income + age, data = click, family = binomial())
+    ```
+
+
+## Logistic regression in R
+
+-   We can then have a look at the result using the `summary` function:
+
+    ```{r}
+    summary(logreg)
+    ```
+
+-   While the output looks somewhat different to the linear regression case, the all-important coefficients matrix with `Estimate`, `Std. Error`, `z value` and `Pr(>|z|)` looks virtually identical.
+
+
+## Logistic regression in R
+
+-   Using $X_1$ for `area_income` (in thousand USD) and $X_2$ for `age`, the estimated model for the **click probability** $p$ thus has the following form:
+    $$\log\left( \frac{p}{1 - p} \right) = 0.0916 - 0.1033 X_1 + 0.1626 X_2$$
+-   Interpretation:
+    -   Ceteris paribus, increasing the `area_income` by 1000 USD **decreases** the log odds for clicking on the ad by 0.1033 on average.
+    -   Ceteris paribus, increasing the `age` by one year **increases** the log odds for clicking on the ad by 0.1626 on average.
+-   The regression output also shows that both of these variables are **highly significant** with $p$-values very close to zero. Both `area_income` and `age` seem to be important for predicting whether or not a user will click on the ad.
+
+
+## Logistic regression in R
+
+-   In general, there is a high degree of consistency in how we can operate on `glm` objects compared to `lm` objects. For example, many **accessor functions** work in the same way as before:
+    ```{r}
+    #| warning: false
+
+    head(residuals(logreg))
+    head(fitted(logreg))
+    coef(logreg)
+    confint(logreg)
+    ```
+-   Due to the different scales involved (probabilities vs. log odds), some of these functions come with additional options, as we shall now see for **prediction**.
+
+
+## Logistic regression in R -- Prediction
+
+-   Using our model, what do we estimate the probability that a 29-year old living in an area with an average annual income of 50,000 USD clicks on the ad to be?
+-   Let's simply plug in to our equation for the log odds:
+    $$\log\left( \frac{p}{1 - p} \right) = 0.0916 - 0.1033 \cdot 50 + 0.1626 \cdot 29 = -0.358$$
+-   Clearly, that is a log odds ratio and **not a probability**. To turn this into a probability, we need to plug into the other formula for logistic regression:
+    $$p = \frac{e^{0.0916 - 0.1033 \cdot 50 + 0.1626 \cdot 29}}{1 + e^{0.0916 - 0.1033 \cdot 50 + 0.1626 \cdot 29}} = \frac{e^{-0.358}}{1 + e^{-0.358}} \approx 0.41$$
+-   We predict that this person will click on the ad with a probability of 41%!
+
+
+## Logistic regression in R -- Prediction
+
+-   Ignoring the rounding differences, both of these types of predictions are available through the `predict` function in R:
+    -   We get the linear predictor, i.e. the log odds for the click, by setting `type` to `link` (which is the default):
+    ```{r}
+    new_click <- data.frame(area_income = 50000, age = 29)
+    predict(logreg, newdata = new_click, type = "link")
+    ```
+    -   In the machine learning context, we are typically only interested in the probability. This we get by setting `type` to `response`:
+    ```{r}
+    predict(logreg, newdata = new_click, type = "response")
+    ```
+-   With the ability to predict new observations secured, let's evaluate the performance of our model as a classifier using 5-fold cross validation!
+
+
+## Logistic regression in R -- Evaluation
+
+-   Again, we randomly assign each observation to one of 5 folds:
+    ```{r}
+    n <- nrow(click)
+    K <- 5
+    click$fold <- sample(rep(1:K, length.out = n))
+    ```
+-   This time, we save the class predictions on each hold-out fold together into one variable called `class_preds_lr`. This will then allow us to evaluate the out-of-sample performance of the classifier:
+    ```{r}
+    click$class_preds_lr <- NA
+
+    for(k in 1:K){
+      m <- glm(clicked_on_ad ~ area_income + age, data = subset(click, fold != k),
+               family = binomial())
+      prob_preds <- predict(m, newdata = subset(click, fold == k), type = "response")
+      click$class_preds_lr[click$fold == k] <- ifelse(prob_preds >= 0.5, 1, 0)
+    }
+    ```
+    -   We classify an observation as a **click** if its probability is at least 0.5.
+    -   We classify an observation as **no click** if its probability is smaller than 0.5.
+
+
+## Logistic regression in R -- Evaluation
+
+-   Now, we can compute the out-of-sample **confusion matrix** of our classifier:
+    ```{r}
+    table(click$class_preds, click$clicked_on_ad,
+          dnn = c("click_prediction", "click_truth"))
+    ```
+-   From this, we can now calculate the aforementioned performance metrics:
+    -   **Accuracy**: $(431 + 377)/1000 = 0.808$. Our logistic regression model correctly predicts the click decision in 80.8% of the observations.
+    -   **Recall**: $377/(123 + 377) = 0.754$. Our logistic regression model correctly identifies 75.4% of all clicks on an ad.
+    -   **Precision**: $377/(69 + 377) = 0.845$. When our logistic regression model predicts a click, it is correct 84.5% of the time.
+    -   **F1 score**: $2 \cdot 0.754 \cdot 0.845/(0.754 + 0.845) = 0.797$.
+
+
+## Further topics on logistic regression
+
+-   As we saw, many concepts from linear regression generalize to logistic regression. Further examples of this include:
+    -   **Categorical predictors**: we can use dummy variables to encode categorical variables as predictors also in logistic regression.
+    -   **Variable selection**: the `step` function for forward and backward selection works equally on `glm` objects.
+    -   **Linearity**: logistic regression is actually linear in the sense that it models a **linear decision boundary**, i.e. the curve separating observations of different classes is a straight line. It satisfies the following equation (see slide 107):
+    $$\beta_0 + \beta_1X_1 + \ldots + \beta_pX_p = 0$$
+-   In our example with two predictors, we can nicely visualize the estimated decision boundary.
+
+
+## Linear decision boundary in logistic regression
+
+::: panel-tabset
+### Plot
+
+```{r}
+#| label: linbound
+#| eval: true
+#| echo: false
+#| fig-height: 7.5
+
+ggplot(click, aes(x = area_income, y = age, color = factor(clicked_on_ad))) +
+  geom_point() +
+  geom_abline(slope = -coef(logreg)[2]/coef(logreg)[3],
+              intercept = -coef(logreg)[1]/coef(logreg)[3]) +
+  labs(title = "Linear decision boundary of logistic regression",
+       subtitle = "Illustration of linear decision boundary estimated via logistic regression on click data",
+       color = "Clicked") +
+  theme_minimal() +
+  scale_color_colorblind()
+```
+
+### Code
+
+```{r}
+#| ref.label: linbound
+#| echo: true
+#| eval: false
+```
+:::
+
+
+
+# K-nearest neighbours (KNN) classification
+
+## K-nearest neighbours (KNN) classification
+
+-   Similar to the regression context, a non-parametric alternative for performing classification is given by **K-nearest neighbours (KNN) classification**.
+-   Unlike logistic regression, KNN classification can also be used for **multi-class classification**, i.e. for when there are more than two classes.
+-   In principle, the procedure is straightforward:
+    -   Given a value for $K$ and a prediction point $x_0$, we again start by identifying the $K$ training observations that are closest to $x_0$, represented by $\mathcal{N}_0$.
+    -   We then estimate the conditional probability for class $j$ as the fraction of points in $\mathcal{N}_0$ whose response values equal $j$:
+    $$\hat{P}(Y=j|X=x_0) = \frac{1}{K} \sum_{i \in \mathcal{N}_0} I(y_i = j)$$
+
+
+## K-nearest neighbours (KNN) classification
+
+Suppose we have two classes ($+$ and $-$) and two features $X_1$ and $X_2$. The figure below illustrates how conditional probability would be estimated for a point $x$ and $K=1,2,3$ in a toy example data set:
+
+![](img/neighbor_unknown.png){fig-align="center"}
+
+$$K = 1, \hat{P}(+|x) = 0/1 \quad K = 2, \hat{P}(+|x) = 1/2 \quad K = 3, \hat{P}(+|x) = 2/3$$
+
+
+## KNN classification in R
+
+-   In R, KNN classification can also be achieved with the help of the `FNN` package:
+    -   It provides a function called `knn`, whose arguments are very similar to the `knn.reg` function we saw earlier.
+    -   With this function, we **have to** perform fitting and prediction in one function call. So let's run KNN classification for different values of $K$ directly in our existing cross-validation scheme.
+    -   First though, we need to standardize our variables, since `area_income` is measured in USD and `age` is measured in years. To **standardize** a variable, we deduct the mean and divide by the standard deviation:
+    ```{r}
+    click$ai_scaled <- (click$area_income - mean(click$area_income))/sd(click$area_income)
+    click$age_scaled <- (click$age - mean(click$age))/sd(click$age)
+    ```
+
+
+## KNN classification in R
+
+-   Now, we can actually run the KNN classification for $K=1, \ldots, 10$ and predict each fold in the 5-fold cross validation scheme from earlier:
+    ```{r}
+    n_neighbours <- 1:10
+
+    for(nn in n_neighbours){
+      knn_colname <- sprintf("class_preds_KNN%d", nn)
+      click[[knn_colname]] <- factor(NA, levels = c(0, 1))
+      for(k in 1:K){
+        preds <- knn(train = click[click$fold != k, c("ai_scaled", "age_scaled")],
+                     test = click[click$fold == k, c("ai_scaled", "age_scaled")],
+                     cl = click$clicked_on_ad[click$fold != k],
+                     k = nn)
+        click[click$fold == k, knn_colname] <- preds
+      }
+    }
+    ```
+-   Let's compare the performance (in terms of classification accuracy on the test set) of these KNN models to the logistic regression model from earlier!
+
+
+## KNN classification vs. logistic regression
+
+::: panel-tabset
+### Plot
+
+```{r}
+#| label: classresults
+#| eval: true
+#| echo: false
+#| fig-height: 7.5
+
+res_knn <- colMeans(as.matrix(click[, grep("_KNN", names(click), fixed = TRUE)]) == click$clicked_on_ad)
+res_lr <- mean(click$class_preds_lr == click$clicked_on_ad)
+res <- data.frame(model = c(sub("class_preds_", "", names(res_knn)), "LR"),
+                  accuracy = c(res_knn, res_lr))
+res$model <- factor(res$model, levels = res$model)
+rownames(res) <- NULL
+
+ggplot(res, aes(x = model, y = accuracy)) +
+  geom_bar(stat = "identity", fill = "deepskyblue4") +
+  labs(x = "Model", y = "Test accuracy",
+       title = "Test accuracy of the KNN models and logistic regression",
+       subtitle = "Test accuracy via 5-fold cross validation",
+       caption = "Source: click data") +
+  guides(fill = "none") +
+  theme_minimal()
+```
+
+### Code
+
+```{r}
+#| ref.label: classresults
+#| echo: true
+#| eval: false
+```
+:::
+
+
+## KNN classification vs. logistic regression
+
+-   It appears that the logistic regression model (narrowly) outperforms all KNN models in terms of **accuracy**.
+-   To get an even more detailed picture of the relative performances, one would look at **precision**, **recall** and **F1 score** of all presented classification approaches.
+-   With its non-parametric flexibility, KNN classification can in principle model any shape of decision boundary. However, in the specific case of our `click` data set, it seems that the **true decision boundary is close to linear**, so the additional flexibility does not provide any benefit.
+-   To illustrate this, consider the estimated decision boundaries for some of our KNN models on the next slide.
+
+
+## Decision boundaries in KNN classification
+
+```{r}
+#| echo: false
+#| fig-height: 8
+
+mu_ai <- mean(click$area_income)
+sd_ai <- sd(click$area_income)
+mu_age <- mean(click$age)
+sd_age <- sd(click$age)
+
+rescale <- function(x, mu, sd) x*sd + mu
+
+resolution <- 100
+data_scaled <- click[, c("ai_scaled", "age_scaled")]
+ranges <- sapply(data_scaled, range, na.rm = TRUE)
+xs <- seq(ranges[1,1], ranges[2,1], length.out = resolution)
+ys <- seq(ranges[1,2], ranges[2,2], length.out = resolution)
+g <- expand.grid(ai_scaled = xs,
+                 age_scaled = ys)
+
+plot_boundary_for_k <- function(k){
+  p <- as.integer(knn(train = data_scaled,
+                      test = g,
+                      cl = click$clicked_on_ad,
+                      k = k)) - 1L
+  g$pred <- p
+  g$area_income <- rescale(g$ai_scaled, mu_ai, sd_ai)
+  g$age <- rescale(g$age_scaled, mu_age, sd_age)
+
+  ggplot() +
+    geom_point(data = click,
+               aes(x = area_income,
+                   y = age,
+                   color = factor(clicked_on_ad)),
+               size = 0.9) +
+    geom_contour(data = g,
+                 aes(x = area_income,
+                     y = age,
+                     z = pred),
+                 breaks = 0.5,
+                 color  = "black",
+                 linewidth   = 1) +
+    geom_raster(data = g,
+              aes(x = area_income,
+                  y = age,
+                  fill = factor(pred)),
+              alpha = 0.1) +
+    scale_color_colorblind(name = "Clicked") +
+    scale_fill_colorblind() +
+    theme_minimal() +
+    guides(fill = "none") +
+    labs(
+      title = sprintf("Decision Boundary of KNN (K = %d)", k),
+      subtitle = "Illustration of flexible decision boundary in KNN classification on click data"
+    )
+}
+
+p1 <- plot_boundary_for_k(2)
+p2 <- plot_boundary_for_k(5)
+p3 <- plot_boundary_for_k(10)
+p4 <- plot_boundary_for_k(30)
+
+grid.arrange(p1, p2, p3, p4, ncol = 2)
+```
+
+
+
+# Tree-based methods
+
+## Tree-based methods
+
+-   So far, we know about the following **regression methods**:
+    -   Simple and multiple linear regression
+    -   Linear regression with forward and backward variable selection
+    -   KNN regression
+-   ... and the following **classification methods**:
+    -   Simple and multiple logistic regression
+    -   Logistic regression with forward and backward variable selection
+    -   KNN classification
+-   Now, we will look into another class of machine learning methods called **tree-based methods**. In particular, we will discuss so-called **decision trees** that can be used for both **regression** and **classification**.
+
+
+## Introduction to regression trees
+
+-   When decision trees are used for regression tasks, they are referred to as **regression trees**.
+-   In order to motivate regression trees, we begin with a **simple example**:
+    -   The `Hitters` data set in the `ISLR` package contains statistics of 322 baseball players in the American MLB from the 1986 and 1987 seasons.
+    -   Our goal is to predict a player's `Salary` based on `Years` (number of years in the MLB) and `Hits` (number of hits he made in the previous year)
+    -   First, we remove observations that are missing `Salary` values and log transform the remaining salaries.
+    ```{r}
+    Hitters <- Hitters[!is.na(Hitters$Salary), ]
+    Hitters$logSalary <- log(Hitters$Salary)
+    ```
+
+
+## Baseball salary data
+
+::: panel-tabset
+### Plot
+
+```{r}
+#| label: baseball
+#| eval: true
+#| echo: false
+#| fig-height: 7.5
+
+ggplot(Hitters, aes(x = Years, y = Hits, color = logSalary)) +
+  geom_point() +
+  scale_color_gradientn(colors = rainbow(10)) +
+  theme_minimal()
+```
+
+### Code
+
+```{r}
+#| ref.label: baseball
+#| echo: true
+#| eval: false
+```
+:::
+
+
+## A simple regression tree for baseball data
+
+-   Using this data set, let's say, we wanted to find players who, based on their `Hits` and `Years` in the MLB, had similar salaries:
+    -   We could, for instance, group together all players with less than five years of experience.
+    -   Among those with more than five years of experience, we could again distinguish between those with less than 118 hits and those with more.
+-   With these **decision rules**, we would thus have three groups in total:
+    -   Players with `Years < 5`
+    -   Players with `Years >= 5` and `Hits < 118`
+    -   Players with `Years >= 5` and `Hits >= 118`
+-   Let's draw these three regions into the plot from earlier!
+
+
+## A simple regression tree for baseball data
+
+::: panel-tabset
+### Plot
+
+```{r}
+#| label: baseball-2
+#| eval: true
+#| echo: false
+#| fig-height: 7.5
+
+ggplot(Hitters) +
+  geom_point(aes(x = Years, y = Hits, color = logSalary)) +
+  geom_vline(xintercept = 5, linewidth = 1) +
+  geom_line(data = data.frame(x = c(5, 25), y = c(118, 118)),
+            mapping = aes(x = x, y = y),
+            linewidth = 1) +
+  scale_color_gradientn(colors = rainbow(10)) +
+  theme_minimal()
+```
+
+### Code
+
+```{r}
+#| ref.label: baseball-2
+#| echo: true
+#| eval: false
+```
+:::
+
+
+## Regression tree illustration
+
+We have already built our first **regression tree**! The reason for the name is that we can illustrate our decisions on the groups in a tree structure:
+
+```{r}
+#| echo: false
+
+library(rpart)
+library(rpart.plot)
+m <- rpart(logSalary ~ Years + Hits, data = Hitters,
+           control = list(cp = 0.05))
+op <- par(mar = c(0,0,0,0))
+rpart.plot(m, extra = 101, digits = 4)
+par(op)
+```
+
+-   The final three regions are known as **terminal nodes** or **leaves** of the tree.
+-   The points along the tree where the predictor space is split are referred to as **internal nodes**.
+
+
+## Prediction with regression trees
+
+-   But how do we use a regression tree for **prediction**?
+-   Very simple: our prediction for the log salary of a new player is the **average** log salary of all the players in his region!
+-   As the plot shows, our regression tree can thus only predict 3 different values:
+    -   A log salary of 5.107 for players with `Years < 5`
+    -   A log salary of 5.998 for players with `Years >= 5` and `Hits < 118`
+    -   A log salary of 6.740 for players with `Years >= 5` and `Hits >= 118`
+-   **Interpretation**:
+    -   For a player with less than 5 years of experience, the number of hits that he made in the previous year seems to play little role in his salary.
+    -   But among more experienced players, the number of hits made in the previous year does (positively) affect salary.
+
+
+## Regression trees -- The general idea
+
+-   While this is likely an oversimplification of the true relationship between experience, hits and salary, the regression tree has the advantage of being **easy to interpret** and **to visualize**.
+-   We have now seen a basic example of a regression tree. Now, we will discuss how to **build** them. Roughly speaking, there are two steps:
+    1.    We divide the **predictor space**, i.e. the set of possible values for $X_1, X_2, \ldots, X_p$, into $J$ distinct and non-overlapping regions, $R_1, R_2, \ldots, R_J$. In the previous example, we had $J = 3$.
+    2.    For every observation that falls into the region $R_j$, we make the same prediction, which is simply the mean of the response values for the training observations in $R_j$.
+-   As we saw in the example, once we know the regions, step 2 is easy. But how do we get these regions $R_1, R_2, \ldots, R_J$?
+
+
+## Regression trees -- Constructing regions
+
+-   In theory, the regions could have any shape. However, in decision trees, we typically divide the predictor space into high-dimensional **rectangles or boxes**.
+-   The goal is to find boxes $R_1, \ldots, R_J$ that minimize the RSS given by
+    $$\sum_{j=1}^J \sum_{i: x_i \in R_j} (y_i - \hat{y}_{R_j})^2,$$
+    where $\hat{y}_{R_j}$ is the mean response for the training observations within the $j$th box. Unfortunately, it is computationally infeasible to consider every possible partition of the feature space into $J$ boxes.
+-   Instead, an algorithm known as **recursive binary splitting** is used for the purpose of achieving this goal.
+
+
+## Regression trees -- Recursive binary splitting
+
+-   **Recursive binary splitting** is based on the idea of, at every step, using a **single predictor** $X_j$ at a node as a splitting variable.
+-   This algorithm roughly works as follows:
+    -   First, select the predictor $X_j$ and the cutpoint $s$ such that splitting the predictor space into the regions $\{X|X_j < s\}$ and $\{X|X_j \geq s\}$ leads to the greatest possible reduction in RSS.
+    -   Next, we repeat the process, choosing predictor and cutpoint so as to minimize the RSS within each of the resulting regions. However, this time, instead of splitting the entire predictor space, we split one of the two previously identified regions.
+    -   Continue splitting optimally in this way until some stopping criterion is reached, e.g. until no region contains more than five observations.
+
+
+## Regression trees -- Recursive binary splitting
+
+In the baseball example, we first consider all possible splits on `Years`:
+
+```{r}
+#| echo: false
+#| eval: false
+
+rss <- function(x) sum((x - mean(x))^2)
+
+generate_plots_for_splits <- function(data, xname, yname, colorname, split_by,
+                                      n_colors = 20, width = 1400, height = 850,
+                                      tmp_path = "img/tmp"){
+  # Set colours:
+  colors <- rainbow(n_colors)
+  col_valuerange <- seq(min(data[[colorname]]), max(data[[colorname]]), length.out = n_colors)
+
+  # Determine split points and pre-define RSS matrix
+  split_data <- if(split_by == "x") data[[xname]] else data[[yname]]
+  s_points <- sort(unique(split_data))[-1]
+  tss <- var(data[[colorname]])*(nrow(data) - 1)
+  rss_mat <- matrix(NA_real_, nrow = length(s_points), ncol = 2,
+                    dimnames = list(as.character(s_points), c("left", "right")))
+
+  # Cycle through split points: determine split, calculate and save RSS, create plots
+  for(i in seq_along(s_points)){
+    # Split and determine RSS
+    left_split <- split_data < s_points[i]
+    right_split <- split_data >= s_points[i]
+    rss_mat[i, 1] <- rss(data[[colorname]][left_split])
+    rss_mat[i, 2] <- rss(data[[colorname]][right_split])
+
+    # Determine mean response in each split and determine background colour accordingly
+    mean_left <- mean(data[[colorname]][left_split])
+    mean_right <- mean(data[[colorname]][right_split])
+    bg_col_left <- colors[which.min(abs(col_valuerange - mean_left))]
+    bg_col_right <- colors[which.min(abs(col_valuerange - mean_right))]
+
+    # Set data.frames for rectangles and arguments for straight line geom in plot:
+    if(split_by == "x"){
+      left_rect_df <- data.frame(xmin = -Inf, xmax = s_points[i], ymin = -Inf, ymax = Inf)
+      right_rect_df <- data.frame(xmin = s_points[i], xmax = Inf, ymin = -Inf, ymax = Inf)
+      abline_geom <- geom_vline(xintercept = s_points[i], linetype = 2)
+    } else {
+      left_rect_df <- data.frame(xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = s_points[i])
+      right_rect_df <- data.frame(xmin = -Inf, xmax = Inf, ymin = s_points[i], ymax = Inf)
+      abline_geom <- geom_hline(yintercept = s_points[i], linetype = 2)
+    }
+
+    # Create split plot
+    split_plot <- ggplot(data) +
+      geom_point(aes(x = .data[[xname]], y = .data[[yname]], color = .data[[colorname]])) +
+      abline_geom +
+      geom_rect(data = left_rect_df,
+                mapping = aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax),
+                fill = bg_col_left, alpha = 0.1, inherit.aes = FALSE) +
+      geom_rect(data = right_rect_df,
+                mapping = aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax),
+                fill = bg_col_right, alpha = 0.1, inherit.aes = FALSE) +
+      scale_color_gradientn(colors = colors) +
+      labs(title = sprintf("Considering split for variable %s at s = %d", if(split_by == "x") xname else yname, s_points[i]),
+           subtitle = sprintf("Left RSS: %.2f, Right RSS: %.2f, Total RSS: %.2f",
+                              rss_mat[i, 1],
+                              rss_mat[i, 2],
+                              rowSums(rss_mat)[i])) +
+      guides(fill = "none") +
+      theme_minimal()
+
+    # Create line plot
+    rss_df <- data.frame(s = rep(s_points[1:i], 2),
+                         rss = as.vector(rss_mat[1:i, ]),
+                         side = rep(c("left", "right"), each = i))
+    rss_df <- rbind(rss_df, data.frame(s = s_points[1:i], rss = rowSums(rss_mat)[1:i], side = "sum"))
+    line_plot <- ggplot(rss_df, aes(x = s, y = rss, group = side, col = side)) +
+      geom_point() +
+      geom_line() +
+      scale_x_continuous(limits = range(s_points)) +
+      scale_y_continuous(limits = c(0, tss)) +
+      labs(title = "Tracking RSS for different s",
+           subtitle = sprintf("Best RSS (sum) so far: %.2f for s = %d",
+                              min(rowSums(rss_mat), na.rm = TRUE),
+                              s_points[which.min(rowSums(rss_mat))]),
+           y = "RSS",
+           color = "RSS") +
+      theme_minimal()
+
+    # Create and save grid plot
+    out_plot <- grid.arrange(split_plot, line_plot, ncol = 2)
+    ggsave(filename = file.path(tmp_path, sprintf("anim_%s_%03d.png", if(split_by == "x") xname else yname, i)),
+           plot = out_plot, width = width, height = height, units = "px")
+  }
+  return(rss_mat)
+}
+
+tmp_path <- "img/tmp"
+if(!dir.exists(tmp_path)) dir.create(tmp_path)
+rss_years <- generate_plots_for_splits(Hitters, "Years", "Hits", "logSalary", split_by = "x",
+                                       width = 3500, height = 2125)
+rss_hits <- generate_plots_for_splits(Hitters, "Years", "Hits", "logSalary", split_by = "y",
+                                      width = 3500, height = 2125)
+
+# Generate GIFs
+library(gifski)
+pngs_years <- sort(list.files(path = tmp_path, pattern = "anim_Years_", full.names = TRUE))
+pngs_hits <- sort(list.files(path = tmp_path, pattern = "anim_Hits_", full.names = TRUE))
+
+gifski(pngs_years, gif_file = "gifs/split_by_years.gif", width = 1400, height = 850, delay = 0.8, progress = TRUE)
+gifski(pngs_hits, gif_file = "gifs/split_by_hits.gif", width = 1400, height = 850, delay = 0.4, progress = TRUE)
+unlink(tmp_path, recursive = TRUE)
+```
+
+![](gifs/split_by_years.gif){fig-align="center"}
+
+
+## Regression trees -- Recursive binary splitting
+
+Then, we run the same procedure for `Hits` to check if we get any lower RSS:
+
+![](gifs/split_by_hits.gif){fig-align="center"}
+
+
+## Regression trees -- Recursive binary splitting
+
+-   Based on these results, we can determine the first split:
+    -   For the variable `Years`, the lowest RSS was achieved for $s = 5$. The lowest achievable RSS was 115.06.
+    -   For the variable `Hits`, the lowest RSS was achieved for $s = 118$. The lowest achievable RSS was 160.97.
+    -   Therefore, the first split will be based on `Years` for $s = 5$. We split the predictor space into two rectangles: one where `Years < 5` and one where `Years >= 5`, both times irrespective of the number of `Hits`.
+-   Next, we again check which split (across either of those two rectangles) gives the lowest RSS. Remember that we only split **one rectangle at a time**.
+
+
+## Recursive binary splitting -- Second split
+
+```{r}
+#| echo: false
+#| fig-height: 8
+
+rss <- function(x) sum((x - mean(x))^2)
+s_years <- sort(unique(Hitters$Years))[-c(1,5)]
+rss_new <- sapply(s_years, function(s) sum(tapply(Hitters$logSalary,
+                                       cut(Hitters$Years, c(-1, 5, Inf, s), right = FALSE),
+                                       rss)))
+best_s_years <- s_years[which.min(rss_new)]
+
+ggplot(Hitters) +
+  geom_vline(xintercept = s_years[-which.min(rss_new)], linetype = 2, linewidth = 0.25) +
+  geom_vline(xintercept = best_s_years, linetype = 2, linewidth = 1) +
+  geom_point(aes(x = Years, y = Hits, color = logSalary)) +
+  geom_vline(xintercept = 5, linewidth = 1) +
+  scale_color_gradientn(colors = rainbow(20)) +
+  labs(title = "Considering second split on variable Years",
+       subtitle = sprintf("Best RSS (sum): %.2f for s = %d", min(rss_new), best_s_years)) +
+  theme_minimal()
+```
+
+
+## Recursive binary splitting -- Second split
+
+```{r}
+#| echo: false
+#| fig-height: 8
+
+h_left <- sort(unique(Hitters$Hits[Hitters$Years < 5]))[-1]
+rss_new_left <- sapply(h_left, function(s) with(Hitters, rss(logSalary[Years < 5 & Hits < s]) +
+  rss(logSalary[Years < 5 & Hits >= s]) +
+  rss(logSalary[Years >= 5])))
+best_h_left <- h_left[which.min(rss_new_left)]
+
+ggplot(Hitters) +
+  geom_segment(data = data.frame(x = -Inf, y = h_left[-which.min(rss_new_left)], xend = 5, yend = h_left[-which.min(rss_new_left)]),
+               mapping = aes(x = x, y = y, xend = xend, yend = yend),
+               linetype = 2, linewidth = 0.25) +
+  geom_segment(data = data.frame(x = -Inf, y = best_h_left, xend = 5, yend = best_h_left),
+               mapping = aes(x = x, y = y, xend = xend, yend = yend),
+               linetype = 2, linewidth = 1) +
+  geom_point(aes(x = Years, y = Hits, color = logSalary)) +
+  geom_vline(xintercept = 5, linewidth = 1) +
+  scale_color_gradientn(colors = rainbow(20)) +
+  labs(x = "Years", y = "Hits",
+       title = "Considering second split on variable Hits for Years < 5",
+       subtitle = sprintf("Best RSS (sum): %.2f for s = %d", min(rss_new_left), best_h_left)) +
+  theme_minimal()
+```
+
+
+## Recursive binary splitting -- Second split
+
+```{r}
+#| echo: false
+#| fig-height: 8
+
+h_right <- sort(unique(Hitters$Hits[Hitters$Years >= 5]))[-1]
+rss_new_right <- sapply(h_right, function(s) with(Hitters, rss(logSalary[Years >= 5 & Hits < s]) +
+  rss(logSalary[Years >= 5 & Hits >= s]) +
+  rss(logSalary[Years < 5])))
+best_h_right <- h_right[which.min(rss_new_right)]
+
+ggplot(Hitters) +
+  geom_segment(data = data.frame(x = 5, y = h_right[-which.min(rss_new_right)], xend = Inf, yend = h_right[-which.min(rss_new_right)]),
+               mapping = aes(x = x, y = y, xend = xend, yend = yend),
+               linetype = 2, linewidth = 0.25) +
+  geom_segment(data = data.frame(x = 5, y = best_h_right, xend = Inf, yend = best_h_right),
+               mapping = aes(x = x, y = y, xend = xend, yend = yend),
+               linetype = 2, linewidth = 1) +
+  geom_point(aes(x = Years, y = Hits, color = logSalary)) +
+  geom_vline(xintercept = 5, linewidth = 1) +
+  scale_color_gradientn(colors = rainbow(20)) +
+  labs(x = "Years", y = "Hits",
+       title = "Considering second split on variable Hits for Years >= 5",
+       subtitle = sprintf("Best RSS (sum): %.2f for s = %d", min(rss_new_right), best_h_right)) +
+  theme_minimal()
+```
+
+
+## Recursive binary splitting -- Second split
+
+-   The next best split is splitting the rectangle where `Years >= 5` into two smaller rectangles: one where `Hits < 118` and one where `Hits >= 118`. This gives $RSS = 91.33$.
+-   Stopping after these two steps gave us the regression tree we saw in the introduction. However, we could continue until some stopping criterion is reached, e.g. no region contains more than five observations.
+-   Recursive binary splitting is known as a **top-down**, **greedy** algorithm:
+    -   It is **top-down** because it begins at the top of the tree (all observations in a single region) and then successively splits the predictor space, each split indicated as two new branches further down on the tree.
+    -   It is **greedy** because at each step, the best split is made at that particular step, rather than looking ahead and picking a split that will lead to a better tree in some future step.
+
+
+## Prediction surface in regression trees
+
+::: slightlysmall
+
+With recursive binary splitting, the prediction surface of regression trees looks like a (irregular) **stair case**. Below is an example with five terminal nodes. Notice the difference to linear regression which would be a plane.
+
+:::
+
+![](img/reg_tree.png){fig-align="center"}
+
+
+## Pruning a tree
+
+-   Now, performing recursive binary splitting, until only a few observations are left in each region is likely to **overfit** the data:
+    -   A high number of splits produces a very complex tree, which will have **low training error**, but (probably) **high test error**.
+    -   Thus, a smaller tree might lead to **lower variance** and better interpretation at the **cost of only a little bias**.
+-   One way to mitigate this is to grow a very large tree $T_0$ and then to **prune it back** (cut branches of the tree) in order to obtain a subtree.
+-   The way we do this in practice is through an approach called **cost complexity pruning** (aka **weakest link pruning**).
+
+
+## Cost complexity pruning
+
+-   The idea of **cost complexity pruning** is to choose a subtree $T$ of $T_0$ that optimally trades off a subtree's complexity against its fit to the training data.
+-   For this purpose, we set a tuning parameter $\alpha > 0$ and then find $T$ so that
+    $$\sum_{m=1}^{|T|} \sum_{i: x_i \in R_m} (y_i - \hat{y}_{R_m})^2 + \alpha \cdot |T|$$
+    is minimized. $|T|$ is the size of the tree, i.e. the number of terminal nodes.
+-   The tuning parameter $\alpha$ controls the aforementioned trade-off:
+    -   When $\alpha = 0$, then $T = T_0$ because the expression just measures the training error.
+    -   However, when $\alpha > 0$, there is a price to pay for having a tree with many terminal nodes, so the expression will "prefer" a smaller subtree.
+
+
+## Cost complexity pruning -- Choosing $\alpha$
+
+-   In general, the higher the value of $\alpha$, the more the initial fully grown tree $T_0$ will be pruned. Thus, as we increase $\alpha$ from 0, the optimal subtree will become smaller and smaller.
+-   So how do we choose the optimal $\alpha$?
+    -   We perform $K$-fold cross-validation!
+    -   More specifically, we assess the predictive performance of the subtrees on each of the $K$ hold-out folds as a function of $\alpha$ and then pick the $\alpha$ that minimizes the cross-validated test MSE.
+-   Having determined the optimal $\alpha$ in this way, we can then apply it to obtain the optimally pruned tree on the entire training data set.
+-   Fortunately, this process is implemented in a highly optimized R package called `rpart` that does most of this work for us. Let's have a look at it!
+
+
+## Regression trees in R -- Fitting and visualization
+
+-   The main function in the `rpart` package is also called `rpart`. Besides fitting a regression tree, it performs the cross-validation analysis for $\alpha$ automatically in the background.
+-   To use it, we need to pass it a model **formula** and **data** (like in `lm`) as well as the minimum $\alpha$ value, which is referred to as `cp` (complexity parameter) in the package (0.01 by default).
+-   Using all the variables in the baseball data, we can thus fit a "full" tree like this:
+    ```{r}
+    library(rpart)
+
+    rt_full <- rpart(logSalary ~ . - Salary, data = Hitters,
+                     control = list(cp = 0))
+    ```
+
+-   The output from `print(rt)` is not very user-friendly so we will visualize the tree using the `rpart.plot` package (result on the next slide):
+    ```{r}
+    #| label: rt
+    #| eval: false
+
+    library(rpart.plot)
+    rpart.plot(rt_full)
+    ```
+
+
+## Regression trees in R -- Visualization
+
+```{r}
+#| ref.label: rt
+#| echo: false
+#| fig-height: 8
+#| fig-align: "center"
+```
+
+
+## Regression trees in R -- Pruning
+
+-   As expected, this is quite a large tree! So how do we go about optimally **pruning** it?
+-   As indicated before, `rpart` has done the necessary cross-validation (10-fold by default) exercise during fitting. We can look at the result by calling
+```{r}
+printcp(rt_full)
+```
+
+
+## Regression trees in R -- Pruning
+
+-   The main output of that function is a table with **five columns**:
+    -   `CP`: The **complexity parameter**, a scaled version of $\alpha$. In each row, it is the smallest penalty parameter, for which the number of splits is still equal to `nsplit`, e.g. 0.06129 is the smallest value for which there is only one split.
+    -   `nsplit`: The number of splits induced by the value of `CP`.
+    -   `rel error`: Scaled training RSS. More precisely, it is $RSS/TSS$ in-sample. Will always decrease as the number of splits (i.e. the size of the tree) increases.
+    -   `xerror`: Scaled test RSS. More precisely, it is $RSS/TSS$ out-of-sample (i.e. averaged across the hold-out folds). Primary metric for assessing optimal number of splits.
+    -   `xstd`: Standard deviation of `xerror` over the different folds.
+
+
+## Regression trees in R -- Pruning
+
+-   With this table, we can now plot the **scaled RSS** (in train and test sample) on the y-axis against the **number of splits** on the x-axis and then choose the number of splits optimally.
+-   In choosing the number of splits, we want to balance to conflicting goals:
+    -   Choose as large a tree as necessary to deliver a good fit.
+    -   Among those with similar goodness-of-fit, choose the smallest tree possible.
+-   A good, yet inevitably somewhat subjective heuristic is therefore: **Choose the number of splits where the scaled test RSS starts to flatten out.**
+-   Let's create the plot to see where that point would be in our example (**Note**: we do not have to use `ggplot2` to create this plot, a quick way to do it is to simply run the function `rsq.rpart` on our tree)!
+
+
+## Regression trees in R -- Pruning
+
+::: panel-tabset
+### Plot
+
+```{r}
+#| label: rt-2
+#| eval: true
+#| echo: false
+#| fig-height: 7.5
+
+df_error <- data.frame(nsplit = rep(rt_full$cptable[, 2], 2),
+                       rss_scaled = as.vector(rt_full$cptable[, 3:4]),
+                       type = rep(c("train", "test"), each = nrow(rt_full$cptable)))
+
+ggplot(df_error, aes(x = nsplit, y = rss_scaled, group = type, color = type)) +
+  geom_vline(xintercept = 4, linetype = 2, linewidth = 0.25) +
+  geom_line() +
+  geom_point() +
+  labs(x = "Number of splits", y = "Scaled RSS (RSS/TSS)", color = "Sample",
+       title = "Using cost complexity pruning to choose the optimal number of splits",
+       subtitle = "Scaled train RSS and scaled test RSS (from 10-fold cross-validation) as a function of the number of splits") +
+  theme_minimal()
+```
+
+### Code
+
+```{r}
+#| ref.label: rt-2
+#| echo: true
+#| eval: false
+```
+:::
+
+
+## Regression trees in R -- Pruning
+
+-   Seems like a good value for the number of splits in the baseball example is 4. Increasing the number of splits to any point beyond that does not deliver any (meaningful) reduction in the scaled test RSS.
+-   Now, looking back to the table, we have to find the complexity parameter `cp` corresponding to `nsplit = 4`:
+    ```{r}
+    rt_full$cptable[rt_full$cptable[,"nsplit"] == 4, ]
+    ```
+-   It is 0.02194488. To finally optimally prune the tree, we now have to apply the `prune` function to our full tree `rt_full` together with the optimal `cp` parameter:
+    ```{r}
+    rt_pruned <- prune(rt_full, cp = 0.02194488)
+    ```
+
+
+## Regression trees in R -- Optimally pruned tree
+
+```{r}
+#| fig-height: 6
+#| fig-align: "center"
+
+# Plotting pruned tree with some extra information:
+rpart.plot(rt_pruned, extra = 101, digits = 4)
+```
+
+This is now a much more parsimonious model!
+
+
+## Classification trees
+
+-   When decision trees are used for classification tasks, they are referred to as **classification trees**.
+-   Almost all of the logic regarding recursive binary splitting, tree growing and pruning carries over from **regression trees**, but there are two crucial differences:
+    -   In regression trees, the predicted response is the **mean response** of the training observations belonging to the same terminal node. In classification trees, we use the **most commonly occurring class**.
+    -   In regression trees, we use **RSS** as a criterion for making the binary splits. In classification trees, we use the so-called **Gini index** instead.
+-   Let's grow a tree on the `click` data set from earlier (with predictors `area_income` and `age`) to dive deeper into these differences.
+
+
+## Classification trees -- Example
+
+```{r}
+#| echo: false
+#| fig-height: 8
+
+click$clicked_on_ad <- factor(click$clicked_on_ad)
+m <- rpart(clicked_on_ad ~ area_income + age, data = click)
+rpart.plot(m, extra = 101)
+```
+
+
+## Classification trees -- Example
+
+-   The grown **classification tree** has five internal nodes and **six terminal nodes (leaves)**. From left to right, we label the six resulting rectangular regions by $R_1, R_2, R_3, R_4, R_5$ and $R_6$.
+-   The predicted class in each leaf is the one having the majority among the observations in there: [green]{style="color: #74c476;"} for click and [blue]{style="color: #6baed6;"} for no click with the darkness indicating the **purity** of the node.
+-   Each node displays the following pieces of information:
+    -   The majority class at the top (0 or 1 for no click or click).
+    -   The number of observations falling into each of these classes in that node.
+    -   The percentage of all observations in the node.
+-   The rectangular regions and resulting decision boundary can be highlighted in the two-dimensional scatter plot from earlier.
+
+
+## Classification trees -- Example
+
+```{r}
+#| echo: false
+#| fig-height: 8
+
+click_col <- "#e69f00"
+noclick_col <- "black"
+
+ggplot(click) +
+    geom_point(aes(x = area_income, y = age, color = clicked_on_ad)) +
+    geom_rect(data = data.frame(xmin = -Inf, xmax = 63706.66, ymin = 38, ymax = Inf),
+              mapping = aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax),
+              fill = click_col, alpha = 0.1) +
+    geom_rect(data = data.frame(xmin = 63706.66, xmax = 74021.65, ymin = 42, ymax = Inf),
+              mapping = aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax),
+              fill = click_col, alpha = 0.1) +
+    geom_rect(data = data.frame(xmin = 63706.66, xmax = Inf, ymin = 38, ymax = 42),
+              mapping = aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax),
+              fill = noclick_col, alpha = 0.1) +
+    geom_rect(data = data.frame(xmin = 74021.65, xmax = Inf, ymin = 42, ymax = Inf),
+              mapping = aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax),
+              fill = noclick_col, alpha = 0.1) +
+    geom_rect(data = data.frame(xmin = 43824.69, xmax = Inf, ymin = -Inf, ymax = 38),
+              mapping = aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax),
+              fill = noclick_col, alpha = 0.1) +
+    geom_rect(data = data.frame(xmin = -Inf, xmax = 43824.69, ymin = -Inf, ymax = 38),
+              mapping = aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax),
+              fill = click_col, alpha = 0.1) +
+    geom_hline(yintercept = 38) +
+    geom_line(data = data.frame(x = rep(43824.69, 2), y = c(-Inf, 38)),
+              mapping = aes(x = x, y = y)) +
+    geom_line(data = data.frame(x = rep(63706.66, 2), y = c(38, Inf)),
+              mapping = aes(x = x, y = y)) +
+    geom_line(data = data.frame(y = rep(42, 2), x = c(63706.66, Inf)),
+              mapping = aes(x = x, y = y)) +
+    geom_line(data = data.frame(x = rep(74021.65, 2), y = c(42, Inf)),
+              mapping = aes(x = x, y = y)) +
+    annotate(geom = "text", x = 77500, y = 22,
+             label = "R1", hjust = 0, size = 8) +
+    annotate(geom = "text", x = 15000, y = 22,
+             label = "R2", hjust = 0, size = 8) +
+    annotate(geom = "text", x = 80000, y = 40,
+             label = "R3", hjust = 0, size = 8) +
+    annotate(geom = "text", x = 77500, y = 52.5,
+             label = "R4", hjust = 0, size = 8) +
+    annotate(geom = "text", x = 67500, y = 58,
+             label = "R5", hjust = 0, size = 8) +
+    annotate(geom = "text", x = 15000, y = 58,
+             label = "R6", hjust = 0, size = 8) +
+    scale_color_colorblind(name = "Clicked") +
+    theme_minimal() +
+    guides(fill = "none") +
+    labs(
+      title = "Decision Boundary of classification tree built with recursive binary splitting with Gini index",
+      subtitle = "Background colour indicates majority class in each region"
+    )
+```
+
+
+## Classification trees -- Gini index
+
+-   Classification trees are still built with **recursive binary splitting**, only the criterion changes as RSS cannot be used for classification.
+-   Instead, at each step, we choose the split that minimizes the **Gini index**
+    $$G = \sum_{k=1}^K \hat{p}_{mk} (1 - \hat{p}_{mk}),$$
+    where $K$ is the number of classes and $\hat{p}_{mk}$ is the proportion of training observations in the *m*th region that are from the *k*th class.
+-   The Gini index is a measure of node **purity**:
+    -   It is low when most observations belong to the same class.
+    -   It is high when they are evenly distributed among classes.
+
+
+## Classification trees -- Recursive binary splitting
+
+Let's consider all possible splits on the variable `area_income`:
+
+```{r}
+#| echo: false
+#| eval: false
+
+gini <- function(p) sum(p*(1-p))
+
+generate_plots_for_ginisplits <- function(data, xname, yname, colorname, split_by, bg_colors = c("black", "#e69f00"),
+                                          width = 1400, height = 850, tmp_path = "img/tmp"){
+  # Determine split points and pre-define RSS matrix
+  n <- nrow(data)
+  split_data <- if(split_by == "x") data[[xname]] else data[[yname]]
+  s_points <- sort(unique(split_data))[-1]
+  ginis <- rep(NA_real_, length(s_points))
+
+  # Cycle through split points: determine split, calculate and save RSS, create plots
+  for(i in seq_along(s_points)){
+    # Split and determine RSS
+    left_split <- split_data < s_points[i]
+    right_split <- split_data >= s_points[i]
+    w <- sum(left_split)/n
+    left_freqs <- prop.table(table(data[[colorname]][left_split]))
+    right_freqs <- prop.table(table(data[[colorname]][right_split]))
+    ginis[i] <- w*gini(left_freqs) + (1-w)*gini(right_freqs)
+
+    # Determine majority classes in each split and determine background colour accordingly
+    bg_col_left <- bg_colors[which.max(left_freqs)]
+    bg_col_right <- bg_colors[which.max(right_freqs)]
+
+    # Set data.frames for rectangles and arguments for straight line geom in plot:
+    if(split_by == "x"){
+      left_rect_df <- data.frame(xmin = -Inf, xmax = s_points[i], ymin = -Inf, ymax = Inf)
+      right_rect_df <- data.frame(xmin = s_points[i], xmax = Inf, ymin = -Inf, ymax = Inf)
+      abline_geom <- geom_vline(xintercept = s_points[i], linetype = 2)
+    } else {
+      left_rect_df <- data.frame(xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = s_points[i])
+      right_rect_df <- data.frame(xmin = -Inf, xmax = Inf, ymin = s_points[i], ymax = Inf)
+      abline_geom <- geom_hline(yintercept = s_points[i], linetype = 2)
+    }
+
+    # Create split plot
+    split_plot <- ggplot(data) +
+      geom_point(aes(x = .data[[xname]], y = .data[[yname]], color = .data[[colorname]])) +
+      abline_geom +
+      geom_rect(data = left_rect_df,
+                mapping = aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax),
+                fill = bg_col_left, alpha = 0.1) +
+      geom_rect(data = right_rect_df,
+                mapping = aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax),
+                fill = bg_col_right, alpha = 0.1) +
+      scale_color_colorblind(name = "Clicked") +
+      labs(title = sprintf("Considering split for variable %s at s = %.2f", if(split_by == "x") xname else yname, s_points[i]),
+           subtitle = sprintf("Left Gini: %.4f, Right Gini: %.4f, Total Gini: %.4f",
+                              gini(left_freqs),
+                              gini(right_freqs),
+                              ginis[i])) +
+      guides(fill = "none") +
+      theme_minimal()
+
+    # Create line plot
+    gini_df <- data.frame(s = s_points[1:i],
+                         gini = ginis[1:i])
+    line_plot <- ggplot(gini_df, aes(x = s, y = gini)) +
+      geom_point(size = 0.75) +
+      geom_line() +
+      scale_x_continuous(limits = range(s_points)) +
+      scale_y_continuous(limits = c(0.25, 0.5)) +
+      labs(title = "Tracking Gini for different s",
+           subtitle = sprintf("Best Gini so far: %.4f for s = %.2f",
+                              min(ginis, na.rm = TRUE),
+                              s_points[which.min(ginis)]),
+           y = "Gini") +
+      theme_minimal()
+
+    # Create and save grid plot
+    out_plot <- grid.arrange(split_plot, line_plot, ncol = 2)
+    ggsave(filename = file.path(tmp_path, sprintf("anim_%s_%03d.png", if(split_by == "x") xname else yname, i)),
+           plot = out_plot, width = width, height = height, units = "px")
+  }
+  return(ginis)
+}
+
+tmp_path <- "img/tmp"
+if(!dir.exists(tmp_path)) dir.create(tmp_path)
+ginis_area_income <- generate_plots_for_ginisplits(click, "area_income", "age", "clicked_on_ad", split_by = "x",
+                                                   width = 3500, height = 2125, tmp_path = tmp_path)
+ginis_age <- generate_plots_for_ginisplits(click, "area_income", "age", "clicked_on_ad", split_by = "y",
+                                           width = 3500, height = 2125, tmp_path = tmp_path)
+
+# Generate GIFs
+library(gifski)
+pngs_area_income <- sort(list.files(path = tmp_path, pattern = "anim_area_income_", full.names = TRUE))
+pngs_age <- sort(list.files(path = tmp_path, pattern = "anim_age_", full.names = TRUE))
+
+gifski(pngs_area_income, gif_file = "gifs/split_by_area_income.gif", width = 1400, height = 850, delay = 0.1, progress = TRUE)
+gifski(pngs_age, gif_file = "gifs/split_by_age.gif", width = 1400, height = 850, delay = 0.25, progress = TRUE)
+unlink(tmp_path, recursive = TRUE)
+```
+
+![](gifs/split_by_area_income.gif){fig-align="center"}
+
+
+## Classification trees -- Recursive binary splitting
+
+Then, we run the same procedure for `age` to check if we get any lower Gini:
+
+![](gifs/split_by_age.gif){fig-align="center"}
+
+
+## Classification trees -- Recursive binary splitting
+
+-   Based on these results, we can determine the first split:
+    -   For the variable `area_income`, the lowest Gini was achieved for $s = 50337.93$. The lowest achievable Gini index was 0.3983.
+    -   For the variable `age`, the lowest Gini was achieved for $s = 38$. The lowest achievable Gini index was 0.3947.
+    -   Therefore, the first split will be based on `age` for $s = 38$. We split the predictor space into two rectangles: one where `age < 38` and one where `age >= 38`, both times irrespective of the `area_income`.
+-   This of course again corresponds to the result we already saw. In recursive binary splitting, we would now go on splitting like this until some stopping criterion is reached.
+
+
+## Classification trees in R -- Fitting
+
+-   In R, not much changes when we want to fit a classification tree compared to a regression tree. As long as the response is converted to a factor, the `rpart` function will automatically fit a classification tree.
+-   So, let's make sure the response in the `click` data set is a factor:
+    ```{r}
+    click$clicked_on_ad <- factor(click$clicked_on_ad)
+    ```
+
+-   Now, we can grow a "full" tree again in the same way as before in the `click` data. We want to use predictors `age`, `area_income`, `male` and `daily_time_spent_on_site`:
+    ```{r}
+    ct_full <- rpart(clicked_on_ad ~ age + area_income + male + daily_time_spent_on_site,
+                     data = click, control = list(cp = 0))
+    ```
+-   We can again visualize the resulting classification tree using `rpart.plot` (result on the next slide):
+    ```{r}
+    #| label: ct
+    #| eval: false
+
+    rpart.plot(ct_full)
+    ```
+
+
+## Classification trees in R -- Visualization
+
+```{r}
+#| ref.label: ct
+#| echo: false
+#| fig-height: 8
+#| fig-align: "center"
+```
+
+
+## Classification trees in R -- Pruning
+
+All functionality for pruning also carries over from regression trees. The metric used in the `cptable` is classification **error rate**:
+
+::: panel-tabset
+### Plot
+
+```{r}
+#| label: ct-2
+#| eval: true
+#| echo: false
+#| fig-height: 6.25
+
+df_error <- data.frame(nsplit = rep(ct_full$cptable[, 2], 2),
+                       error_rate = as.vector(ct_full$cptable[, 3:4]),
+                       type = rep(c("train", "test"), each = nrow(ct_full$cptable)))
+
+ggplot(df_error, aes(x = nsplit, y = error_rate, group = type, color = type)) +
+  geom_vline(xintercept = 2, linetype = 2, linewidth = 0.25) +
+  geom_line() +
+  geom_point() +
+  labs(x = "Number of splits", y = "Error rate", color = "Sample",
+       title = "Using cost complexity pruning to choose the optimal number of splits",
+       subtitle = "Classification error rate for train and test data (from 10-fold cross-validation) as a function of the number of splits") +
+  theme_minimal()
+```
+
+### Code
+
+```{r}
+#| ref.label: ct-2
+#| echo: true
+#| eval: false
+```
+:::
+
+
+## Classification trees in R -- Pruning
+
+-   Seems like a good value for the number of splits in the `click` example is 2. Increasing the number of splits to any point beyond that does not deliver any (meaningful) reduction in error rate.
+-   Now, looking at the `cptable`, we find the corresponding value of `cp`
+    ```{r}
+    ct_full$cptable[ct_full$cptable[,"nsplit"] == 2, ]
+    ```
+-   It is 0.013. To finally optimally prune the tree, we again simply apply the `prune` function to the full tree `ct_full` together with the optimal `cp` parameter:
+    ```{r}
+    ct_pruned <- prune(ct_full, cp = 0.013)
+    ```
+
+
+## Classification trees in R -- Optimal pruning
+
+```{r}
+#| fig-height: 6
+#| fig-align: "center"
+
+# Plotting pruned tree with some extra information:
+rpart.plot(ct_pruned, extra = 101)
+```
+
+
+## Final assessment of decision trees
+
+-   Whether used for regression or classification, decision trees have many **advantages**:
+    -   Very easy to explain intuitively. Even easier than linear or logistic regression.
+    -   Can be nicely visualized and easily interpreted as long as they are only moderately large, even by non-experts.
+    -   Can handle qualitative predictors without the need for dummy variables.
+-   However, there are some **downsides** of course:
+    -   Due to their simplistic nature, decision trees typically do not have the same level of predictive accuracy as other methods.
+    -   Trees struggle with linearity, e.g. linear decision boundaries (see next slide).
+
+
+## Final assessment of decision trees
+
+![](img/decision_boundaries.png){fig-align="center"}
+
+
+
+
+# Unsupervised learning -- Clustering
+
+## Unsupervised learning
+
+-   So far, this course has focused on **supervised learning** methods, such as regression and classification.
+-   In that setting, we observe both a set of features $X_1, \ldots, X_p$ for each observation and a response variable $Y$. The goal then is to **predict** $Y$ using $X_1, \ldots, X_p$.
+-   Now, we will instead focus on **unsupervised learning**, where we **only** have set a of features $X_1, \ldots, X_p$ measured on $n$ observations.
+-   We are not interested in prediction because we do not have an associated response variable $Y$. Rather, the goal is to discover **interesting things** about the measurements on $X_1, \ldots, X_p$.
+-   We will focus on one particular such interesting thing, namely: can we find **subgroups / clusters** in the data?
+
+
+## Unsupervised learning -- Clustering
+
+-   **Clustering** refers to a broad set of techniques for finding **subgroups** or **clusters** in a data set. Using clustering, we ideally group the observations such that...
+    -   observations within each group are quite similar to each other and
+    -   observations in different groups are quite different from each other.
+-   To make this concrete, we must define what it means for two or more observations to be "similar" or "different". This is a domain-specific consideration that depends on the data being studied.
+-   Consider the following application of clustering for **market segmentation**:
+    -   Say we have access to a large number of measurements of (potential) customers, e.g. income, occupation, past purchase behaviour, etc.
+    -   We can **perform clustering** to identify subgroups of people who may be more receptive to a particular form of advertising.
+
+
+## What is a cluster?
+
+![](img/clusters_black.png){fig-align="center"}
+
+
+## What is a cluster?
+
+Clearly, the notion of a cluster can be **ambiguous**. There is subjective judgement required in deciding what constitutes a cluster:
+
+![](img/clusters.png){fig-align="center"}
+
+
+## Clustering methods
+
+-   Since clustering is popular in many fields, there exist a great number of clustering methods. Some of the most popular ones are:
+    -   K-means clustering
+    -   Hierarchical clustering
+    -   DBSCAN
+    -   Model-based clustering
+    -   ...
+-   As with supervised learning, there is **no free lunch**: clustering methods perform differently on different data sets.
+-   As an introduction to clustering, we will only be looking more deeply into the first of these methods: **K-means clustering**.
+
+
+## K-means clustering
+
+-   Given a number of clusters $K$, **K-means clustering** divides the observations into $K$ distinct, non-overlapping clusters, i.e. each data point is in **exactly one** subset.
+-   The idea is pretty simple:
+    -   Each cluster is associated with a so-called **centroid**. It is essentially a cluster's **midpoint**, calculated as the vector of feature means for all the observations in that cluster.
+    -   Each data point is assigned to the cluster with the closest centroid, where "close" is usually defined based on Euclidean distance, i.e.
+    $$d(x, y) = \sqrt{(x_1 - y_1)^2 + \ldots + (x_p - y_p)^2}$$
+-   The algorithm is best understood when illustrating it with an example.
+
+
+## K-means clustering -- Example
+
+In the following data set, we have $p = 2$ features named `X1` and `X2`. Based on visual inspection, choosing $K = 3$ for clustering seems appropriate.
+
+```{r}
+#| echo: false
+#| fig-height: 6.75
+
+d1 <- rbind.data.frame(MASS::mvrnorm(100, c(40, 20), diag(2)),
+                       MASS::mvrnorm(100, c(35, 17), diag(2)),
+                       MASS::mvrnorm(100, c(45, 17), diag(2)))
+colnames(d1) <- c("X1", "X2")
+ggplot(d1, aes(x = X1, y = X2)) +
+  geom_point(size = 0.8) +
+  labs(title = "Original data") +
+  theme_minimal()
+```
+
+
+## K-means clustering -- Example
+
+**Step 1**: generate $K$ random centroids in the range of the data. We plot the three generated **random initial cluster centroids** as stars into the plot below:
+
+```{r}
+#| echo: false
+#| fig-height: 6.75
+
+n <- nrow(d1)
+k <- 3
+
+initial_centroids <- data.frame(X1 = c(38.6, 34.7, 40.5),
+                                X2 = c(14.2, 21.1, 20.2),
+                                clust = factor(1:k))
+
+ggplot(d1) +
+  geom_point(aes(x = X1, y = X2), size = 0.8) +
+  geom_point(data = initial_centroids,
+             mapping = aes(x = X1, y = X2, color = clust),
+             shape = 8, size = 3) +
+  labs(title = "Step 1: Random centroid generation",
+       color = "Cluster") +
+  theme_minimal()
+```
+
+
+## K-means clustering -- Example
+
+**Step 2**: Assign each observation to the centroid that it is closest to. Below, we colour each point in accordance with the colour of its assigned centroid:
+
+```{r}
+#| echo: false
+#| fig-height: 6.75
+
+d1$clust <- factor(apply(sapply(1:k, function(x) rowSums(sweep(as.matrix(d1[,1:2]), 2,
+                                                               as.matrix(initial_centroids[x, 1:2]))^2)),
+                         MARGIN = 1, FUN = which.min))
+ggplot(d1, aes(x = X1, y = X2, col = clust)) +
+  geom_point(size = 0.8) +
+  geom_point(data = initial_centroids,
+             mapping = aes(x = X1, y = X2, col = clust),
+             shape = 8, size = 3) +
+  labs(title = "Step 2: Assignment of observations to closest centroid",
+       color = "Cluster") +
+  theme_minimal()
+```
+
+
+## K-means clustering -- Example
+
+**Step 3**: Now, re-compute the centroid of each cluster as the mean (in `X1` and `X2`, respectively) of all observations in a given cluster:
+
+```{r}
+#| echo: false
+#| fig-height: 6.75
+
+centroids <- cbind(as.data.frame(t(sapply(1:k, function(x) colMeans(d1[d1$clust==x, 1:2])))),
+                   clust = factor(1:k))
+
+ggplot(d1, aes(x = X1, y = X2, col = clust)) +
+  geom_point(size = 0.8) +
+  geom_point(data = centroids,
+             mapping = aes(x = X1, y = X2, col = clust),
+             shape = 8, size = 3) +
+  labs(title = "Step 3: Recomputation of centroids",
+       color = "Cluster") +
+  theme_minimal()
+```
+
+
+## K-means clustering -- Example
+
+**Step 4**: Finally, iterate the assignment of observations to the cluster with the closest centroid and the re-computation of centroids until the clusters are stable:
+
+```{r}
+#| echo: false
+#| fig-height: 6.75
+
+plot_current <- function(data, centroids, xname, yname, lab, plot_point_colours = TRUE){
+  if(isFALSE(plot_point_colours)){
+    ggplot(data) +
+      geom_point(aes(x = .data[[xname]], y = .data[[yname]]), size = 0.8) +
+      geom_point(data = centroids,
+                 mapping = aes(x = .data[[xname]], y = .data[[yname]], col = clust),
+                 shape = 8, size = 3) +
+      labs(title = lab, color = "Cluster") +
+      theme_minimal()
+  } else {
+    ggplot(data) +
+      geom_point(aes(x = .data[[xname]], y = .data[[yname]], col = clust), size = 0.8) +
+      geom_path(data = centroids,
+                mapping = aes(x = .data[[xname]], y = .data[[yname]], col = clust),
+                linetype = 2, alpha = 0.8) +
+      geom_point(data = centroids,
+                 mapping = aes(x = .data[[xname]], y = .data[[yname]], col = clust),
+                 shape = 8, size = 3) +
+      labs(title = lab, color = "Cluster") +
+      theme_minimal()
+  }
+}
+
+manual_kmeans_2d <- function(data, k, initial_centroids = NULL, max.it = 10L){
+  stopifnot(ncol(data) == 2)
+  n <- nrow(data)
+  xname <- names(data)[1]
+  yname <- names(data)[2]
+  plots <- list()
+
+  if(is.null(initial_centroids)){
+    centroids <- data.frame(X1 = runif(k, min(data[[xname]]), max(data[[xname]])),
+                            X2 = runif(k, min(data[[yname]]), max(data[[yname]])),
+                            clust = factor(1:k),
+                            step = factor(1, levels = 1:max.it))
+  } else {
+    stopifnot(all(names(initial_centroids) == names(data)),
+              nrow(initial_centroids) == k)
+    centroids <- cbind(initial_centroids, clust = factor(1:k),
+                       step = factor(1, levels = 1:max.it))
+  }
+
+  data$clust <- factor(1, levels = 1:k)
+  plots[[1]] <- plot_current(data, centroids, xname, yname,
+                             lab = "Step 1: Random centroid generation", plot_point_colours = FALSE)
+  plot_ind <- 2L
+
+  for(i in 1:max.it){
+    clust_new <- factor(apply(sapply(1:k, function(x) rowSums(sweep(as.matrix(data[, 1:2]), 2,
+                                                                    as.matrix(subset(centroids, step == i)[x, 1:2]))^2)),
+                              MARGIN = 1, FUN = which.min), levels = 1:3)
+    if(all(clust_new == data$clust)){
+      break
+    }
+    data$clust <- clust_new
+    plots[[plot_ind]] <- plot_current(data, centroids, xname, yname,
+                                      lab = sprintf("Step %d a: Assignment of observations to closest centroid", i + 1L))
+    plot_ind <- plot_ind + 1L
+    centroids_new <- cbind(as.data.frame(t(sapply(1:k, function(x) colMeans(data[data$clust == x, 1:2])))),
+                           clust = factor(1:k), step = factor(i + 1L, levels = 0:max.it))
+    centroids <- rbind(centroids, centroids_new)
+    plots[[plot_ind]] <- plot_current(data, centroids, xname, yname,
+                                      lab = sprintf("Step %d b: Recomputation of centroids", i + 1L))
+    plot_ind <- plot_ind + 1L
+  }
+  list(clust = data$clust, centroids = centroids, plots = plots)
+}
+
+res <- manual_kmeans_2d(d1[, 1:2], k = 3, initial_centroids = initial_centroids[, 1:2])
+d1$clust <- res$clust
+
+ggplot(d1, aes(x = X1, y = X2, col = clust)) +
+  geom_point(size = 0.8) +
+  geom_point(data = subset(res$centroids, step == max(as.integer(res$centroids$step))),
+             mapping = aes(x = X1, y = X2, col = clust),
+             shape = 8, size = 3) +
+  labs(title = "Final K-means clustering result for K = 3",
+       color = "Cluster") +
+  theme_minimal()
+```
+
+
+## K-means clustering -- Example
+
+```{r}
+#| echo: False
+#| eval: False
+
+# Generate GIF for animation
+tmp_path <- "img/tmp"
+if(!dir.exists(tmp_path)) dir.create(tmp_path)
+for(i in seq_along(res$plots)){
+  ggsave(filename = file.path(tmp_path, sprintf("kmeans_anim_%02d.png", i)),
+           plot = res$plots[[i]], width = 3500, height = 2125, units = "px", bg = "white")
+}
+
+# Generate GIFs
+library(gifski)
+pngs <- sort(list.files(path = tmp_path, pattern = "kmeans_anim_", full.names = TRUE))
+gifski(pngs, gif_file = "gifs/kmeans.gif", width = 1400, height = 850, delay = 1.25, progress = TRUE)
+unlink(tmp_path, recursive = TRUE)
+```
+
+![](gifs/kmeans.gif){fig-align="center"}
+
+
+## Notes on K-means clustering
+
+-   Due to the **randomness** of the initial cluster centroids, K-means clustering is **non-deterministic**, i.e. the final clustering outcome can be different every time the algorithm is run:
+    -   To mitigate this, we typically run the algorithm on **multiple (random) starting values** and see which run gives the best result.
+    -   The clusters labels (1, 2, 3) are also random, so they can be different for different runs even when the same observations are clustered together.
+-   In general, K-means clustering...
+    -   is a **simple**, easy-to-understand algorithm.
+    -   works well also in **higher dimensions**.
+    -   tends to build **spherical** clusters of equal size.
+
+
+## Notes on K-means clustering
+
+With these properties, **K-means clustering** can be expected to perform well on some data sets, whilst performing badly on others:
+
+```{r}
+#| echo: false
+#| fig-height: 6.75
+
+library(clusteringdatasets)
+
+t48k$clust <- factor(kmeans(t48k, 6, nstart = 10)$cluster)
+R15$clust <- factor(kmeans(R15, 15, nstart = 1000)$cluster)
+HiLoDensity$clust <- factor(kmeans(HiLoDensity, 2, nstart = 10)$cluster)
+
+p1 <- ggplot(t48k, aes(x = x, y = y, color = clust)) + 
+  geom_point() + 
+  labs(title = "Bad...") + 
+  guides(color = "none") + 
+  theme_test() + 
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+
+p2 <- ggplot(R15, aes(x = x, y = y, color = clust)) + 
+  geom_point() + 
+  labs(title = "Nice...") + 
+  guides(color = "none") + 
+  theme_test() + 
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+
+p3 <- ggplot(HiLoDensity, aes(x = x, y = y, color = clust)) + 
+  geom_point() + 
+  labs(title = "Meeh...") + 
+  guides(color = "none") + 
+  theme_test() + 
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+
+grid.arrange(p1, p2, p3, ncol = 3)
+```
+
+
+## K-means clustering in R
+
+-   Let's see how to run this algorithm on an actual real-world data set in R!
+-   We use the `mall_customers` data set from [Kaggle](https://www.kaggle.com/datasets/vjchoudhary7/customer-segmentation-tutorial-in-python/data). This data set contains information on 200 customers of a large mall.
+-   Besides information on the age, sex and annual income (in thousand USD) of these customers, the data also contains a **spending score** variable based on customer behaviour and purchasing data:
+    ```{r}
+    mall <- read.csv("data/mall_customers.csv")
+    names(mall) <- c("customer_id", "sex", "age", "annual_income", "spending_score")
+    head(mall)
+    ```
+-   Using K-means clustering, we want to perform **market segmentation** based on the variables `annual_income` and `spending_score`.
+
+
+## K-means clustering in R
+
+Let's start by plotting these two variables in a scatter plot. Based on this plot, a choice of $K = 5$ seems reasonable (more on how to choose $K$ later).
+
+```{r}
+#| echo: false
+#| fig-height: 6.75
+
+ggplot(mall, aes(x = annual_income, y = spending_score)) +
+  geom_point() +
+  labs(title = "Annual income (k$) and spending score (1-100) of mall customers",
+       x = "Annual income (k$)", y = "Spending score (1-100)") +
+  theme_minimal()
+```
+
+
+## K-means clustering in R
+
+-   **Important**: before we apply K-means clustering, we should always **scale / standardize our variables**!
+-   This is because -- as with KNN regression or classification -- K-means clustering revolves around computing **distances** between observations, which is highly driven by the scale on which the features are measured.
+-   To scale our observations, we can either manually subtract the mean and divide by the standard deviation, or use the R function `scale`:
+    ```{r}
+    mall_scaled <- scale(mall[, c("annual_income", "spending_score")])
+    ```
+-   Now, to apply **K-means clustering in R**, we use the function `kmeans`. Besides the (scaled) data, it requires the number of clusters $K$ (argument `centers`) and the number of random starting points (argument `nstart`):
+    ```{r}
+    km_mall <- kmeans(mall_scaled, centers = 5, nstart = 10)
+    ```
+
+
+## K-means clustering in R
+
+-   Among other things, the resulting `kmeans` object holds the coordinates of the **centroids** (`centers`) and the **clustering vector** (`cluster`), which gives the cluster to which each of the observations was assigned.
+-   Let's start by looking at the sizes of the clusters:
+    ```{r}
+    table(km_mall$cluster)
+    ```
+-   Next, we want to highlight the detected clusters in the original scatter plot using colour (result on the next slide):
+    ```{r}
+    #| label: kmeans
+    #| eval: false
+
+    mall$Cluster <- factor(km_mall$cluster)
+
+    ggplot(mall, aes(x = annual_income, y = spending_score, color = Cluster)) +
+      geom_point() +
+      labs(title = "Annual income (k$) and spending score (1-100) of mall customers",
+           x = "Annual income (k$)", y = "Spending score (1-100)") +
+      theme_minimal()
+    ```
+
+
+## K-means clustering in R
+
+```{r}
+#| ref.label: kmeans
+#| echo: false
+#| fig-height: 8
+```
+
+
+## Choosing the number of clusters $K$
+
+-   So far, we have determined a suitable number of clusters $K$ by inspecting the data. While this may work when there are 2 or 3 features, it certainly no longer works in higher dimensions.
+-   Therefore, we need some other metric to assess **clustering quality**. One commonly used metric is the **within-cluster sum of squares (WCSS)**:
+    $$WCSS = \sum_{k=1}^K \sum_{i \in C_k} \sum_{j=1}^p (x_{ij} - \bar{x}_{kj})^2$$
+-   The WCSS measures how much the observations **within a given cluster** differ from each other:
+    -   It is small when the observations a very **tightly packed** around the centroid.
+    -   It is large when they are **widely spread** around the centroid.
+
+
+## Choosing the number of clusters $K$
+
+-   Therefore, we want a clustering with as small a $WCSS$ as possible. In fact, K-means clustering is designed to minimize $WCSS$.
+-   Typically (although not necessarily), the $WCSS$ decreases as we increase the number of clusters.
+-   Consequently, one way of choosing $K$ is a heuristic called the **elbow method**:
+    -   Run K-means with different values of $K$ and record the $WCSS$ for each.
+    -   Plot the number of clusters against the $WCSS$ and find the "elbow" in the plot, i.e. the point where the reduction in $WCSS$ for an increase in $K$ becomes very small. Choose $K$ accordingly.
+-   While this heuristic is easy to understand, it is not always unambiguous and does require some **subjective judgement**.
+
+
+## Choosing the number of clusters $K$
+
+::: panel-tabset
+### Plot
+
+```{r}
+#| label: kmeans-2
+#| eval: true
+#| echo: false
+#| fig-height: 7.5
+
+n_clusters <- 1:10
+wcss <- sapply(n_clusters, function(k) kmeans(mall_scaled, centers = k, nstart = 10)$tot.withinss)
+wcss <- data.frame(k = n_clusters, wcss = wcss)
+
+ggplot(wcss, aes(x = k, y = wcss)) + 
+  geom_line() + 
+  geom_point() +
+  geom_vline(xintercept = 5, linetype = 2) + 
+  scale_x_continuous(breaks = n_clusters) + 
+  labs(title = "Choosing K in the mall_customers data",
+       subtitle = "The elbow in the WCSS plot is at K = 5",
+       x = "K", y = "WCSS") + 
+  theme_minimal()
+```
+
+### Code
+
+```{r}
+#| ref.label: kmeans-2
+#| echo: true
+#| eval: false
+```
+:::
+

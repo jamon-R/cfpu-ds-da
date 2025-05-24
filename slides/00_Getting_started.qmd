@@ -1,0 +1,268 @@
+---
+title: "Data Science and Data Analytics"
+subtitle: "Getting started"
+author: "Julian Amon, PhD"
+date: "March 14, 2025"
+date-format: long
+institute: Charlotte Fresenius Privatuniversität
+footer: "Data Science and Data Analytics -- Getting started"
+format:
+  revealjs:
+    theme:
+      - default
+      - slides.scss
+    width: 1350
+    height: 900
+    slide-number: true
+    logo: img/UOS_Logo.jpg
+    controls: true
+    embed-resources: true
+highlight-style: dracula
+editor_options: 
+  chunk_output_type: console
+---
+
+# Course design
+
+## Welcome to Data Science and Data Analytics!
+
+-   This is **B-GV-12 Data Science and Data Analytics**.
+-   The goal of this course is to teach you...
+    -   about the nature and role of data science in a data-driven world.
+    -   about the data science workflow.
+    -   to use open-source software to analyse, visualize and model data from various sources.
+    -   about different machine learning algorithms.
+    -   to implement your own data science projects.
+    -   to communicate the results of your analyses effectively.
+    -   and much more...
+
+## Lectures
+
+-   With a few exceptions, lectures will be held on **Fridays from 13:30 to 16:30**.
+-   Please regularly check your course schedule to not miss any lectures.
+-   Lectures will consist of theory and practice discussed with the help of **slides** as well as **live coding sessions**.
+-   You are highly encouraged to **actively participate**!
+-   Exercises to practice what you have learned will be provided (but not graded).
+
+## Grading
+
+-   There will be **no** final exam in this course!
+-   Instead, grading will be based on **group projects**:
+    -   Teams of 4 - 5 students will initiate and design a small data science project autonomously.
+    -   Each group will:
+        -   identify a business case mimicking a real-world research problem and an accompanying available data set.
+        -   formulate research questions on the basis of the chosen data set.
+        -   perform analyses using the concepts and methods learned throughout this course.
+
+## Grading
+
+-   Grading will therefore be based on the following components:
+    -   **Group project report** (5-10 pages per group member): **65 %**
+    -   **Group presentation** ($\leq$ 20 mins/group and $\geq$ 2 mins/group member): **25 %**
+    -   **Peer review: 10 %**
+-   In line with the usual grading scheme, grades will be given as follows:
+
+:::::: columns
+::: {.small .column width="25%"}
+:::
+
+::: {.small .column width="30%"}
+| Percentage | Grade |
+|------------|------:|
+| 95 - 100 % |   1,0 |
+| 90 - 94 %  |   1,3 |
+| 85 - 89 %  |   1,7 |
+| 80 - 84 %  |   2,0 |
+| 75 - 79 %  |   2,3 |
+| 70 - 74 %  |   2,7 |
+:::
+
+::: {.small .column width="30%"}
+| Percentage | Grade |
+|------------|------:|
+| 65 - 69 %  |   3,0 |
+| 60 - 64 %  |   3,3 |
+| 55 - 59 %  |   3,7 |
+| 50 - 54 %  |   4,0 |
+| below 50 % |   5,0 |
+:::
+::::::
+
+## Grading: Group project
+
+-   The **structure** of the group project (reflected in report and presentation) should be something like this:
+    -   Introduction / Motivation and research question
+    -   Data (sources, description, statistics, visualizations, ...)
+    -   Models and model evaluation
+    -   Results
+    -   Discussion and comments
+-   Aspects that will influence your grade will be: the originality of the question, understanding of the business case, data and methods, correctness of application, thoroughness of evaluation, creativity and quality of report and presentation (both verbal and visual)
+-   Deductions will be made for purely AI-generated contributions.
+
+## Grading: Group project
+
+::::: columns
+::: {.slightlysmall .column width="50%"}
+**Choice of topic**: while you are completely free in your choice of topic in the group, here are some areas of suggestion:
+
+-   Finance / Economics / Marketing
+-   Text analysis
+-   Entertainment (in particular: movies and music)
+-   Social network analysis
+-   Social sciences
+:::
+
+::: {.slightlysmall .column width="50%"}
+**Sources for data sets**: while you are again free also in your choice of data set, good places to get you started are:
+
+-   [Statistik Austria](https://www.statistik.at/services/tools/services/opendata)
+-   [Kaggle](https://www.kaggle.com/datasets)
+-   [UCI Machine learning repository](https://archive.ics.uci.edu/)
+-   [World bank](https://datacatalog.worldbank.org/home)
+-   [EU](https://data.europa.eu/en)
+-   ...
+:::
+:::::
+
+. . .
+
+::: callout-caution
+When selecting a data set, make sure, you are **allowed** to use this data for the purposes of your project! When selecting from the sources given, this should generally be ensured.
+:::
+
+## Grading: Peer review
+
+::: slightlysmall
+-   After final project presentations, each **individual** student will be asked to write a **peer review** of one of the other groups' projects.
+-   Each student will be randomly assigned **two projects**, out of which **one** should be reviewed (based on their presentation only).
+-   Evaluation is based on the **quality of review** that you write, not on the feedback that your project receives.
+-   The review should be **max 250 words** answering the following questions:
+    -   Briefly describe the topic, research questions and the employed methods.
+    -   State and briefly explain two positive comments about the work.
+    -   State and briefly explain two improvement suggestions.
+:::
+
+. . .
+
+::: callout-important
+In your peer review, focus on **content**, not on the formatting or quality of the slides, for instance.
+:::
+
+## Schedule
+
+::::::: columns
+::: {.slightlysmall .column width="25%"}
+[**March**]{.class style="color:#3A5883"}
+
+**14th**: Getting started, Introduction to Data Science (DS)
+
+**21st**: The essentials of R programming
+
+**31st**: The DS workflow -- Part I: Import, Tidy and Transform
+:::
+
+::: {.slightlysmall .column width="25%"}
+[**April**]{.class style="color:#3A5883"}
+
+**4th/11th**: The DS workflow -- Part II: Visualize
+
+**30th**: The DS workflow -- Part III: Model
+:::
+
+::: {.slightlysmall .column width="25%"}
+[**May**]{.class style="color:#3A5883"}
+
+**6th/9th/16th/23rd**: The DS workflow -- Part III: Model
+
+**28th**: The DS workflow -- Part IV: Communicate
+:::
+
+::: {.slightlysmall .column width="25%"}
+[**June**]{.class style="color:#3A5883"}
+
+**6th**: Buffer session
+
+**13th**: Final presentations of the group projects
+:::
+:::::::
+
+::: callout-note
+## Deadlines
+
+-   **21st March**: organize in teams, send team members via e-mail
+-   **12th June**: Send presentations via e-mail
+-   **27th June**: Hand in group project reports and peer reviews
+:::
+
+## Questions and contact
+
+-   Any questions?
+
+. . .
+
+-   Contact:
+    -   Anytime via e-mail: [julianamonphd\@gmail.com](mailto:julianamonphd@gmail.com)
+
+# Course toolkit
+
+## Software -- Excel? ❌
+
+![](img/excel.png){fig-alt="An Excel window with data about countries" fig-align="center"}
+
+## Software -- R ✅
+
+![](img/r.png){fig-alt="An R shell" fig-align="center"}
+
+## Software – RStudio ✅
+
+![](img/rstudio.png){fig-alt="An RStudio window" fig-align="center"}
+
+## Software – Quarto ✅
+
+![](img/quarto.png){fig-alt="A Quarto report" fig-align="center"}
+
+## Software
+
+-   Modern data science is unthinkable without **computer programming**: typically, either [Python](https://www.python.org/) or [R](https://www.r-project.org/) is used.
+-   For the purposes of this course, we will use:
+    -   The open-source statistical programming language [R](https://www.r-project.org/).
+    -   A bespoke integrated development environment (IDE) for R called [RStudio](https://posit.co/products/open-source/rstudio/).
+    -   An authoring framework for creating beautiful reports, presentations, web sites, etc., combining text, code, results and visualizations, called [Quarto](https://quarto.org/).
+-   Until next time, therefore please
+    -   either **install** R, RStudio and Quarto on your laptop (recommended) or
+    -   register for a free account at [Posit Cloud](https://posit.cloud/).
+
+## Resources
+
+-   **Primarily**: slides and exercises provided
+-   However, for a deeper dive and additional materials, I recommend:
+
+::::: columns
+::: {.slightlysmall .column width="50%"}
+**For R programming**
+
+![](img/HarvardX_Rbasics.png){fig-align="center"} ![](img/HarvardX_Visualization.png){fig-align="center"} Excellent courses from Harvard Professor Rafael Irizarry, available for free [here](https://www.edx.org/learn/r-programming/harvard-university-data-science-r-basics) and [here](https://www.edx.org/learn/data-visualization/harvard-university-data-science-visualization).
+:::
+
+::: {.slightlysmall .column width="50%"}
+**For machine learning**
+
+![](img/ISL_book.png){fig-align="center" width="90%"} Excellent book, available for free [here](https://www.statlearning.com/).
+:::
+:::::
+
+## Resources -- How about AI?
+
+::: incremental
+-   With the large-scale adoption of AI tools like **ChatGPT**, the way data scientists work is rapidly changing.
+-   This course therefore **actively encourages** the use of AI tools for R programming. Here are some guidelines:
+    -   Use ChatGPT for **programming**, not for writing the project report.
+    -   Do **not** just copy-paste code generated by ChatGPT. Run it line-by-line, try to understand and edit as needed.
+    -   Engineer your prompts until the response starts to look like code you are learning in this course.
+    -   If the response is not correct, ask for a correction.
+-   With the arrival of AI, programming is becoming ever more **accessible**, but the need for people like you who actually **understand** the code they are running, is also increasing.
+:::
+
+## Resources -- How about AI?
+
+![](img/aimeme.png){fig-align="center"}

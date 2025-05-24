@@ -1,0 +1,45 @@
+---
+title: "Penguins in Antarctica"
+author: "Julian Amon"
+date: today
+format:
+  html:
+    embed-resources: true
+bibliography: references.bib
+---
+
+## Data
+
+```{r}
+#| include: false
+
+library(palmerpenguins)
+library(ggplot2)
+```
+
+For this analysis, we will use the **penguins** data set from the palmerpenguins package. The website belonging to this package can be found [here](https://allisonhorst.github.io/palmerpenguins/).
+
+The data set contains size measurements, clutch observations, and blood isotope ratios for three penguins species observed on three islands in the Palmer Archipelago, Antarctica, over a study period of three years [@gorman2014].
+
+```{r}
+#| label: fig-penguins
+#| fig-cap: A scatter plot of flipper length against body mass
+#| warning: false
+
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) + 
+  geom_point()
+```
+
+@fig-penguins shows a scatter plot of the flipper length against the body mass of all penguins in the data set.
+
+The data set comprises measurements of three types of penguins, namely:
+
+-   Adelie 🐧
+
+-   Chinstrap 🐧
+
+-   Gentoo 🐧
+
+![](img/penguins_cartoon.png){#fig-cartoon fig-align="center" width="429"}
+
+@fig-cartoon shows a cartoon of the three penguin species in the data set.

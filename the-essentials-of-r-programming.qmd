@@ -1,0 +1,10 @@
+---
+title: "The Essentials of R Programming"
+---
+
+```{=html}
+
+<iframe width="1350" height="900" src="slides/02_The_Essentials_of_R_Programming.html" class="slide-deck"></iframe>
+
+```
+
