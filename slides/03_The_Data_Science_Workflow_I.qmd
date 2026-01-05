@@ -225,7 +225,7 @@ Now, we know how to import data into R. So we download some data set, read it in
 -   RStudio typically uses **UTF-8** as its default, which works in most cases. If it does not, you can use the `guess_encoding` function of the `readr` package to get insight into the encoding.
     ```{r}
     library(readr)
-    weird_filepath <- file.path("data", "calificaciones.csv")
+    weird_filepath <- file.path("../data", "calificaciones.csv")
     as.data.frame(guess_encoding(weird_filepath))
     ```
 
@@ -339,7 +339,7 @@ kable(head(df_gs, 8)) # the function kable creates nice tables for presentations
 Let's import some data that we will be using as an example:
 
 ```{r}
-flights <- read.csv(file.path("data", "nyc13_flights.csv"))
+flights <- read.csv(file.path("../data", "nyc13_flights.csv"))
 head(flights)
 ```
 
@@ -757,7 +757,7 @@ To illustrate how we can **join** information from these tables into `flights` u
 For this, we have to read in the `airlines` table and inspect it:
 
 ```{r}
-airlines <- read.csv(file.path("data", "nyc13_airlines.csv"))
+airlines <- read.csv(file.path("../data", "nyc13_airlines.csv"))
 airlines
 ```
 
@@ -851,7 +851,7 @@ Note two things about this successful join:
 -   To illustrate this point, we will have a look a new data set. It contains the fertility rates in Germany and South Korea in the years 1960 to 2015:
 
     ```{r}
-    fertility <- read.csv(file.path("data", "fertility.csv"))
+    fertility <- read.csv(file.path("../data", "fertility.csv"))
     fertility[, 1:12]
     dim(fertility)
     ```

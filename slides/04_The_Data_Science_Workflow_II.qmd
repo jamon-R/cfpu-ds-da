@@ -1753,10 +1753,10 @@ library(paletteer)
 library(gganimate)
 library(gifski)
 
-gdp <- read.csv("data/gm_gdp.csv")
-lex <- read.csv("data/gm_lex.csv")
-pop <- read.csv("data/gm_pop.csv")
-geo <- read.csv("data/gm_geo.csv")
+gdp <- read.csv("../data/gm_gdp.csv")
+lex <- read.csv("../data/gm_lex.csv")
+pop <- read.csv("../data/gm_pop.csv")
+geo <- read.csv("../data/gm_geo.csv")
 names(gdp)[4] <- "gdp_percap_2021"
 names(lex)[4] <- "life_exp"
 names(pop)[4] <- "population"
