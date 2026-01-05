@@ -3,7 +3,7 @@ project:
 
 website:
   title: "cfpu-ds-da"
-  description: "Course homepage for Data Science and Data Analytics at CFPU, Summer Semester 2025"
+  description: "Course homepage for Data Science and Data Analytics at CFPU, Summer Semester 2026"
   
   sidebar:
     pinned: true
@@ -62,7 +62,7 @@ website:
             
   page-footer:
     right: 'This page is built with [Quarto](https://quarto.org/).'
-    left: "&copy; Copyright 2025, Julian Amon, PhD"
+    left: "&copy; Copyright 2026, Julian Amon, PhD"
 
 format:
   html:

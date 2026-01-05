@@ -2,7 +2,7 @@
 title: "Exercises IV"
 subtitle: "Data Science and Data Analytics"
 author: "Julian Amon, PhD"
-date: "April 30, 2025"
+date: "April 24, 2026"
 date-format: long
 format: html
 highlight-style: arrow

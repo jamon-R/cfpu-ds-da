@@ -2,7 +2,7 @@
 title: "Palmer Penguins"
 subtitle: "A presentation on penguins in the Palmer Archipelago"
 author: "Julian Amon, PhD"
-date: "May 28, 2025"
+date: "June 1, 2026"
 date-format: long
 footer: "Palmer Penguins"
 format:

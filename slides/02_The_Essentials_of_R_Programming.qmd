@@ -2,7 +2,7 @@
 title: "Data Science and Data Analytics"
 subtitle: "The Essentials of R Programming"
 author: "Julian Amon, PhD"
-date: "March 21, 2025"
+date: "March 20, 2026"
 date-format: long
 institute: Charlotte Fresenius Privatuniversität
 footer: "Data Science and Data Analytics -- R essentials"

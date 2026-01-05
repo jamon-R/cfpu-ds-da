@@ -2,7 +2,7 @@
 
 ## Website
 
-This GitHub repository contains all the Quarto files and other source files to create the materials for the **Data Science and Data Analytics** course in the summer semester of 2025.
+This GitHub repository contains all the Quarto files and other source files to create the materials for the **Data Science and Data Analytics** course in the summer semester of 2026.
 
 ## Rendering
 
