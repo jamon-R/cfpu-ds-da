@@ -17,7 +17,7 @@ In this course, we will cover the following topics:
 |            |                                                                |                                                                        |                                              |
 |            | The Data Science Workflow – Part I: Import, Tidy and Transform | [The Data Science Workflow – Part I](the-ds-workflow-i.qmd)            | [Exercises II](exercises/exercises-ii.qmd)   |
 +------------+----------------------------------------------------------------+------------------------------------------------------------------------+----------------------------------------------+
-| 10th April  | The Data Science Workflow – Part II: Visualize                 | [The Data Science Workflow – Part II](the-ds-workflow-ii.qmd)          | [Exercises III](exercises/exercises-iii.qmd) |
+| 10th April | The Data Science Workflow – Part II: Visualize                 | [The Data Science Workflow – Part II](the-ds-workflow-ii.qmd)          | [Exercises III](exercises/exercises-iii.qmd) |
 |            |                                                                |                                                                        |                                              |
 | 17th April |                                                                |                                                                        |                                              |
 +------------+----------------------------------------------------------------+------------------------------------------------------------------------+----------------------------------------------+
