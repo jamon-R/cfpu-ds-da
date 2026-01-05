@@ -1394,7 +1394,8 @@ NULL</code></pre>
 <ul>
 <li><p><strong>Google Sheets</strong> is another widely used spreadsheet program, which is free and web-based. Just like with Excel, in Google Sheets data are organized in worksheets (also called sheets) inside of spreadsheet files.</p></li>
 <li><p>Again, Base R does <em>not</em> have functionality to import data from Google Sheets spreadsheets. However, the package <code>googlesheets4</code> does. Its main function is <code>read_sheet</code>, which reads a Google Sheet from a URL or a file id.</p></li>
-<li><p>Given such a URL, its use is very similar to <code>read_xlsx</code>: ::: {.cell}</p>
+<li><p>Given such a URL, its use is very similar to <code>read_xlsx</code>:</p>
+<div class="cell">
 <div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a></a><span class="fu">library</span>(googlesheets4)</span>
 <span id="cb33-2"><a></a></span>
 <span id="cb33-3"><a></a><span class="fu">gs4_deauth</span>() <span class="co"># used to read publicly available Google Sheets</span></span>
@@ -1411,7 +1412,7 @@ NULL</code></pre>
 <div class="cell-output cell-output-stderr">
 <pre><code>✔ Range &#39;&#39;data-for-world-by-year&#39;!A1:D302&#39;.</code></pre>
 </div>
-<p>:::</p></li>
+</div></li>
 </ul>
 </section>
 <section id="importing-data-from-spreadsheets-4" class="slide level2">
@@ -3150,34 +3151,47 @@ window.QuartoSupport = function () {
     }
   }
 
+  // dispatch for htmlwidgets
+  // they use slideenter event to trigger resize
+  const fireSlideEnter = () => {
+    const event = window.document.createEvent("Event");
+    event.initEvent("slideenter", true, true);
+    window.document.dispatchEvent(event);
+  };
+
+  // dispatch for shiny
+  // they use BS shown and hidden events to trigger rendering
+  const distpatchShinyEvents = (previous, current) => {
+    if (window.jQuery) {
+      if (previous) {
+        window.jQuery(previous).trigger("hidden");
+      }
+      if (current) {
+        window.jQuery(current).trigger("shown");
+      }
+    }
+  };
+
   function handleSlideChanges(deck) {
-    // dispatch for htmlwidgets
-    const fireSlideEnter = () => {
-      const event = window.document.createEvent("Event");
-      event.initEvent("slideenter", true, true);
-      window.document.dispatchEvent(event);
-    };
 
     const fireSlideChanged = (previousSlide, currentSlide) => {
       fireSlideEnter();
-
-      // dispatch for shiny
-      if (window.jQuery) {
-        if (previousSlide) {
-          window.jQuery(previousSlide).trigger("hidden");
-        }
-        if (currentSlide) {
-          window.jQuery(currentSlide).trigger("shown");
-        }
-      }
+      distpatchShinyEvents(previousSlide, currentSlide);
     };
-
-    // fire slideEnter for tabby tab activations (for htmlwidget resize behavior)
-    document.addEventListener("tabby", fireSlideEnter, false);
 
     deck.on("slidechanged", function (event) {
       fireSlideChanged(event.previousSlide, event.currentSlide);
     });
+  }
+
+  function handleTabbyChanges() {
+    const fireTabChanged = (previousTab, currentTab) => {
+      fireSlideEnter()
+      distpatchShinyEvents(previousTab, currentTab);
+    };
+    document.addEventListener("tabby", function(event) {
+      fireTabChanged(event.detail.previousTab, event.detail.tab);
+    }, false);
   }
 
   function workaroundMermaidDistance(deck) {
@@ -3259,6 +3273,7 @@ window.QuartoSupport = function () {
       addFooter(deck);
       addChalkboardButtons(deck);
       handleTabbyClicks();
+      handleTabbyChanges();
       handleSlideChanges(deck);
       workaroundMermaidDistance(deck);
       handleWhiteSpaceInColumns(deck);
